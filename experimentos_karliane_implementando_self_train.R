@@ -1,18 +1,18 @@
 #PROBLEMAS A RESOLVER
-#karliane - tentar pegar os resultados (acuracia) - ver base teste script alexandre
+#karliane - tentar pegar os resultados (acuracia) - ver base teste script alexandre.
 #alan - aprender como colocar os resultados em uma matriz e depois em um arquivo
 #alan - incluir as demais bases nesse script
-#karliane e alan - aprender a usar outros classificadores que n„o seja arvore
-#dividir a base em treinamento e teste, o q eu fiz n„o t· certo.
-#1 - transformar os atributos n„o numÈricos em numÈricos - tentar filtro weka - alan achou paleativo, usaremos de acordo com a necessidade
-#2 - descobrir pq a confianÁa da iris sÛ d· 1 - resolvido, n„o sei como...
+#karliane e alan - aprender a usar outros classificadores que n√£o seja arvore
+#dividir a base em treinamento e teste, o q eu fiz n√£o t√° certo.
+#1 - transformar os atributos n√£o num√©ricos em num√©ricos - tentar filtro weka - alan achou paleativo, usaremos de acordo com a necessidade
+#2 - descobrir pq a confian√ßa da iris s√≥ d√° 1 - resolvido, n√£o sei como...
 
 #bases de dados
 #bupa, cleveland, ecoli, glass, haberman, iris, monk, pima, vehide, wisconsin
-#diretÛrio local para salvar as bases e resultados
+#diret√≥rio local para salvar as bases e resultados
 setwd("C:\\local_R")
 
-print("instalaÁ„o dos pacotes")
+print("instala√ß√£o dos pacotes")
 
 #pacote que inclui: data splitting, pre-processing, feature selection, model tuning using resampling, variable importance estimation
 #install.packages("caret")
@@ -24,18 +24,18 @@ print("instalaÁ„o dos pacotes")
 #install.packages("RWeka")
 
 print("carregar os pacotes")
-library("caret") #parece n„o ser necess·rio
-library("ssc") #esse È obrigatÛrio
-library("plyr") #pacote q tem a funÁ„o join_all
+library("caret") #parece n√£o ser necess√°rio
+library("ssc") #esse √© obrigat√≥rio
+library("plyr") #pacote q tem a fun√ß√£o join_all
 library("RWeka")
 
-#USANDO A FUN«√O SELFTRAIN (USADA POR ALEXANDRE)
+#USANDO A FUN√á√ÉO SELFTRAIN (USADA POR ALEXANDRE)
 
 library("DMwR2")
 library("DMwR")
 library("datasets")
 
-print("FunÁ„o para pegar a base de dados e colocar em uma vari·vel base")
+print("Fun√ß√£o para pegar a base de dados e colocar em uma vari√°vel base")
 getdata <- function(...)
 {
     e <- new.env()
@@ -92,7 +92,7 @@ for (i in 1:6){
   #datbin
   
 
-#N√O EST¡ CERTO ASSIM, POIS ALGUNS EXEMPLOS N√O EST√O SENDO USADOS NO TREINAMENTO NUNCA E OUTROS EST√O APARECENDO MAIS DE UMA VEZ
+#N√ÉO EST√Å CERTO ASSIM, POIS ALGUNS EXEMPLOS N√ÉO EST√ÉO SENDO USADOS NO TREINAMENTO NUNCA E OUTROS EST√ÉO APARECENDO MAIS DE UMA VEZ
   set.seed(100)
   if (i==1){
     indice_treinamento <- createDataPartition(base_original$Species, p=0.75, list=FALSE)
@@ -104,7 +104,7 @@ for (i in 1:6){
     #PRECISO RENUMERAR OS INDICES, TANTO DE TREINAMENTO QUANTO DE TESTE
   
   
-  set.seed(214)# garante que o conjunto de dados escolhido para treinamento ser· sempre o mesmo - n„o sei se preciso dessa garantia
+  set.seed(214)# garante que o conjunto de dados escolhido para treinamento ser√° sempre o mesmo - n√£o sei se preciso dessa garantia
   
   #Quantidade de Exemplos
   exemplos = nrow(base)
@@ -140,7 +140,7 @@ for (i in 1:6){
   base_treino_self_training <- join_all(dfs, type="full")
   
   print("iniciando o treinamento")
-  #funÁ„o que ser· passada como par‚metro predFunc da funÁ„o selftrain
+  #fun√ß√£o que ser√° passada como par√¢metro predFunc da fun√ß√£o selftrain
   f <- function(m,d) {
   	l <- predict(m,d,type='class')
   	c <- apply(predict(m,d),1,max)
@@ -159,13 +159,13 @@ for (i in 1:6){
   if(i==7) form <- num~. # para base cleveland
   data <- base_treino_self_training	#base de dados
   learn <- learner('rpartXse',list(se=0.5))
-  predFunc <- 'f'   			#Uma string com o nome de uma funÁ„o que ir· realizar as tarefas de classificaÁ„o probabilÌstica que ser„o necess·rias durante o processo de self-training
-  thrConf=0.9       			#taxa de confianÁa dos exemplos a serem incluidos no conjunto de rotulados
-  maxIts=10					#n˙mero m·ximo de iteraÁıes
-  percFull=1					#Um n˙mero entre 0 e 1. Se a porcentagem de exemplos rotulados atingir esse valor o processo de self-training È parado
-  verbose=TRUE				#Um booleano indicando o nÌvel de verbosidade?? (verbosity??) da funÁ„o
+  predFunc <- 'f'   			#Uma string com o nome de uma fun√ß√£o que ir√° realizar as tarefas de classifica√ß√£o probabil√≠stica que ser√£o necess√°rias durante o processo de self-training
+  thrConf=0.9       			#taxa de confian√ßa dos exemplos a serem incluidos no conjunto de rotulados
+  maxIts=10					#n√∫mero m√°ximo de itera√ß√µes
+  percFull=1					#Um n√∫mero entre 0 e 1. Se a porcentagem de exemplos rotulados atingir esse valor o processo de self-training √© parado
+  verbose=TRUE				#Um booleano indicando o n√≠vel de verbosidade?? (verbosity??) da fun√ß√£o
   
-  #adaptaÁ„o da implementaÁ„o do selftrain
+  #adapta√ß√£o da implementa√ß√£o do selftrain
   data
   N <- NROW(data)
   it <- 0
@@ -184,7 +184,7 @@ for (i in 1:6){
       	if (it>1) thrConf <- (thrConf + (soma_Conf/qtd_Exemplos_Rot) + (qtd_Exemplos_Rot/N))/3
       	soma_Conf <- 0
       	qtd_Exemplos_Rot <- 0
-#      	cat('zerou variaveis', '\t limiar confianÁa(thrConf).',thrConf,'\n soma ConfianÁa rotulados. =',soma_Conf , '\n quantidade rotulados. =',qtd_Exemplos_Rot,'\n')
+#      	cat('zerou variaveis', '\t limiar confian√ßa(thrConf).',thrConf,'\n soma Confian√ßa rotulados. =',soma_Conf , '\n quantidade rotulados. =',qtd_Exemplos_Rot,'\n')
       
   
         model <- runLearner(learn,form,data[sup,])
@@ -217,7 +217,7 @@ for (i in 1:6){
   	      soma_Conf <- sum(soma_Conf, probPreds[new,2])
   	      qtd_Exemplos_Rot <- length(data[(1:N)[-sup][new],as.character(form[[2]])])
   	      totalrot <- totalrot + qtd_Exemplos_Rot
-#   	      cat('dentro do self training', '\n limiar confianÁa(thrConf).',thrConf,'\n soma ConfianÁa rotulados. =',soma_Conf, '\n quantidade rotulados. =',qtd_Exemplos_Rot,'\n','\n total rotulados. =',totalrot,'\n')
+#   	      cat('dentro do self training', '\n limiar confian√ßa(thrConf).',thrConf,'\n soma Confian√ßa rotulados. =',soma_Conf, '\n quantidade rotulados. =',qtd_Exemplos_Rot,'\n','\n total rotulados. =',totalrot,'\n')
   
           sup <- c(sup,(1:N)[-sup][new])
         } else break
@@ -225,7 +225,7 @@ for (i in 1:6){
       }
   
 #matriz de confusao do selftraining
-#N√O EST¡ FUNCIONANDO PARA BASE DE DADOS 2, A MATRIZ N√O APARECE COM A MESMA QUANTIDADE DE LINHAS E COLUNAS  
+#N√ÉO EST√Å FUNCIONANDO PARA BASE DE DADOS 2, A MATRIZ N√ÉO APARECE COM A MESMA QUANTIDADE DE LINHAS E COLUNAS  
     if (i==1){
       matriz_confusao1 = table(predict(model,base_teste,type='class'),base_teste$Species)
       n <- length(base_teste$Species)
