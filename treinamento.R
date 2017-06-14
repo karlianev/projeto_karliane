@@ -12,7 +12,8 @@ form <- as.formula(paste(classe,'~', '.'))
   #if(i==7) form <- num~. # para base cleveland
 data <- base_treino_self_training	#base de dados
 learn <- learner('rpartXse',list(se=0.5))
-#aprendiz naive = learn <- learner("naiveBayes", list())
+#aprendiz naive = 
+#learn <- learner("naiveBayes", list())
 predFunc <- 'f'   			#Uma string com o nome de uma fun??o que ir? realizar as tarefas de classifica??o probabil?stica que ser?o necess?rias durante o processo de self-training
 thrConf=0.9       			#taxa de confian?a dos exemplos a serem incluidos no conjunto de rotulados
 maxIts=10					#n?mero m?ximo de itera??es
