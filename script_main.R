@@ -12,7 +12,7 @@
 #bupa, cleveland, ecoli, glass, haberman, iris, monk, pima, vehide, wisconsin
 #diret?rio local para salvar as bases e resultados
 
-#fazer a instalação/carregamento de pacotes e definir diretório local
+#fazer a instalação/carregamento de pacotes e definir diretório local. testando
 source('C:/local_R/projeto_karliane/configuracoes.R')
 
 print("Função para pegar a base de dados e colocar em uma variável base")
