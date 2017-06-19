@@ -116,7 +116,7 @@
 @attribute 'Fe' real
 @attribute 'class' { 'build wind float', 'build wind non-float', 'vehic wind float', 'vehic wind non-float', containers, tableware, headlamps}
 @data
-1.51793,12.79,3.5,1.12,73.03,0.64,8.77,0,0,'build wind float'
+1.51793,12.79,3.5,1.12,73.03,0.64,8.77,0,0,'vehic wind float'
 1.51643,12.16,3.52,1.35,72.89,0.57,8.53,0,0,'vehic wind float'
 1.51793,13.21,3.48,1.41,72.64,0.59,8.43,0,0,'build wind float'
 1.51299,14.4,1.74,1.54,74.55,0,7.59,0,0,tableware

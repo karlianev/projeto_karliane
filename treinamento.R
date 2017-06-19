@@ -77,14 +77,19 @@ repeat {
 
 #matriz de confusao do selftraining
 #N?O EST? FUNCIONANDO PARA BASE DE DADOS 2, A MATRIZ N?O APARECE COM A MESMA QUANTIDADE DE LINHAS E COLUNAS  
-if (i==1){
-  matriz_confusao1 = table(predict(model,base_teste,type='class'),base_teste$class)
-  n <- length(base_teste$class)
-}else if (i==2){
-  matriz_confusao1 = table(predict(model,base_teste,type='class'),base_teste$class)
-  n <- length(base_teste$class)
-}
-#matriz_confusao1
+#if (i==1){
+ # matriz_confusao1 = table(predict(model,base_teste,type='class'),base_teste$class)
+  #n <- length(base_teste$class)
+#}else if (i==2){
+ # matriz_confusao1 = table(predict(model,base_teste,type='class'),base_teste$class)
+  #n <- length(base_teste$class)
+#}
+
+#os if´s acima foram substituídos pelas linhas abaixo (karliane)
+matriz_confusao1 = table(predict(model,base_teste,type='class'),base_teste$class)
+n <- length(base_teste$class)
+
+
 #substituir os if´s abaixo por:
 cat("\n Acerto (%) = \n", levels(base_original[, classe]), "\n", diag(matriz_confusao1) / colSums(matriz_confusao1) * 100)
 

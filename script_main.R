@@ -1,11 +1,40 @@
 #PROBLEMAS A RESOLVER
+#resolver o problema da matriz de confusão
 #karliane e alan - aprender a usar outros classificadores que n?o seja arvore, naive pag 223 livro torgo
 #alan - estudar o cap 4.4.3 do livro de torgo
-#karliane - testar com 20 exemplos se o sample tá pegando os exemplos corretos
-#dividir a base em treinamento e teste, o q eu fiz n?o t? certo.
-#alan - alterar os arff para a classe rótulo ser chamada de class e alterar o código retirando os if´s
+#alan - no arquivo de resultados colocar os nomes das bases ao invés dos números
 
-
+#problemas com as bases: 
+#base 4 - glass
+#Warning messages:
+  #1: In createDataPartition(base_original$class, p = 0.75, list = FALSE) :
+ # Some classes have no records ( vehic wind non-float ) and these will be ignored
+#2: In diag(matriz_confusao1)/colSums(matriz_confusao1) :
+ # longer object length is not a multiple of shorter object length
+#3: In diag(matriz_confusao1)/colSums(matriz_confusao1) :
+ # longer object length is not a multiple of shorter object length
+#4: In diag(matriz_confusao1)/colSums(matriz_confusao1) :
+ # longer object length is not a multiple of shorter object length
+#5: In diag(matriz_confusao1)/colSums(matriz_confusao1) :
+ # longer object length is not a multiple of shorter object length
+#6: In diag(matriz_confusao1)/colSums(matriz_confusao1) :
+  #longer object length is not a multiple of shorter object length
+# além disso, na matriz de confusão as linhas e colunas não estão na mesma ordem.
+#base 2 - ecoli
+#Warning messages:
+#  1: In diag(matriz_confusao1)/colSums(matriz_confusao1) :
+ # longer object length is not a multiple of shorter object length
+#2: In diag(matriz_confusao1)/colSums(matriz_confusao1) :
+ # longer object length is not a multiple of shorter object length
+#3: In diag(matriz_confusao1)/colSums(matriz_confusao1) :
+ # longer object length is not a multiple of shorter object length
+#4: In diag(matriz_confusao1)/colSums(matriz_confusao1) :
+ # longer object length is not a multiple of shorter object length
+#5: In diag(matriz_confusao1)/colSums(matriz_confusao1) :
+ # longer object length is not a multiple of shorter object length
+#base 7 - cleveland
+#com o set.seed na matriz de confusão, todos os exemplos são preditos como sendo da classe 0
+#sem o set.seed em alguns momentos apresenta o mesmo warning menssages da base ecoli
 
 #1 - transformar os atributos n?o num?ricos em num?ricos - tentar filtro weka - alan achou paleativo, usaremos de acordo com a necessidade
 #2 - descobrir pq a confian?a da iris s? d? 1 - resolvido, n?o sei como...
@@ -28,7 +57,7 @@
   tx <- c()
 #  acc <- 0.0
     
-  for (i in 1:6){
+  for (i in 1:1){
     source('C:/local_R/projeto_karliane/carrega_dados.R')
     
     for (j in 1:5){      

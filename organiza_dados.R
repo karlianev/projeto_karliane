@@ -13,7 +13,7 @@ exemplos = nrow(base)
 #taxa inicial de exemplos rotulados erm percentual
 #taxa = 10 a taxa é setada no script_main
 #taxa_inicial = exemplos*taxa/100
-taxa_inicial = nrow(base)*taxa/100
+taxa_inicial = exemplos*(taxa/100)
 
 
 
