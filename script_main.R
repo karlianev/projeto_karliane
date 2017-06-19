@@ -28,7 +28,7 @@
   tx <- c()
 #  acc <- 0.0
     
-  for (i in 1:1){
+  for (i in 1:6){
     source('C:/local_R/projeto_karliane/carrega_dados.R')
     
     for (j in 1:5){      
@@ -67,4 +67,9 @@
   
   data_arquivo_acc <- data.frame(tx, bd, acc_g)
   write.csv(data_arquivo_acc, "resultado_acc.csv", row.names = FALSE)
+  write.csv(data_arquivo_acc[data_arquivo_acc$tx<10,],"resultado_accTaxa5.csv",row.names = FALSE)
+  write.csv(data_arquivo_acc[data_arquivo_acc$tx<15 & data_arquivo_acc$tx>5,],"resultado_accTaxa10.csv",row.names = FALSE)
+  write.csv(data_arquivo_acc[data_arquivo_acc$tx<20 & data_arquivo_acc$tx>10,],"resultado_accTaxa15.csv",row.names = FALSE)
+  write.csv(data_arquivo_acc[data_arquivo_acc$tx<25 & data_arquivo_acc$tx>15,],"resultado_accTaxa20.csv",row.names = FALSE)
+  write.csv(data_arquivo_acc[data_arquivo_acc$tx<30 & data_arquivo_acc$tx>20,],"resultado_accTaxa25.csv",row.names = FALSE)
   

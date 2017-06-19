@@ -3,13 +3,7 @@
 
 #classes da base de dados
 form <- as.formula(paste(classe,'~', '.'))
-#  if (i==1) form <- Species~.  	#para base IRIS		  #OU form <- basetreinoselftraining$Species
-  #if (i==2) form <- class~.      #para base ECOLI
-#  if(i==3) form <- selector~.    #para base puma
- # if(i==4)form <- Type~. # para base glass
-  #if(i==5)form <- Survival_status~.# base haberman
-  #if (i==6) form <- class~.      #para base pima
-  #if(i==7) form <- num~. # para base cleveland
+
 data <- base_treino_self_training	#base de dados
 learn <- learner('rpartXse',list(se=0.5))
 #aprendiz naive = 
@@ -84,8 +78,8 @@ repeat {
 #matriz de confusao do selftraining
 #N?O EST? FUNCIONANDO PARA BASE DE DADOS 2, A MATRIZ N?O APARECE COM A MESMA QUANTIDADE DE LINHAS E COLUNAS  
 if (i==1){
-  matriz_confusao1 = table(predict(model,base_teste,type='class'),base_teste$Species)
-  n <- length(base_teste$Species)
+  matriz_confusao1 = table(predict(model,base_teste,type='class'),base_teste$class)
+  n <- length(base_teste$class)
 }else if (i==2){
   matriz_confusao1 = table(predict(model,base_teste,type='class'),base_teste$class)
   n <- length(base_teste$class)

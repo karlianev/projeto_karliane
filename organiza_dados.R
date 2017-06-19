@@ -26,20 +26,8 @@ ids_treino_rot <- sample(exemplos,taxa_inicial, replace=FALSE)
 base_treino_rot <- base[ids_treino_rot,]
 base_treino_sem_rot <- base[-ids_treino_rot,]
 
+base_treino_sem_rot$class <- NA #para base IRIS
 
-if (i==1) {
-  base_treino_sem_rot$Species <- NA #para base IRIS
-}else if (i==2){
-  base_treino_sem_rot$class <- NA #para base ECOLI
-}else if(i==3){
-  base_treino_sem_rot$selector <- NA # para base BUPA
-}else if(i==4){
-  base_treino_sem_rot$Type <- NA # para base glass
-}else if(i==5){
-  base_treino_sem_rot$Survival_status<- NA # para base haberman
-}else if (i==6){
-  base_treino_sem_rot$class <- NA #para base pima
-}else if (i==7) base_treino_sem_rot$num <- NA #para base cleveland
 
 #base de treinamento rotulada
 base_treino_self_training_rot <- base_treino_rot
