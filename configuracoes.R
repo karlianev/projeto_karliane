@@ -25,3 +25,4 @@ library("DMwR2")
 library("DMwR")
 library("datasets")
 
+library("e1071")

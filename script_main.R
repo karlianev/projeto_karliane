@@ -1,8 +1,11 @@
 #PROBLEMAS A RESOLVER
+#fazer funcionar o Naive bayes
+#karliane e alan - aprender a usar outros classificadores (knn, svm, jrip=ripper) que n?o seja arvore, naive pag 223 livro torgo
 #resolver o problema da matriz de confusão
-#karliane e alan - aprender a usar outros classificadores que n?o seja arvore, naive pag 223 livro torgo
-#alan - estudar o cap 4.4.3 do livro de torgo
+#selecionar outras base de dados para somar 10
+#postergar:
 #alan - no arquivo de resultados colocar os nomes das bases ao invés dos números
+#organizar o arquivo com os resultados por iteração (data_arquivo)
 
 #problemas com as bases: 
 #base 4 - glass
@@ -55,12 +58,16 @@
   acc_g <- c()
   bd <- c()
   tx <- c()
+  
 #  acc <- 0.0
-    
-  for (i in 1:1){
+
+  print("criando funções")
+  source('C:/local_R/projeto_karliane/cria_funcoes.R')
+  
+  for (i in 3:3){
     source('C:/local_R/projeto_karliane/carrega_dados.R')
     
-    for (j in 1:5){      
+    for (j in 3:3){      
       if (j == 1) taxa = 5
       else if (j == 2) taxa = 10
       else if (j == 3) taxa = 15
@@ -69,36 +76,20 @@
       
       
       source('C:/local_R/projeto_karliane/organiza_dados.R')
+      
       print("iniciando o treinamento")
-      
-      #fun??o que ser? passada como par?metro predFunc da fun??o selftrain
-      f <- function(m,d) {
-        l <- predict(m,d,type='class')
-        c <- apply(predict(m,d),1,max)
-        data.frame(cl=l,p=c)
-      }
-      
-#função predfunc para naive bayes disponível no livro de torgo pag 223      
-#      f <- function(m, d){
- #       p <- predict(m, d, type = "raw")
-  #      data.frame(c1=colnames(p)[apply(p,1,which.max)], p = apply(p,1,max))
-   #   }
-
-            source('C:/local_R/projeto_karliane/treinamento.R')
+      source('C:/local_R/projeto_karliane/treinamento.R')
       
     
   }
 }
   #data frame que sera guardado no arquivo
   data_arquivo <- data.frame(tx_g,it_g,bd_g,thrConf_g,nr_added_exs_g)
-  #escrever no arquivo
+  #data_arquivo_por_taxa <- c(data_arquivo[data_arquivo$tx_g<10,],data_arquivo[data_arquivo$tx_g<15 & data_arquivo$tx_g>5,], data_arquivo[data_arquivo$tx_g<20 & data_arquivo$tx_g>10,], data_arquivo[data_arquivo$tx_g<25 & data_arquivo$tx_g>15,], data_arquivo[data_arquivo$tx_g<30 & data_arquivo$tx_g>20,])
+    #escrever no arquivo
   write.csv(data_arquivo, "resultado.csv", row.names = FALSE)
   
   data_arquivo_acc <- data.frame(tx, bd, acc_g)
-  write.csv(data_arquivo_acc, "resultado_acc.csv", row.names = FALSE)
-  write.csv(data_arquivo_acc[data_arquivo_acc$tx<10,],"resultado_accTaxa5.csv",row.names = FALSE)
-  write.csv(data_arquivo_acc[data_arquivo_acc$tx<15 & data_arquivo_acc$tx>5,],"resultado_accTaxa10.csv",row.names = FALSE)
-  write.csv(data_arquivo_acc[data_arquivo_acc$tx<20 & data_arquivo_acc$tx>10,],"resultado_accTaxa15.csv",row.names = FALSE)
-  write.csv(data_arquivo_acc[data_arquivo_acc$tx<25 & data_arquivo_acc$tx>15,],"resultado_accTaxa20.csv",row.names = FALSE)
-  write.csv(data_arquivo_acc[data_arquivo_acc$tx<30 & data_arquivo_acc$tx>20,],"resultado_accTaxa25.csv",row.names = FALSE)
-  
+  data_arquivo_acc_por_taxa <- c(data_arquivo_acc[data_arquivo_acc$tx<10,],data_arquivo_acc[data_arquivo_acc$tx<15 & data_arquivo_acc$tx>5,], data_arquivo_acc[data_arquivo_acc$tx<20 & data_arquivo_acc$tx>10,], data_arquivo_acc[data_arquivo_acc$tx<25 & data_arquivo_acc$tx>15,], data_arquivo_acc[data_arquivo_acc$tx<30 & data_arquivo_acc$tx>20,])
+  write.csv(data_arquivo_acc_por_taxa, "resultado_acc.csv", row.names = FALSE)
+
