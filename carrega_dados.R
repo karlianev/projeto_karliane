@@ -5,12 +5,12 @@ if (i==1) {
   base_original <- read.arff("iris.arff")
 }else if (i==2){
   #base de dados ECOLI
-  base_original <- read.arff("ecoli.arff")
+  base_original <- read.arff("letter.arff")
 }else if(i==3){
   base_original <- read.arff("bupa.arff");
 
 }else if(i==4){
-  base_original <- read.arff("glass.arff")
+  base_original <- read.arff("segment.arff")
 
 }else if(i==5){
   base_original <- read.arff("haberman.arff")

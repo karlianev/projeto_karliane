@@ -9,6 +9,17 @@ ts <- iris[-idx,]
 trST <- tr
 nas <- sample(100,90)
 trST[nas, "Species"] <- NA
+
+# the user should create a function, whose named should be given in the 
+#parameter predFunc, that takes care of the classification of the currently 
+#unlabelled cases, on each iteration. This function should be written so that
+#it receives as FIRST ARGUMENT the learned classification model (with the 
+#current training set), and a data frame with test cases in the SECOND ARGUMENT.
+#This user-defined function should return a data frame with two columns and
+#as many rows as there are rows in the given test set. The FIRST COLUMN of this
+#data frame should contain the ASSIGNED CLASS LABELS by the provided 
+#classification model, for the respective test case. The SECOND COLUMN should 
+#contain the CONFIDENCE (a number between 0 and 1) associated to that classification. 
 func <- function(m, d){
   p <- predict(m, d, type = "raw")
   data.frame(c1=colnames(p)[apply(p,1,which.max)], p = apply(p,1,max))
@@ -18,8 +29,18 @@ table(predict(nbSTbase, ts), ts$Species)
 nbST <- SelfTrain(Species ~ ., trST, learner("naiveBayes", list()), "func")
 table(predict(nbST, ts), ts$Species)
 
+#fsvm <- function(m, d){
+ # p <- predict(m, d, type="response")
+  #data.frame(c1=colnames(p)[apply(p,1,which.max)], p = apply(p,1,max))
+#}
 
+#svmSTbase <- svm(Species ~ ., data = trST[-nas,], method="C-classification")
+#table(predict(svmSTbase, ts), ts$Species)
+#svmST <- SelfTrain(Species ~ ., trST, learner("svm", list(cost=10,gamma=.1)), "fsvm")
+#svmST <- SelfTrain(Species ~ ., trST, learner("svm"), "f1")
+#table(predict(nbST, ts), ts$Species)
 
+#knnST <- SelfTrain(Species ~ ., trST, learner("knn",list(k=10)), "func")
 
 
 pred.nb <- function(m, d){

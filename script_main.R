@@ -8,7 +8,7 @@
 #organizar o arquivo com os resultados por iteração (data_arquivo)
 
 #problemas com as bases: 
-#base 4 - glass
+#base 4 - glass (substituida por segment)
 #Warning messages:
   #1: In createDataPartition(base_original$class, p = 0.75, list = FALSE) :
  # Some classes have no records ( vehic wind non-float ) and these will be ignored
@@ -23,7 +23,7 @@
 #6: In diag(matriz_confusao1)/colSums(matriz_confusao1) :
   #longer object length is not a multiple of shorter object length
 # além disso, na matriz de confusão as linhas e colunas não estão na mesma ordem.
-#base 2 - ecoli
+#base 2 - ecoli (substituida por letter)
 #Warning messages:
 #  1: In diag(matriz_confusao1)/colSums(matriz_confusao1) :
  # longer object length is not a multiple of shorter object length
@@ -64,10 +64,10 @@
   print("criando funções")
   source('C:/local_R/projeto_karliane/cria_funcoes.R')
   
-  for (i in 3:3){
+  for (i in 1:1){
     source('C:/local_R/projeto_karliane/carrega_dados.R')
     
-    for (j in 3:3){      
+    for (j in 1:5){      
       if (j == 1) taxa = 5
       else if (j == 2) taxa = 10
       else if (j == 3) taxa = 15
