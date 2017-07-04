@@ -1,11 +1,7 @@
 #PROBLEMAS A RESOLVER
 #fazer funcionar o Naive bayes para bases iris e cleveland
 #karliane e alan - aprender a usar outros classificadores (knn, svm, jrip=ripper) que n?o seja arvore, naive pag 223 livro torgo
-#resolver o problema da matriz de confusão
 #selecionar outras base de dados para somar 10
-#postergar:
-#alan - no arquivo de resultados colocar os nomes das bases ao invés dos números
-#organizar o arquivo com os resultados por iteração (data_arquivo)
 
 #problemas com as bases: 
 #base 4 - glass (substituida por segment)

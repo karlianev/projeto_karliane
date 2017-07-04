@@ -1,5 +1,9 @@
 # PROBLEMAS A RESOLVER: 
 # ta dando rro enas bases iris (com taxa de 5 %) e cleveland 
+#Problema da iris 5%
+#Problema da base cleveland para todas as taxas: no momento da predição a classe 4  não é rotulada para nenhum exemplo. Isso acontece pq não existe nenhum exemplo da classe 4 no conjunto de teste
+#Posso resolver esse problema forçando a seleção de exemplos a pegar pelo menos um exemplo de cada classe?
+#Ou posso resolver alterando a predição para zero rotulados na classe que não aparece no conjunto de teste?
 
 
 
@@ -45,8 +49,8 @@ for(i in 4:5){
   write.csv(data_arquivo, "resultado_nb.csv", row.names = FALSE)
   
   data_arquivo_acc <- data.frame(tx, bd, acc_g)
-  
-  write.csv(data_arquivo_acc, "resultado_acc_nb.csv", row.names = FALSE)
+  data_arquivo_acc_por_taxa <- c(data_arquivo_acc[data_arquivo_acc$tx<10,],data_arquivo_acc[data_arquivo_acc$tx<15 & data_arquivo_acc$tx>5,], data_arquivo_acc[data_arquivo_acc$tx<20 & data_arquivo_acc$tx>10,], data_arquivo_acc[data_arquivo_acc$tx<25 & data_arquivo_acc$tx>15,], data_arquivo_acc[data_arquivo_acc$tx<30 & data_arquivo_acc$tx>20,])
+  write.csv(data_arquivo_acc_por_taxa, "resultado_acc_nb.csv", row.names = FALSE)
 }
 
 
