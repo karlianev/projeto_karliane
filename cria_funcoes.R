@@ -39,7 +39,7 @@ funcSelfTrain <- function(form,data,
       cat('tx_incl',taxa,'IT.',it,'BD',i,thrConf,'\t nr. added exs. =',length(new),'\n') 
       ##guardando nas variaveis 
       it_g <<-c(it_g,it)
-      bd_g <<-c(bd_g,i)
+      bd_g <<-c(bd_g,bd_nome)
       thrConf_g <<-c(thrConf_g,thrConf)
       nr_added_exs_g <<-c(nr_added_exs_g,length(new))
       tx_g <<- c(tx_g, taxa)

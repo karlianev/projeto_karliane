@@ -17,7 +17,7 @@ tx <- c()
 source('C:/local_R/projeto_karliane/nayves_bayes/configuracoes.R')
 
 source('C:/local_R/projeto_karliane/nayves_bayes/funcoes.R')
-for(i in 1:8){
+for(i in 4:5){
   for(j in 1:5){
     if(j==1){
       taxa=5
@@ -38,16 +38,16 @@ for(i in 1:8){
     source('C:/local_R/projeto_karliane/nayves_bayes/organiza_dados.R')
     source('C:/local_R/projeto_karliane/nayves_bayes/treinamento.R')
   }
+  #data frame que sera guardado no arquivo
+  data_arquivo <- data.frame(tx_g,it_g,bd_g,thrConf_g,nr_added_exs_g)
+  data_arquivo_por_taxa <- c(data_arquivo[data_arquivo$tx_g<10,],data_arquivo[data_arquivo$tx_g<15 & data_arquivo$tx_g>5,], data_arquivo[data_arquivo$tx_g<20 & data_arquivo$tx_g>10,], data_arquivo[data_arquivo$tx_g<25 & data_arquivo$tx_g>15,], data_arquivo[data_arquivo$tx_g<30 & data_arquivo$tx_g>20,])
+  #escrever no arquivo
+  write.csv(data_arquivo, "resultado_nb.csv", row.names = FALSE)
+  
+  data_arquivo_acc <- data.frame(tx, bd, acc_g)
+  
+  write.csv(data_arquivo_acc, "resultado_acc_nb.csv", row.names = FALSE)
 }
 
 
 
-#data frame que sera guardado no arquivo
-data_arquivo <- data.frame(tx_g,it_g,bd_g,thrConf_g,nr_added_exs_g)
-data_arquivo_por_taxa <- c(data_arquivo[data_arquivo$tx_g<10,],data_arquivo[data_arquivo$tx_g<15 & data_arquivo$tx_g>5,], data_arquivo[data_arquivo$tx_g<20 & data_arquivo$tx_g>10,], data_arquivo[data_arquivo$tx_g<25 & data_arquivo$tx_g>15,], data_arquivo[data_arquivo$tx_g<30 & data_arquivo$tx_g>20,])
-#escrever no arquivo
-write.csv(data_arquivo, "resultado_nb.csv", row.names = FALSE)
-
-data_arquivo_acc <- data.frame(tx, bd, acc_g)
-
-write.csv(data_arquivo_acc, "resultado_acc_nb.csv", row.names = FALSE)

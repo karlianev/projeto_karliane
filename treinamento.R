@@ -8,7 +8,7 @@ cat("\n Acerto (%) = \n", levels(base_original[, classe]), "\n", diag(matriz_con
 
 acc <- ((sum(diag(matriz_confusao1)) / n) * 100)
 acc_g <- c(acc_g, acc)
-bd <- c(bd, i)
+bd <- c(bd, bd_nome)
 tx <- c(tx, taxa)
 cat("\n Acerto global (%) =", acc)
 cat('FIM') #, '\t base de dados ', i, '\n', 'total rotulados: ', total_rotulados, '\n')

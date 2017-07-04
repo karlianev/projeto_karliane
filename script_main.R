@@ -1,7 +1,5 @@
 #PROBLEMAS A RESOLVER
 #fazer funcionar o Naive bayes para bases iris e cleveland
-#gravar os resultados no arquivo ao final de cada base para evitar perder tudo caso dê erro em uma base.
-#substituir o número da base pelo nome no arquivo dos resultados
 #karliane e alan - aprender a usar outros classificadores (knn, svm, jrip=ripper) que n?o seja arvore, naive pag 223 livro torgo
 #resolver o problema da matriz de confusão
 #selecionar outras base de dados para somar 10
@@ -84,14 +82,14 @@
       
     
   }
-}
-  #data frame que sera guardado no arquivo
-  data_arquivo <- data.frame(tx_g,it_g,bd_g,thrConf_g,nr_added_exs_g)
-  #data_arquivo_por_taxa <- c(data_arquivo[data_arquivo$tx_g<10,],data_arquivo[data_arquivo$tx_g<15 & data_arquivo$tx_g>5,], data_arquivo[data_arquivo$tx_g<20 & data_arquivo$tx_g>10,], data_arquivo[data_arquivo$tx_g<25 & data_arquivo$tx_g>15,], data_arquivo[data_arquivo$tx_g<30 & data_arquivo$tx_g>20,])
+    #data frame que sera guardado no arquivo
+    data_arquivo <- data.frame(tx_g,it_g,bd_g,thrConf_g,nr_added_exs_g)
+    #data_arquivo_por_taxa <- c(data_arquivo[data_arquivo$tx_g<10,],data_arquivo[data_arquivo$tx_g<15 & data_arquivo$tx_g>5,], data_arquivo[data_arquivo$tx_g<20 & data_arquivo$tx_g>10,], data_arquivo[data_arquivo$tx_g<25 & data_arquivo$tx_g>15,], data_arquivo[data_arquivo$tx_g<30 & data_arquivo$tx_g>20,])
     #escrever no arquivo
-  write.csv(data_arquivo, "resultado.csv", row.names = FALSE)
-  
-  data_arquivo_acc <- data.frame(tx, bd, acc_g)
-  data_arquivo_acc_por_taxa <- c(data_arquivo_acc[data_arquivo_acc$tx<10,],data_arquivo_acc[data_arquivo_acc$tx<15 & data_arquivo_acc$tx>5,], data_arquivo_acc[data_arquivo_acc$tx<20 & data_arquivo_acc$tx>10,], data_arquivo_acc[data_arquivo_acc$tx<25 & data_arquivo_acc$tx>15,], data_arquivo_acc[data_arquivo_acc$tx<30 & data_arquivo_acc$tx>20,])
-  write.csv(data_arquivo_acc_por_taxa, "resultado_acc.csv", row.names = FALSE)
-
+    write.csv(data_arquivo, "resultado_ad.csv", row.names = FALSE)
+    
+    data_arquivo_acc <- data.frame(tx, bd, acc_g)
+    data_arquivo_acc_por_taxa <- c(data_arquivo_acc[data_arquivo_acc$tx<10,],data_arquivo_acc[data_arquivo_acc$tx<15 & data_arquivo_acc$tx>5,], data_arquivo_acc[data_arquivo_acc$tx<20 & data_arquivo_acc$tx>10,], data_arquivo_acc[data_arquivo_acc$tx<25 & data_arquivo_acc$tx>15,], data_arquivo_acc[data_arquivo_acc$tx<30 & data_arquivo_acc$tx>20,])
+    write.csv(data_arquivo_acc_por_taxa, "resultado_acc_ad.csv", row.names = FALSE)
+    
+}
