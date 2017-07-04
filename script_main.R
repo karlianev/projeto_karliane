@@ -1,5 +1,7 @@
 #PROBLEMAS A RESOLVER
-#fazer funcionar o Naive bayes
+#fazer funcionar o Naive bayes para bases iris e cleveland
+#gravar os resultados no arquivo ao final de cada base para evitar perder tudo caso dê erro em uma base.
+#substituir o número da base pelo nome no arquivo dos resultados
 #karliane e alan - aprender a usar outros classificadores (knn, svm, jrip=ripper) que n?o seja arvore, naive pag 223 livro torgo
 #resolver o problema da matriz de confusão
 #selecionar outras base de dados para somar 10
@@ -64,7 +66,7 @@
   print("criando funções")
   source('C:/local_R/projeto_karliane/cria_funcoes.R')
   
-  for (i in 1:1){
+  for (i in 1:8){
     source('C:/local_R/projeto_karliane/carrega_dados.R')
     
     for (j in 1:5){      

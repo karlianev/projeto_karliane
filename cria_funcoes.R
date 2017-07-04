@@ -5,11 +5,7 @@ f <- function(m,d) {
   data.frame(cl=l,p=c)
 }
 
-#mesma funcao para naive bayes
-func <- function(m, d){
-  p <- predict(m, d, type = "raw")
-  data.frame(c1=colnames(p)[apply(p,1,which.max)], p = apply(p,1,max))
-}
+
 
 
 #funcao selfTrain adaptada

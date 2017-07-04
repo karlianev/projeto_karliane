@@ -1,8 +1,5 @@
 # PROBLEMAS A RESOLVER: 
-# ta dando nas bases iris e cleveland com taxa de 5 %
-
-
-
+# ta dando rro enas bases iris (com taxa de 5 %) e cleveland 
 
 
 
@@ -20,8 +17,8 @@ tx <- c()
 source('C:/local_R/projeto_karliane/nayves_bayes/configuracoes.R')
 
 source('C:/local_R/projeto_karliane/nayves_bayes/funcoes.R')
-for(i in 5:5){
-  for(j in 1:1){
+for(i in 1:8){
+  for(j in 1:5){
     if(j==1){
       taxa=5
     }
