@@ -1,6 +1,7 @@
 #PROBLEMAS A RESOLVER
 #fazer funcionar o Naive bayes para bases iris e cleveland
 #karliane e alan - aprender a usar outros classificadores (knn, svm, jrip=ripper) que n?o seja arvore, naive pag 223 livro torgo
+#aprender como transformar dados categóricos em numéricos
 #selecionar outras base de dados para somar 10
 
 #problemas com as bases: 
@@ -60,7 +61,7 @@
   print("criando funções")
   source('C:/local_R/projeto_karliane/cria_funcoes.R')
   
-  for (i in 1:8){
+  for (i in 2:2){
     source('C:/local_R/projeto_karliane/carrega_dados.R')
     
     for (j in 1:5){      
