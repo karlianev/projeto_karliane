@@ -2,6 +2,14 @@ func <- function(m, d){
   p <- predict(m, d, type = "raw")
   data.frame(c1=colnames(p)[apply(p,1,which.max)], p = apply(p,1,max))
 }
+f <- function(m,d) {
+  l <- predict(m,d,type='class')
+  c <- apply(predict(m,d),1,max)
+  data.frame(cl=l,p=c)
+}
+
+
+
 funcSelfTrain <- function(form,data,
                           learner,
                           predFunc,
@@ -15,17 +23,18 @@ funcSelfTrain <- function(form,data,
   soma_Conf <- 0
   qtd_Exemplos_Rot <- 0
   totalrot <- 0
+  
   sup <- which(!is.na(data[,as.character(form[[2]])])) #sup recebe o indice de todos os exemplos rotulados
   repeat {
     it <- it+1
     
-    if (it>1) thrConf <- (thrConf + (soma_Conf/qtd_Exemplos_Rot) + (qtd_Exemplos_Rot/N))/3
+    if ((it>1)&&(qtd_Exemplos_Rot>0))thrConf <- (thrConf + (soma_Conf/qtd_Exemplos_Rot) + (qtd_Exemplos_Rot/N))/3
     soma_Conf <- 0
     qtd_Exemplos_Rot <- 0
-    
+  
     model <- runLearner(learner,form,data[sup,])
     probPreds <- do.call(predFunc,list(model,data[-sup,]))
-    new <- which(probPreds[,2] > thrConf)
+    new <- which(probPreds[,2] >= thrConf)
     
     if (verbose) {
       cat('tx_incl',taxa,'IT.',it,'BD',i,thrConf,'\t nr. added exs. =',length(new),'\n') 
@@ -45,10 +54,14 @@ funcSelfTrain <- function(form,data,
       totalrot <- totalrot + qtd_Exemplos_Rot
       
       sup <- c(sup,(1:N)[-sup][new])
-    } else break
+    }
+    if(length(new)==0){
+        thrConf<-max(probPreds[,2])
+    }
     if (it == maxIts || length(sup)/N >= percFull) break
     
   }
   
   return(model)  
 }
+

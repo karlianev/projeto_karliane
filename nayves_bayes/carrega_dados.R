@@ -26,6 +26,10 @@ if (i==1) {
 }else if(i==8){
   base_original <-read.arff("cleveland.arff")
   bd_nome <- "cleveland"
+}else if(i==9){
+  base_original <-read.arff("splice.arff")
+  bd_nome <- "splice"
+  
 }
 classe <- "class"
 
