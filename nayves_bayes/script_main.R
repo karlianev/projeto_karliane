@@ -8,7 +8,7 @@
 #Tentar dados categoricos(splice com nb deu certo)
 
 #karliane e alan - aprender a usar outros classificadores (knn, svm, jrip=ripper) que n?o seja arvore, naive pag 223 livro torgo
-#aprender como transformar dados categóricos em numéricos
+#aprender como transformar dados categ?ricos em num?ricos
 #selecionar outras base de dados para somar 10
 #comparar selftrain com co-training
 
@@ -31,7 +31,7 @@ erro<-c()
 source('C:/local_R/projeto_karliane/nayves_bayes/configuracoes.R')
 
 source('C:/local_R/projeto_karliane/nayves_bayes/funcoes.R')
-for(k in 2:2){
+for(k in 1:1){
   it_g <-c() 
   bd_g <-c()
   thrConf_g<-c()
@@ -42,7 +42,7 @@ for(k in 2:2){
   
   bd <- c()
   tx <- c()
-  for(i in 9:9){
+  for(i in 1:1){
       for(j in 1:5){
         if(j==1){
           taxa=5

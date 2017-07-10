@@ -1,6 +1,7 @@
 print("organizando os dados")
 
-set.seed(214)# garante que o conjunto de dados escolhido para treinamento ser? sempre o mesmo - n?o sei se preciso dessa garantia
+#set.seed(214)# garante que o conjunto de dados escolhido para treinamento ser? sempre o mesmo - n?o sei se preciso dessa garantia
+set.seed(100) #para base phishing só deu certo com 100, com 214 não incluia nada
 
 #Quantidade de Exemplos
 exemplos = nrow(base)

@@ -10,6 +10,12 @@ indice_treinamento <- sample(exemplos,exemplos*0.75, replace=FALSE)
 base<-base_original[indice_treinamento,]
 base_teste<-base_original[-indice_treinamento,]
 
+#H <- holdout(base_original$class, ratio = 0.75, mode="stratified")
+#base <- base_original[H$tr,]
+#base_teste <- base_original[H$ts,]
+
+
+
 ids_treino_rot<-sample(nrow(base),nrow(base)*(taxa/100))
 
 base[-ids_treino_rot,"class"] <- NA

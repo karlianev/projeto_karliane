@@ -12,12 +12,14 @@ print("instalação dos pacotes")
 #install.packages("DMwR")
 #install.packages("caTools")
 #install.packages("RWeka")
+#install.packages("rminer")
 
 print("carregar os pacotes")
 library("caret") #parece n?o ser necess?rio
 library("ssc") #esse ? obrigat?rio
 library("plyr") #pacote q tem a fun??o join_all
 library("RWeka")
+library("rminer")
 
 #USANDO A FUN??O SELFTRAIN (USADA POR ALEXANDRE)
 

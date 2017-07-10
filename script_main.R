@@ -61,7 +61,7 @@
   print("criando funções")
   source('C:/local_R/projeto_karliane/cria_funcoes.R')
   
-  for (i in 2:2){
+  for (i in 5:5){
     source('C:/local_R/projeto_karliane/carrega_dados.R')
     
     for (j in 1:5){      
