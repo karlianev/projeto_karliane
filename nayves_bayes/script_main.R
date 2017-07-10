@@ -31,7 +31,7 @@ erro<-c()
 source('C:/local_R/projeto_karliane/nayves_bayes/configuracoes.R')
 
 source('C:/local_R/projeto_karliane/nayves_bayes/funcoes.R')
-for(k in 2:2){
+for(k in 1:1){
   it_g <-c() 
   bd_g <-c()
   thrConf_g<-c()
@@ -43,7 +43,7 @@ for(k in 2:2){
   bd <- c()
   tx <- c()
   for(i in 9:9){
-      for(j in 1:5){
+      for(j in 5:5){
         if(j==1){
           taxa=5
         }
