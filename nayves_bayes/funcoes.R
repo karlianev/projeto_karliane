@@ -65,3 +65,36 @@ funcSelfTrain <- function(form,data,
   return(model)  
 }
 
+SelfTrainOriginal <- function (form, data, learner, predFunc, thrConf = 0.9, maxIts = 10, 
+          percFull = 1, verbose = F) 
+{
+  N <- NROW(data)
+  it <- 0
+  sup <- which(!is.na(data[, as.character(form[[2]])]))
+  repeat {
+    it <- it + 1
+    model <- runLearner(learner, form, data[sup, ])
+    probPreds <- do.call(predFunc, list(model, data[-sup, 
+                                                    ]))
+    new <- which(probPreds[, 2] > thrConf)
+    if (verbose) {
+      #cat("IT.", it, "\t nr. added exs. =", length(new), 
+       #   "\n")
+      cat('tx_incl',taxa,'IT.',it,'BD',i,thrConf,'\t nr. added exs. =',length(new),'\n')     
+      it_g_o <<-c(it_g_o,it)
+      bd_g_o <<-c(bd_g_o,bd_nome)
+      thrConf_g_o <<-c(thrConf_g_o,thrConf)
+      nr_added_exs_g_o <<-c(nr_added_exs_g_o,length(new))
+      tx_g_o <<- c(tx_g_o, taxa)
+    }
+    if (length(new)) {
+      data[(1:N)[-sup][new], as.character(form[[2]])] <- probPreds[new, 
+                                                                   1]
+      sup <- c(sup, (1:N)[-sup][new])
+    }
+    else break
+    if (it == maxIts || length(sup)/N >= percFull) 
+      break
+  }
+  return(model)
+}

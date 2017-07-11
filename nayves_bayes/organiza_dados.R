@@ -5,14 +5,14 @@ set.seed(214)# garante que o conjunto de dados escolhido para treinamento ser? s
 exemplos = nrow(base_original)
 
 #sorteio de ids para treinamento
-indice_treinamento <- sample(exemplos,exemplos*0.75, replace=FALSE)
+#indice_treinamento <- sample(exemplos,exemplos*0.75, replace=FALSE)
 
-base<-base_original[indice_treinamento,]
-base_teste<-base_original[-indice_treinamento,]
+#base<-base_original[indice_treinamento,]
+#base_teste<-base_original[-indice_treinamento,]
 
-#H <- holdout(base_original$class, ratio = 0.75, mode="stratified")
-#base <- base_original[H$tr,]
-#base_teste <- base_original[H$ts,]
+H <- holdout(base_original$class, ratio = 0.75, mode="stratified")
+base <- base_original[H$tr,]
+base_teste <- base_original[H$ts,]
 
 
 
