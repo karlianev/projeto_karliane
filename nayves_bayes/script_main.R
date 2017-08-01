@@ -22,16 +22,17 @@ nr_added_exs_g<-c()
 tx_g <- c()
 acc_g <- c()
 acc_g_o <- c()
+acc_g_gra <- c()
 
 bd <- c()
 tx <- c()
 
-erro<-c()
+
 #
 source('C:/local_R/projeto_karliane/nayves_bayes/configuracoes.R')
 
 source('C:/local_R/projeto_karliane/nayves_bayes/funcoes.R')
-for(k in 1:1){  # 1 = NB, 2 = AD
+for(k in 1:2){  # 1 = NB, 2 = AD
   it_g <-c() 
   bd_g <-c()
   thrConf_g<-c()
@@ -45,15 +46,22 @@ for(k in 1:1){  # 1 = NB, 2 = AD
   nr_added_exs_g_o <-c()
   tx_g_o <- c()
   acc_g_o <- c()
+
+  it_g_gra <-c() 
+  bd_g_gra <-c()
+  thrConf_g_gra <-c()
+  nr_added_exs_g_gra <-c()
+  tx_g_gra <- c()
+  acc_g_gra <- c()
   
   bd <- c()
   tx <- c()
-  for(i in 10:10){  # bases de dados
-      for(j in 5:5){ # taxas  #base 1 - IRIS 5% NB Nﾃグ FUNCIONA - da erro
+  for(i in 2:9){  # bases de dados
+      for(j in 1:5){ # taxas  #base 1 - IRIS 5% NB NﾃO FUNCIONA - da erro
         if(j==1){             
-          taxa=5              #base 10 - SPLICE AD Nﾃグ FUNCIONA - trava
-        }                     #base 11 - LEAF NB Nﾃグ FUNCIONA - da erro
-        else if(j==2){        #base 12 - CLEVELAND Nﾃグ FUNCIONA (AD NEM NB) - da erro - base com ruﾃｭdo
+          taxa=5              #base 10 - SPLICE AD NﾃO FUNCIONA - trava
+        }                     #base 11 - LEAF NB NﾃO FUNCIONA - da erro
+        else if(j==2){        #base 12 - CLEVELAND NﾃO FUNCIONA (AD NEM NB) - da erro - base com ruﾃｭdo
           taxa=10
         }
         else if(j==3){
@@ -80,9 +88,14 @@ for(k in 1:1){  # 1 = NB, 2 = AD
     write.csv(data_arquivo, "resultado_nb.csv", row.names = FALSE)
 
     data_arquivo_o <- data.frame(tx_g_o,it_g_o,bd_g_o,thrConf_g_o,nr_added_exs_g_o)
-    data_arquivo_por_taxa_o <- c(data_arquivo_o[data_arquivo_o$tx_g_o<10,],data_arquivo_o[data_arquivo_o$tx_g_o<15 & data_arquivo_o$tx_g_o>5,], data_arquivo_o[data_arquivo$tx_g_o<20 & data_arquivo_o$tx_g_o>10,], data_arquivo_o[data_arquivo_o$tx_g_o<25 & data_arquivo_o$tx_g_o>15,], data_arquivo_o[data_arquivo_o$tx_g_o<30 & data_arquivo_o$tx_g_o>20,])
+    data_arquivo_por_taxa_o <- c(data_arquivo_o[data_arquivo_o$tx_g_o<10,],data_arquivo_o[data_arquivo_o$tx_g_o<15 & data_arquivo_o$tx_g_o>5,], data_arquivo_o[data_arquivo_o$tx_g_o<20 & data_arquivo_o$tx_g_o>10,], data_arquivo_o[data_arquivo_o$tx_g_o<25 & data_arquivo_o$tx_g_o>15,], data_arquivo_o[data_arquivo_o$tx_g_o<30 & data_arquivo_o$tx_g_o>20,])
     #escrever no arquivo
     write.csv(data_arquivo_o, "resultado_nb_o.csv", row.names = FALSE)
+
+    data_arquivo_gra <- data.frame(tx_g_gra,it_g_gra,bd_g_gra,thrConf_g_gra,nr_added_exs_g_gra)
+    data_arquivo_por_taxa_gra <- c(data_arquivo_gra[data_arquivo_gra$tx_g_gra<10,],data_arquivo_gra[data_arquivo_gra$tx_g_gra<15 & data_arquivo_gra$tx_g_gra>5,], data_arquivo_gra[data_arquivo$tx_g_gra<20 & data_arquivo_gra$tx_g_gra>10,], data_arquivo_gra[data_arquivo_gra$tx_g_gra<25 & data_arquivo_gra$tx_g_gra>15,], data_arquivo_gra[data_arquivo_gra$tx_g_gra<30 & data_arquivo_gra$tx_g_gra>20,])
+    #escrever no arquivo
+    write.csv(data_arquivo_gra, "resultado_nb_gra.csv", row.names = FALSE)
     
     data_arquivo_acc <- data.frame(tx, bd, acc_g)
     data_arquivo_acc_por_taxa <- c(data_arquivo_acc[data_arquivo_acc$tx<10,],data_arquivo_acc[data_arquivo_acc$tx<15 & data_arquivo_acc$tx>5,], data_arquivo_acc[data_arquivo_acc$tx<20 & data_arquivo_acc$tx>10,], data_arquivo_acc[data_arquivo_acc$tx<25 & data_arquivo_acc$tx>15,], data_arquivo_acc[data_arquivo_acc$tx<30 & data_arquivo_acc$tx>20,])
@@ -92,7 +105,11 @@ for(k in 1:1){  # 1 = NB, 2 = AD
     data_arquivo_acc <- data.frame(tx, bd, acc_g_o)
     data_arquivo_acc_por_taxa <- c(data_arquivo_acc[data_arquivo_acc$tx<10,],data_arquivo_acc[data_arquivo_acc$tx<15 & data_arquivo_acc$tx>5,], data_arquivo_acc[data_arquivo_acc$tx<20 & data_arquivo_acc$tx>10,], data_arquivo_acc[data_arquivo_acc$tx<25 & data_arquivo_acc$tx>15,], data_arquivo_acc[data_arquivo_acc$tx<30 & data_arquivo_acc$tx>20,])
     write.csv(data_arquivo_acc_por_taxa, "resultado_acc_nb_o.csv", row.names = FALSE)
-    #write.csv(data_arquivo_acc, "resultado_acc_nb_o.csv", row.names = FALSE)
+
+    data_arquivo_acc <- data.frame(tx, bd, acc_g_gra)
+    data_arquivo_acc_por_taxa <- c(data_arquivo_acc[data_arquivo_acc$tx<10,],data_arquivo_acc[data_arquivo_acc$tx<15 & data_arquivo_acc$tx>5,], data_arquivo_acc[data_arquivo_acc$tx<20 & data_arquivo_acc$tx>10,], data_arquivo_acc[data_arquivo_acc$tx<25 & data_arquivo_acc$tx>15,], data_arquivo_acc[data_arquivo_acc$tx<30 & data_arquivo_acc$tx>20,])
+    write.csv(data_arquivo_acc_por_taxa, "resultado_acc_nb_gra.csv", row.names = FALSE)
+    
   }
   if(k==2){
     #data frame que sera guardado no arquivo
@@ -102,9 +119,14 @@ for(k in 1:1){  # 1 = NB, 2 = AD
     write.csv(data_arquivo, "resultado_ad.csv", row.names = FALSE)
 
     data_arquivo_o <- data.frame(tx_g_o,it_g_o,bd_g_o,thrConf_g_o,nr_added_exs_g_o)
-    data_arquivo_por_taxa_o <- c(data_arquivo_o[data_arquivo_o$tx_g_o<10,],data_arquivo_o[data_arquivo_o$tx_g_o<15 & data_arquivo_o$tx_g_o>5,], data_arquivo_o[data_arquivo$tx_g_o<20 & data_arquivo_o$tx_g_o>10,], data_arquivo_o[data_arquivo_o$tx_g_o<25 & data_arquivo_o$tx_g_o>15,], data_arquivo_o[data_arquivo_o$tx_g_o<30 & data_arquivo_o$tx_g_o>20,])
+    data_arquivo_por_taxa_o <- c(data_arquivo_o[data_arquivo_o$tx_g_o<10,],data_arquivo_o[data_arquivo_o$tx_g_o<15 & data_arquivo_o$tx_g_o>5,], data_arquivo_o[data_arquivo_o$tx_g_o<20 & data_arquivo_o$tx_g_o>10,], data_arquivo_o[data_arquivo_o$tx_g_o<25 & data_arquivo_o$tx_g_o>15,], data_arquivo_o[data_arquivo_o$tx_g_o<30 & data_arquivo_o$tx_g_o>20,])
     #escrever no arquivo
     write.csv(data_arquivo_o, "resultado_ad_o.csv", row.names = FALSE)
+
+    data_arquivo_gra <- data.frame(tx_g_gra,it_g_gra,bd_g_gra,thrConf_g_gra,nr_added_exs_g_gra)
+    data_arquivo_por_taxa_gra <- c(data_arquivo_gra[data_arquivo_gra$tx_g_gra<10,],data_arquivo_gra[data_arquivo_gra$tx_g_gra<15 & data_arquivo_gra$tx_g_gra>5,], data_arquivo_gra[data_arquivo_gra$tx_g_gra<20 & data_arquivo_gra$tx_g_gra>10,], data_arquivo_gra[data_arquivo_gra$tx_g_gra<25 & data_arquivo_gra$tx_g_gra>15,], data_arquivo_gra[data_arquivo_gra$tx_g_gra<30 & data_arquivo_gra$tx_g_gra>20,])
+    #escrever no arquivo
+    write.csv(data_arquivo_gra, "resultado_ad_gra.csv", row.names = FALSE)
     
     data_arquivo_acc <- data.frame(tx, bd, acc_g)
     data_arquivo_acc_por_taxa <- c(data_arquivo_acc[data_arquivo_acc$tx<10,],data_arquivo_acc[data_arquivo_acc$tx<15 & data_arquivo_acc$tx>5,], data_arquivo_acc[data_arquivo_acc$tx<20 & data_arquivo_acc$tx>10,], data_arquivo_acc[data_arquivo_acc$tx<25 & data_arquivo_acc$tx>15,], data_arquivo_acc[data_arquivo_acc$tx<30 & data_arquivo_acc$tx>20,])
@@ -114,6 +136,11 @@ for(k in 1:1){  # 1 = NB, 2 = AD
     data_arquivo_acc <- data.frame(tx, bd, acc_g_o)
     data_arquivo_acc_por_taxa <- c(data_arquivo_acc[data_arquivo_acc$tx<10,],data_arquivo_acc[data_arquivo_acc$tx<15 & data_arquivo_acc$tx>5,], data_arquivo_acc[data_arquivo_acc$tx<20 & data_arquivo_acc$tx>10,], data_arquivo_acc[data_arquivo_acc$tx<25 & data_arquivo_acc$tx>15,], data_arquivo_acc[data_arquivo_acc$tx<30 & data_arquivo_acc$tx>20,])
     write.csv(data_arquivo_acc_por_taxa, "resultado_acc_ad_o.csv", row.names = FALSE)
-  }
+
+    data_arquivo_acc <- data.frame(tx, bd, acc_g_gra)
+    data_arquivo_acc_por_taxa <- c(data_arquivo_acc[data_arquivo_acc$tx<10,],data_arquivo_acc[data_arquivo_acc$tx<15 & data_arquivo_acc$tx>5,], data_arquivo_acc[data_arquivo_acc$tx<20 & data_arquivo_acc$tx>10,], data_arquivo_acc[data_arquivo_acc$tx<25 & data_arquivo_acc$tx>15,], data_arquivo_acc[data_arquivo_acc$tx<30 & data_arquivo_acc$tx>20,])
+    write.csv(data_arquivo_acc_por_taxa, "resultado_acc_ad_gra.csv", row.names = FALSE)
+    
+    }
 }
 

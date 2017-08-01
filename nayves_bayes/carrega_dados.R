@@ -25,17 +25,14 @@ if (i==1) {
   base_original <-read.arff("vehicle.arff")
   bd_nome <- "vehicle"
 }else if(i==9){
-  
   base_original <-read.arff("wilt.arff")
   bd_nome <- "wilt"
-  
 }else if(i==10){
   base_original <-read.arff("splice.arff")
   bd_nome <- "splice"
 }else if(i==11){
   base_original <-read.arff("leaf.arff")
   bd_nome <- "leaf"
-  
 }else if(i==12){  
     base_original <-read.arff("cleveland.arff")
   bd_nome <- "cleveland"
