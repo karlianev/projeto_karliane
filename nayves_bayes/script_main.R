@@ -7,7 +7,7 @@
 
 #Tentar dados categoricos(splice com nb deu certo)
 
-#debugar => base phishing gradativo trconf = 0,95 tx_ini= 15% - está rotulando 0 exemplos mesmo quando pega a maior taxa de confiança
+#debugar => base phishing gradativo trconf = 0,95 tx_ini= 15% - est? rotulando 0 exemplos mesmo quando pega a maior taxa de confian?a
 #1	0,95	0
 #2	0,91	0
 #3	0,82	492
@@ -16,7 +16,7 @@
 
 #karliane e alan - aprender a usar outros classificadores (knn, svm, jrip=ripper) que n?o seja arvore, naive pag 223 livro torgo
 #selecionar outras base de dados para somar 15
-#fazer experimentos com o outro calculo da taxa de confiança (thrconf)
+#fazer experimentos com o outro calculo da taxa de confian?a (thrconf)
 #comparar selftrain com co-training
 
 
@@ -36,10 +36,10 @@ tx <- c()
 
 
 source('C:/local_R/projeto_karliane/nayves_bayes/configuracoes.R')
-#source('~/R/karliane/projeto_karliane/nayves_bayes/configuracoes.R')
+# source('~/R/karliane/projeto_karliane/nayves_bayes/configuracoes.R')
 
 source('C:/local_R/projeto_karliane/nayves_bayes/funcoes.R')
-#source('~/R/karliane/projeto_karliane/nayves_bayes/funcoes.R')
+# source('~/R/karliane/projeto_karliane/nayves_bayes/funcoes.R')
 
 for(k in 1:2){  # 1 = NB, 2 = AD
   it_g <-c() 
@@ -66,29 +66,14 @@ for(k in 1:2){  # 1 = NB, 2 = AD
   bd <- c()
   tx <- c()
   for(i in 2:9){  # bases de dados
-    for(j in 1:5){ # taxas  #base 1 - IRIS 5% NB NÃO FUNCIONA - da erro
-      #taxa <- j*5
-      if(j==1){             
-        taxa=5              #base 10 - SPLICE AD NÃO FUNCIONA - trava
-      }                     #base 11 - LEAF NB NÃO FUNCIONA - da erro
-      else if(j==2){        #base 12 - CLEVELAND NÃO FUNCIONA (AD NEM NB) - da erro - base com ruÃ­do
-        taxa=10
-      }
-      else if(j==3){
-        taxa=15
-      }
-      else if(j==4){
-        taxa=20
-      }
-      else if(j==5){
-        taxa=25
-      }
+    for(j in 1:5){ # taxas  #base 1 - IRIS 5% NB N?O FUNCIONA - da erro
+      taxa <- j*5
       source('C:/local_R/projeto_karliane/nayves_bayes/carrega_dados.R')
       source('C:/local_R/projeto_karliane/nayves_bayes/organiza_dados.R')
       source('C:/local_R/projeto_karliane/nayves_bayes/treinamento.R')
-      #source('~/R/karliane/projeto_karliane/nayves_bayes/carrega_dados.R')
-      #source('~/R/karliane/projeto_karliane/nayves_bayes/organiza_dados.R')
-      #source('~/R/karliane/projeto_karliane/nayves_bayes/treinamento.R')
+      # source('~/R/karliane/projeto_karliane/nayves_bayes/carrega_dados.R')
+      # source('~/R/karliane/projeto_karliane/nayves_bayes/organiza_dados.R')
+      # source('~/R/karliane/projeto_karliane/nayves_bayes/treinamento.R')
     }    
   }
   if(k==1){

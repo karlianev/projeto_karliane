@@ -1,6 +1,6 @@
 print("criando diretório local")
 
-#setwd("~/R/karliane/projeto_karliane")
+# setwd("~/R/karliane/projeto_karliane")
 setwd("C:\\local_R\\projeto_karliane")
 
 print("instalação dos pacotes")
