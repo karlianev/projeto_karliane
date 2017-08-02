@@ -35,10 +35,12 @@ bd <- c()
 tx <- c()
 
 
-#
 source('C:/local_R/projeto_karliane/nayves_bayes/configuracoes.R')
+#source('~/R/karliane/projeto_karliane/nayves_bayes/configuracoes.R')
 
 source('C:/local_R/projeto_karliane/nayves_bayes/funcoes.R')
+#source('~/R/karliane/projeto_karliane/nayves_bayes/funcoes.R')
+
 for(k in 1:2){  # 1 = NB, 2 = AD
   it_g <-c() 
   bd_g <-c()
@@ -64,29 +66,31 @@ for(k in 1:2){  # 1 = NB, 2 = AD
   bd <- c()
   tx <- c()
   for(i in 2:9){  # bases de dados
-      for(j in 1:5){ # taxas  #base 1 - IRIS 5% NB NÃO FUNCIONA - da erro
-        if(j==1){             
-          taxa=5              #base 10 - SPLICE AD NÃO FUNCIONA - trava
-        }                     #base 11 - LEAF NB NÃO FUNCIONA - da erro
-        else if(j==2){        #base 12 - CLEVELAND NÃO FUNCIONA (AD NEM NB) - da erro - base com ruÃ­do
-          taxa=10
-        }
-        else if(j==3){
-          taxa=15
-        }
-        else if(j==4){
-          taxa=20
-        }
-        else if(j==5){
-          taxa=25
-        }
-        source('C:/local_R/projeto_karliane/nayves_bayes/carrega_dados.R')
-        source('C:/local_R/projeto_karliane/nayves_bayes/organiza_dados.R')
-        source('C:/local_R/projeto_karliane/nayves_bayes/treinamento.R')
+    for(j in 1:5){ # taxas  #base 1 - IRIS 5% NB NÃO FUNCIONA - da erro
+      #taxa <- j*5
+      if(j==1){             
+        taxa=5              #base 10 - SPLICE AD NÃO FUNCIONA - trava
+      }                     #base 11 - LEAF NB NÃO FUNCIONA - da erro
+      else if(j==2){        #base 12 - CLEVELAND NÃO FUNCIONA (AD NEM NB) - da erro - base com ruÃ­do
+        taxa=10
       }
-      
-    
-    }
+      else if(j==3){
+        taxa=15
+      }
+      else if(j==4){
+        taxa=20
+      }
+      else if(j==5){
+        taxa=25
+      }
+      source('C:/local_R/projeto_karliane/nayves_bayes/carrega_dados.R')
+      source('C:/local_R/projeto_karliane/nayves_bayes/organiza_dados.R')
+      source('C:/local_R/projeto_karliane/nayves_bayes/treinamento.R')
+      #source('~/R/karliane/projeto_karliane/nayves_bayes/carrega_dados.R')
+      #source('~/R/karliane/projeto_karliane/nayves_bayes/organiza_dados.R')
+      #source('~/R/karliane/projeto_karliane/nayves_bayes/treinamento.R')
+    }    
+  }
   if(k==1){
     #data frame que sera guardado no arquivo
     data_arquivo <- data.frame(tx_g,it_g,bd_g,thrConf_g,nr_added_exs_g)
