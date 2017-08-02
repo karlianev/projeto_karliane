@@ -7,9 +7,16 @@
 
 #Tentar dados categoricos(splice com nb deu certo)
 
+#debugar => base phishing gradativo trconf = 0,95 tx_ini= 15% - está rotulando 0 exemplos mesmo quando pega a maior taxa de confiança
+#1	0,95	0
+#2	0,91	0
+#3	0,82	492
+#4	0,77	0
+#5	0,75	370
+
 #karliane e alan - aprender a usar outros classificadores (knn, svm, jrip=ripper) que n?o seja arvore, naive pag 223 livro torgo
-#aprender como transformar dados categ?ricos em num?ricos
-#selecionar outras base de dados para somar 10
+#selecionar outras base de dados para somar 15
+#fazer experimentos com o outro calculo da taxa de confiança (thrconf)
 #comparar selftrain com co-training
 
 
