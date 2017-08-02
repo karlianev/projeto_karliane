@@ -7,7 +7,7 @@
 
 #Tentar dados categoricos(splice com nb deu certo)
 
-#debugar => base phishing gradativo trconf = 0,95 tx_ini= 15% - est? rotulando 0 exemplos mesmo quando pega a maior taxa de confian?a
+#debugar => Ad: na base phishing gradativo trconf = 0,95 tx_ini= 15% - est? rotulando 0 exemplos mesmo quando pega a maior taxa de confian?a
 #1	0,95	0
 #2	0,91	0
 #3	0,82	492
@@ -65,7 +65,7 @@ for(k in 1:2){  # 1 = NB, 2 = AD
   
   bd <- c()
   tx <- c()
-  for(i in 2:9){  # bases de dados
+  for(i in 2:13){  # bases de dados
     for(j in 1:5){ # taxas  #base 1 - IRIS 5% NB N?O FUNCIONA - da erro
       taxa <- j*5
       source('C:/local_R/projeto_karliane/nayves_bayes/carrega_dados.R')

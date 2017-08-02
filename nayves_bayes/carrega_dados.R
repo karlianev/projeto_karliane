@@ -28,12 +28,24 @@ if (i==1) {
   base_original <-read.arff("wilt.arff")
   bd_nome <- "wilt"
 }else if(i==10){
+  base_original <-read.arff("balance-scale.arff")
+  bd_nome <- "balance-scale"
+}else if(i==11){
+  base_original <-read.arff("car.arff")
+  bd_nome <- "car"
+}else if(i==12){  
+  base_original <-read.arff("kr-vs-kp.arff")
+  bd_nome <- "kr-vs-kp"
+}else if(i==13){  
+  base_original <-read.arff("waveform-5000.arff")
+  bd_nome <- "waveform"
+}else if(i==14){
   base_original <-read.arff("splice.arff")
   bd_nome <- "splice"
-}else if(i==11){
+}else if(i==15){
   base_original <-read.arff("leaf.arff")
   bd_nome <- "leaf"
-}else if(i==12){  
+}else if(i==16){  
     base_original <-read.arff("cleveland.arff")
   bd_nome <- "cleveland"
 }
