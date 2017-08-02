@@ -40,14 +40,20 @@ if (i==1) {
   base_original <-read.arff("waveform-5000.arff")
   bd_nome <- "waveform"
 }else if(i==14){
-  base_original <-read.arff("splice.arff")
-  bd_nome <- "splice"
+  base_original <-read.arff("mushroom.arff")
+  bd_nome <- "mushroom"
 }else if(i==15){
+  base_original <-read.arff("sick.arff")
+  bd_nome <- "sick"
+}else if(i==16){
   base_original <-read.arff("leaf.arff")
   bd_nome <- "leaf"
-}else if(i==16){  
+}else if(i==17){  
     base_original <-read.arff("cleveland.arff")
   bd_nome <- "cleveland"
+}else if(i==18){  
+  base_original <-read.arff("splice.arff")
+  bd_nome <- "splice"
 }
 
 classe <- "class"
