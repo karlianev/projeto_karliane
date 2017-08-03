@@ -7,14 +7,7 @@
 
 #Tentar dados categoricos(splice com nb deu certo)
 
-#debugar => Ad: na base phishing gradativo trconf = 0,95 tx_ini= 15% - est? rotulando 0 exemplos mesmo quando pega a maior taxa de confian?a
-#1	0,95	0
-#2	0,91	0
-#3	0,82	492
-#4	0,77	0
-#5	0,75	370
-
-#karliane e alan - aprender a usar outros classificadores (knn, svm, jrip=ripper) que n?o seja arvore, naive pag 223 livro torgo
+#aprender a usar outros classificadores (knn, svm, jrip=ripper) que n?o seja arvore, naive pag 223 livro torgo
 #selecionar outras base de dados para somar 15
 #fazer experimentos com o outro calculo da taxa de confian?a (thrconf)
 #comparar selftrain com co-training
@@ -65,7 +58,7 @@ for(k in 1:2){  # 1 = NB, 2 = AD
   
   bd <- c()
   tx <- c()
-  for(i in 2:13){  # bases de dados
+  for(i in 10:13){  # bases de dados
     for(j in 1:5){ # taxas  #base 1 - IRIS 5% NB N?O FUNCIONA - da erro
       taxa <- j*5
       source('C:/local_R/projeto_karliane/nayves_bayes/carrega_dados.R')
@@ -85,7 +78,7 @@ for(k in 1:2){  # 1 = NB, 2 = AD
 
     data_arquivo_o <- data.frame(tx_g_o,it_g_o,bd_g_o,thrConf_g_o,nr_added_exs_g_o)
     data_arquivo_por_taxa_o <- c(data_arquivo_o[data_arquivo_o$tx_g_o<10,],data_arquivo_o[data_arquivo_o$tx_g_o<15 & data_arquivo_o$tx_g_o>5,], data_arquivo_o[data_arquivo_o$tx_g_o<20 & data_arquivo_o$tx_g_o>10,], data_arquivo_o[data_arquivo_o$tx_g_o<25 & data_arquivo_o$tx_g_o>15,], data_arquivo_o[data_arquivo_o$tx_g_o<30 & data_arquivo_o$tx_g_o>20,])
-    #escrever no arquivo
+    #escrever no  arquivo
     write.csv(data_arquivo_o, "resultado_nb_o.csv", row.names = FALSE)
 
     data_arquivo_gra <- data.frame(tx_g_gra,it_g_gra,bd_g_gra,thrConf_g_gra,nr_added_exs_g_gra)
