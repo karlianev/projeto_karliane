@@ -19,37 +19,50 @@ funcSelfTrain <- function(form,data,
   
   data
   N <- NROW(data)
+  N_instancias_por_classe <- ddply(data,~class,summarise,number_of_distinct_orders=length(class))
+  N_classes <- NROW(N_instancias_por_classe)-1 # uso do -1 pq N_instancias_por_classe tem uma linha com a quantidade de exemplos n„o rotulados
   it <- 0
   soma_Conf <- 0
   qtd_Exemplos_Rot <- 0
   totalrot <- 0
+  exs_add <- c()
   
   sup <- which(!is.na(data[,as.character(form[[2]])])) #sup recebe o indice de todos os exemplos rotulados
   repeat {
     it <- it+1
     
     if ((it>1)&&(qtd_Exemplos_Rot>0)){
-      #data[sup,] corresponde os que possuem rotulos
+      #data[sup,] corresponde os que possuem rotulos (INICIALMENTE ROTULADOS OU N√ÉO)
+      if (nrow(data[new,]) >= N_classes*5){
+        #o conjunto de treinamento serao as instancias inclu√?das (rotuladas)
+        conj_treino <- data[new,]
+      }else{
+        #o conjunto de treinamento ser√° o anterior + as instancias incluidas (rotuladas)
+        conj_treino <- rbind(data[new,],conj_treino)
+        cat("juntou", nrow(conj_treino), "\n")
+      }
+      
       if(k==1){
-        classificador <- naiveBayes(as.factor(class) ~ .,data[new,])
+        classificador <- naiveBayes(as.factor(class) ~ .,conj_treino)
+        matriz <- table(predict(classificador,base_rotulados_ini),base_rotulados_ini$class)
       }
       else{
-        classificador <- naiveBayes(as.factor(class) ~ .,data[new,])
-        
+        #IMPLEMENTAR ARVORE DE DECIS√O
+        classificador <- rpartXse(as.factor(class) ~ .,conj_treino)
+        matriz <- table(predict(classificador,base_rotulados_ini, type="vector"),base_rotulados_ini$class)        
       }
-     
-    
-      matriz <- table(predict(classificador,base_rotulados_ini),base_rotulados_ini$class)
-      acc_local <- ((sum(diag(matriz)) / n) * 100)
-      if(acc_local>=80){
+
+      acc_local <- ((sum(diag(matriz)) / length(base_rotulados_ini$class)) * 100)
+      if(acc_local>=50){
         thrConf<-thrConf-0.05
       }else{
         thrConf<-thrConf+0.05
       }
     }
+    
     soma_Conf <- 0
     qtd_Exemplos_Rot <- 0
-  
+    
     model <- runLearner(learner,form,data[sup,])
     probPreds <- do.call(predFunc,list(model,data[-sup,]))
     new <- which(probPreds[,2] >= thrConf)
@@ -73,13 +86,12 @@ funcSelfTrain <- function(form,data,
       sup <- c(sup,(1:N)[-sup][new])
     }
     if(length(new)==0){
-        thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A M…DIA DAS PREDI«’ES.
-        #thrConf<-mean(probPreds[,2])
+      thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A M?DIA DAS PREDI??ES.
+      #thrConf<-mean(probPreds[,2])
     }
     if (it == maxIts || length(sup)/N >= percFull) break
     
-  }
+  } #FIM DO REPEAT
   
   return(model)  
 }
-

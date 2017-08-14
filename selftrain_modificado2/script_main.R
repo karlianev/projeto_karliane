@@ -32,8 +32,9 @@ source('C:/local_R/projeto_karliane/selftrain_modificado2/configuracoes.R')
 
 source('C:/local_R/projeto_karliane/selftrain_modificado2/funcoes.R')
 # source('~/R/karliane/projeto_karliane/nayves_bayes/funcoes.R')
-for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
-  for(k in 1:1){  # 1 = NB, 2 = AD
+
+for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
+  for(k in 1:2){  # 1 = NB, 2 = AD
     it_g <-c() 
     bd_g <-c()
     thrConf_g<-c()
@@ -42,17 +43,20 @@ for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
     acc_g <- c()
     bd <- c()
     tx <- c()
-    for(i in 3:3){  # bases de dados
+    for(i in 2:2){  # bases de dados
       for(j in 1:5){ # taxas  #base 1 - IRIS 5% NB N?O FUNCIONA - da erro
         taxa <- j*5
         source('C:/local_R/projeto_karliane/selftrain_modificado2/carrega_dados.R')
         source('C:/local_R/projeto_karliane/selftrain_modificado2/organiza_dados.R')
+
+
         source('C:/local_R/projeto_karliane/selftrain_modificado2/treinamento.R')
+
         # source('~/R/karliane/projeto_karliane/nayves_bayes/carrega_dados.R')
         # source('~/R/karliane/projeto_karliane/nayves_bayes/organiza_dados.R')
         # source('~/R/karliane/projeto_karliane/nayves_bayes/treinamento.R')
-      }    
-    }
+      }    #FIM DO J
+    }  #FIM DO I
     print("gerando data frame para arquivos")
     #data frame que sera guardado no arquivo
     data_arquivo <- data.frame(bd_g,tx_g,it_g,thrConf_g,nr_added_exs_g)
@@ -63,13 +67,13 @@ for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
 
     print("Gravando arquivos")    
     if (t == 1){ #TAXA 0.9
-      if (k==1){
+      if (k==1){ #NB
         #escrever no arquivo NB
         write.csv(data_arquivo, "resultado_nb_09.csv", row.names = FALSE)
       
         write.csv(data_arquivo_acc_por_taxa, "resultado_acc_nb_09.csv", row.names = FALSE)
         
-      }else if (k==2){
+      }else if (k==2){ #AD
         #escrever no arquivo AD
         write.csv(data_arquivo, "resultado_ad_09.csv", row.names = FALSE)
        
@@ -77,14 +81,14 @@ for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
         
       }      
     }else if (t == 2){ #TAXA 0.95
-      if (k==1){
+      if (k==1){ #NB
         #escrever no arquivo NB
         write.csv(data_arquivo, "resultado_nb_095.csv", row.names = FALSE)
         
         write.csv(data_arquivo_acc_por_taxa, "resultado_acc_nb_095.csv", row.names = FALSE)
        
         
-      }else if (k==2){
+      }else if (k==2){ #AD
         #escrever no arquivo AD
         write.csv(data_arquivo, "resultado_ad_095.csv", row.names = FALSE)
        
@@ -92,6 +96,6 @@ for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
         
       }      
     }
-  }
-}    
+  }#FIM DO K
+}    #FIM DO T
 
