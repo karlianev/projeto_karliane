@@ -32,7 +32,6 @@ source('C:/local_R/projeto_karliane/selftrain_modificado2/configuracoes.R')
 
 source('C:/local_R/projeto_karliane/selftrain_modificado2/funcoes.R')
 # source('~/R/karliane/projeto_karliane/nayves_bayes/funcoes.R')
-
 for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
   for(k in 1:2){  # 1 = NB, 2 = AD
     it_g <-c() 
@@ -43,13 +42,13 @@ for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
     acc_g <- c()
     bd <- c()
     tx <- c()
-    for(i in 2:15){  # bases de dados
+    for(i in 2:14){  # bases de dados
       for(j in 1:5){ # taxas  #base 1 - IRIS 5% NB N?O FUNCIONA - da erro
         taxa <- j*5
         source('C:/local_R/projeto_karliane/selftrain_modificado2/carrega_dados.R')
         source('C:/local_R/projeto_karliane/selftrain_modificado2/organiza_dados.R')
 
-
+          
         source('C:/local_R/projeto_karliane/selftrain_modificado2/treinamento.R')
 
         # source('~/R/karliane/projeto_karliane/nayves_bayes/carrega_dados.R')
@@ -99,3 +98,13 @@ for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
   }#FIM DO K
 }    #FIM DO T
 
+
+# caso seja necessario trazer a função para o main esses são os parametros.
+# form = as.formula(paste(classe,'~', '.'))
+# data = base_treino_self_training
+# learner = learner('rpartXse',list(se=0.5))
+# predFunc = 'f'
+# thrConf=0.9
+# maxIts=10
+# percFull=1
+# verbose=F
