@@ -25,22 +25,23 @@ funcSelfTrain <- function(form,data,
   soma_Conf <- 0
   qtd_Exemplos_Rot <- 0
   totalrot <- 0
-  exs_add <- c()
+  conj_treino <- c()
   
   sup <- which(!is.na(data[,as.character(form[[2]])])) #sup recebe o indice de todos os exemplos rotulados
   repeat {
+    #cat("conj_treino", conj_treino, "nrow(conj_treino)", nrow(conj_treino))
     it <- it+1
-    
+
     if ((it>1)&&(qtd_Exemplos_Rot>0)){
       #data[sup,] corresponde os que possuem rotulos (INICIALMENTE ROTULADOS OU N√ÉO)
       if (nrow(data[new,]) >= N_classes*5){
-        #o conjunto de treinamento serao as instancias inclu√?das (rotuladas)
+        #o conjunto de treinamento serao as instancias inclu√???das (rotuladas)
         conj_treino <- data[new,]
-      }else{
+      }else if (length(conj_treino)>=1) {
         #o conjunto de treinamento ser√° o anterior + as instancias incluidas (rotuladas)
         conj_treino <- rbind(data[new,],conj_treino)
         cat("juntou", nrow(conj_treino), "\n")
-      }
+      }else break
       
       if(k==1){
         classificador <- naiveBayes(as.factor(class) ~ .,conj_treino)
@@ -86,8 +87,8 @@ funcSelfTrain <- function(form,data,
       sup <- c(sup,(1:N)[-sup][new])
     }
     if(length(new)==0){
-      thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A M?DIA DAS PREDI??ES.
-      #thrConf<-mean(probPreds[,2])
+      #thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A M?DIA DAS PREDI??ES.
+      thrConf<-mean(probPreds[,2])
     }
     if (it == maxIts || length(sup)/N >= percFull) break
     
