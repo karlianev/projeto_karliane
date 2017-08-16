@@ -27,19 +27,40 @@ funcSelfTrain <- function(form,data,
   totalrot <- 0
   conj_treino <- c()
   
+  
   sup <- which(!is.na(data[,as.character(form[[2]])])) #sup recebe o indice de todos os exemplos rotulados
+  id_conj_treino <- c()
+  id_conj_treino_antigo <- c()
   repeat {
     #cat("conj_treino", conj_treino, "nrow(conj_treino)", nrow(conj_treino))
     it <- it+1
-
+    
     if ((it>1)&&(qtd_Exemplos_Rot>0)){
+#      N_instancias_por_classe2 <- ddply(data[new,],~class,summarise,number_of_distinct_orders=length(class))
+      N_instancias_por_classe2 <- ddply(data[id_conj_treino,],~class,summarise,number_of_distinct_orders=length(class))
+      treino_valido <- FALSE
+      # teste <<- N_c
+      for (x in 1:nrow(N_instancias_por_classe2)){
+
+        if (N_instancias_por_classe2$number_of_distinct_orders[x]>= N_classes*5)
+          treino_valido <- TRUE
+        else treino_valido <- FALSE
+
+      }
+      
+      
       #data[sup,] corresponde os que possuem rotulos (INICIALMENTE ROTULADOS OU NÃO)
-      if (nrow(data[new,]) >= N_classes*5){
+      if (treino_valido){
+      # if (nrow(data[new,])>=N_classes*5){
         #o conjunto de treinamento serao as instancias inclu�???das (rotuladas)
-        conj_treino <- data[new,]
+        conj_treino <- data[id_conj_treino,]
+        id_conj_treino_antigo <- c()
+        #conj_treino <- data[new,]
       }else if (length(conj_treino)>=1) {
         #o conjunto de treinamento será o anterior + as instancias incluidas (rotuladas)
-        conj_treino <- rbind(data[new,],conj_treino)
+        #conj_treino <- rbind(data[new,],conj_treino)
+        conj_treino <- rbind(data[id_conj_treino,],data[id_conj_treino_antigo,])
+       # id_conj_treino_antigo <- c(id_conj_treino_antigo,id_conj_treino)
         cat("juntou", nrow(conj_treino), "\n")
       }else break
       
@@ -84,11 +105,13 @@ funcSelfTrain <- function(form,data,
       qtd_Exemplos_Rot <- length(data[(1:N)[-sup][new],as.character(form[[2]])])
       totalrot <- totalrot + qtd_Exemplos_Rot
       
+      id_conj_treino_antigo <- c(id_conj_treino_antigo,id_conj_treino)
+      id_conj_treino <- (1:N)[-sup][new]
       sup <- c(sup,(1:N)[-sup][new])
     }
     if(length(new)==0){
-      #thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A M?DIA DAS PREDI??ES.
-      thrConf<-mean(probPreds[,2])
+      thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A M?DIA DAS PREDI??ES.
+      #thrConf<-mean(probPreds[,2])
     }
     if (it == maxIts || length(sup)/N >= percFull) break
     
