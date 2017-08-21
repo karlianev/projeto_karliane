@@ -1,4 +1,5 @@
 print("carregando os dados")
+setwd("C:\\local_R\\projeto_karliane\\bases")
 
 if (i==1) {
   base_original <- read.arff("iris.arff")
@@ -59,3 +60,4 @@ if (i==1) {
 classe <- "class"
 
 
+setwd("C:\\local_R\\projeto_karliane")

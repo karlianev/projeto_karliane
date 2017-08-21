@@ -1,4 +1,5 @@
 print("carregando os dados")
+setwd("C:\\local_R\\projeto_karliane\\bases")
 
 if (i==1) {
   #base de dados IRIS
@@ -45,4 +46,5 @@ indice_treinamento <- createDataPartition(base_original$class, p=0.75, list=FALS
 base <- base_original[indice_treinamento,]
 base_teste <- base_original[-indice_treinamento,]
 #PRECISO RENUMERAR OS INDICES, TANTO DE TREINAMENTO QUANTO DE TESTE
+setwd("C:\\local_R\\projeto_karliane")
 
