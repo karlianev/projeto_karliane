@@ -107,7 +107,7 @@ funcSelfTrainGradativo <- function(form,data,
                           predFunc,
                           thrConf=0.9,
                           maxIts=10,percFull=1,
-                          verbose=F){
+                          verbose=F,gradativo=0.05){
   
   data
   N <- NROW(data)
@@ -120,7 +120,7 @@ funcSelfTrainGradativo <- function(form,data,
   repeat {
     it <- it+1
     
-    if ((it>1)&&(qtd_Exemplos_Rot>0))thrConf <- (thrConf - 0.05)
+    if ((it>1)&&(qtd_Exemplos_Rot>0))thrConf <- (thrConf - gradativo)
 
     soma_Conf <- 0
     qtd_Exemplos_Rot <- 0
@@ -137,6 +137,8 @@ funcSelfTrainGradativo <- function(form,data,
       thrConf_g_gra <<-c(thrConf_g_gra,thrConf)
       nr_added_exs_g_gra <<-c(nr_added_exs_g_gra,length(new))
       tx_g_gra <<- c(tx_g_gra, taxa)
+      grad_g<<-c(grad_g,grad)
+      
       }
     
     if (length(new)) {
