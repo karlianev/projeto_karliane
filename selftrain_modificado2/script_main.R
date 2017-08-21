@@ -33,8 +33,8 @@ source('C:/local_R/projeto_karliane/selftrain_modificado2/configuracoes.R')
 
 source('C:/local_R/projeto_karliane/selftrain_modificado2/funcoes.R')
 # source('~/R/karliane/projeto_karliane/nayves_bayes/funcoes.R')
-for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
-  for(k in 1:2){  # 1 = NB, 2 = AD
+for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
+  for(k in 1:1){  # 1 = NB, 2 = AD
     it_g <-c() 
     bd_g <-c()
     thrConf_g<-c()
@@ -43,8 +43,8 @@ for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
     acc_g <- c()
     bd <- c()
     tx <- c()
-    for(i in 2:14){  # bases de dados
-      for(j in 1:5){ # taxas  #base 1 - IRIS 5% NB N?O FUNCIONA - da erro
+    for(i in 2:2){  # bases de dados
+      for(j in 1:1){ # taxas  #base 1 - IRIS 5% NB N?O FUNCIONA - da erro
         taxa <- j*5
         source('C:/local_R/projeto_karliane/selftrain_modificado2/carrega_dados.R')
         source('C:/local_R/projeto_karliane/selftrain_modificado2/organiza_dados.R')
@@ -52,9 +52,6 @@ for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
           
         source('C:/local_R/projeto_karliane/selftrain_modificado2/treinamento.R')
         
-
-
-
 
         # source('~/R/karliane/projeto_karliane/nayves_bayes/carrega_dados.R')
         # source('~/R/karliane/projeto_karliane/nayves_bayes/organiza_dados.R')
@@ -107,7 +104,7 @@ for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
 # caso seja necessario trazer a função para o main esses são os parametros.
 # form = as.formula(paste(classe,'~', '.'))
 # data = base_treino_self_training
-# learner = learner('rpartXse',list(se=0.5))
+# learner = learner("naiveBayes", list())
 # predFunc = 'f'
 # thrConf=0.9
 # maxIts=10
@@ -131,21 +128,21 @@ for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
 # repeat {
 #   #cat("conj_treino", conj_treino, "nrow(conj_treino)", nrow(conj_treino))
 #   it <- it+1
-#   
+# 
 #   if ((it>1)&&(qtd_Exemplos_Rot>0)){
 #     #      N_instancias_por_classe2 <- ddply(data[new,],~class,summarise,number_of_distinct_orders=length(class))
 #     N_instancias_por_classe2 <- ddply(data[id_conj_treino,],~class,summarise,number_of_distinct_orders=length(class))
 #     treino_valido <- FALSE
 #     # teste <<- N_c
 #     for (x in 1:nrow(N_instancias_por_classe2)){
-#       
+# 
 #       if (N_instancias_por_classe2$number_of_distinct_orders[x]>= N_classes*5)
 #         treino_valido <- TRUE
 #       else treino_valido <- FALSE
-#       
+# 
 #     }
-#     
-#     
+# 
+# 
 #     #data[sup,] corresponde os que possuem rotulos (INICIALMENTE ROTULADOS OU NÃƒO)
 #     if (treino_valido){
 #       # if (nrow(data[new,])>=N_classes*5){
@@ -160,7 +157,7 @@ for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
 #       # id_conj_treino_antigo <- c(id_conj_treino_antigo,id_conj_treino)
 #       cat("juntou", nrow(conj_treino), "\n")
 #     }else break
-#     
+# 
 #     if(k==1){
 #       classificador <- naiveBayes(as.factor(class) ~ .,conj_treino)
 #       matriz <- table(predict(classificador,base_rotulados_ini),base_rotulados_ini$class)
@@ -170,7 +167,7 @@ for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
 #       classificador <- rpartXse(as.factor(class) ~ .,conj_treino)
 #       matriz <- table(predict(classificador,base_rotulados_ini, type="vector"),base_rotulados_ini$class)
 #     }
-#     
+# 
 #     acc_local <- ((sum(diag(matriz)) / length(base_rotulados_ini$class)) * 100)
 #     if(acc_local>=50){
 #       thrConf<-thrConf-0.05
@@ -178,10 +175,10 @@ for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
 #       thrConf<-thrConf+0.05
 #     }
 #   }
-#   
+# 
 #   soma_Conf <- 0
 #   qtd_Exemplos_Rot <- 0
-#   
+# 
 #   model <- runLearner(learner,form,data[sup,])
 #   probPreds <- do.call(predFunc,list(model,data[-sup,]))
 #   new <- which(probPreds[,2] >= thrConf)
@@ -194,14 +191,14 @@ for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
 #     nr_added_exs_g <<-c(nr_added_exs_g,length(new))
 #     tx_g <<- c(tx_g, taxa)
 #   }
-#   
+# 
 #   if (length(new)) {
 #     data[(1:N)[-sup][new],as.character(form[[2]])] <- as.character(probPreds[new,1])
-#     
+# 
 #     soma_Conf <- sum(soma_Conf, probPreds[new,2])
 #     qtd_Exemplos_Rot <- length(data[(1:N)[-sup][new],as.character(form[[2]])])
 #     totalrot <- totalrot + qtd_Exemplos_Rot
-#     
+# 
 #     id_conj_treino_antigo <- c(id_conj_treino_antigo,id_conj_treino)
 #     id_conj_treino <- (1:N)[-sup][new]
 #     sup <- c(sup,(1:N)[-sup][new])
@@ -211,5 +208,6 @@ for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
 #     #thrConf<-mean(probPreds[,2])
 #   }
 #   if (it == maxIts || length(sup)/N >= percFull) break
-#   
+# 
 # } #FIM DO REPEAT
+# 
