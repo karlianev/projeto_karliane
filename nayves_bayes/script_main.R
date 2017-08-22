@@ -26,8 +26,8 @@ acc_g_gra <- c()
 
 bd <- c()
 tx <- c()
-
-
+grad_g<-c()
+grad<-c()
 source('C:/local_R/projeto_karliane/scripts_comuns/configuracoes.R')
 # source('~/R/karliane/projeto_karliane/scripts_comuns/configuracoes.R')
 
