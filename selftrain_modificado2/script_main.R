@@ -22,16 +22,16 @@ thrConf_g<-c()
 nr_added_exs_g<-c()
 tx_g <- c()
 acc_g <- c()
-
+grad_g <- c()
 
 bd <- c()
 tx <- c()
 teste<-c()
 teste2<-c()
-source('C:/local_R/projeto_karliane/selftrain_modificado2/configuracoes.R')
+source('C:/local_R/projeto_karliane/scripts_comuns/configuracoes.R')
 # source('~/R/karliane/projeto_karliane/nayves_bayes/configuracoes.R')
 
-source('C:/local_R/projeto_karliane/selftrain_modificado2/funcoes.R')
+source('C:/local_R/projeto_karliane/scripts_comuns/funcoes.R')
 # source('~/R/karliane/projeto_karliane/nayves_bayes/funcoes.R')
 for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
   for(k in 1:1){  # 1 = NB, 2 = AD
@@ -44,10 +44,10 @@ for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
     bd <- c()
     tx <- c()
     for(i in 2:2){  # bases de dados
-      for(j in 1:1){ # taxas  #base 1 - IRIS 5% NB N?O FUNCIONA - da erro
+      for(j in 1:5){ # taxas  #base 1 - IRIS 5% NB N?O FUNCIONA - da erro
         taxa <- j*5
-        source('C:/local_R/projeto_karliane/selftrain_modificado2/carrega_dados.R')
-        source('C:/local_R/projeto_karliane/selftrain_modificado2/organiza_dados.R')
+        source('C:/local_R/projeto_karliane/scripts_comuns/carrega_dados.R')
+        source('C:/local_R/projeto_karliane/scripts_comuns/organiza_dados.R')
 
           
         source('C:/local_R/projeto_karliane/selftrain_modificado2/treinamento.R')
