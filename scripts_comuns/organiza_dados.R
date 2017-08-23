@@ -4,9 +4,13 @@ set.seed(214)# garante que o conjunto de dados escolhido para treinamento ser? s
 
 exemplos = nrow(base_original)
 
+#comando que retorna a quantidade de exemplos em cada uma das classes
+qtd_exem_por_classe <- ddply(base_original,~class,summarise,number_of_distinct_orders=length(class))
+#comando que retorna 10% da quantidade de exemplos da classe com menor número de instâncias
+qtd_exem_menor_classe <- trunc(min(qtd_exem_por_classe$number_of_distinct_orders)*0.1)
+
 #sorteio de ids para treinamento
 #indice_treinamento <- sample(exemplos,exemplos*0.75, replace=FALSE)
-
 #base<-base_original[indice_treinamento,]
 #base_teste<-base_original[-indice_treinamento,]
 
@@ -20,3 +24,4 @@ ids_treino_rot<-sample(nrow(base),nrow(base)*(taxa/100))
 
 base[-ids_treino_rot,"class"] <- NA
 base_treino_self_training<-base
+base_rotulados_ini <-base[ids_treino_rot,]
