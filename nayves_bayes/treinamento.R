@@ -1,8 +1,9 @@
 #chamando a funcao selfTrain adaptada
 print("Iniciando Treinamento")
 #naive
-if(k==1){
+if(c==1){
   if (t==1){
+#    nbST_o<- SelfTrainOriginal(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("kNN", list()),'func',0.9,100,1,TRUE)
     nbST<- funcSelfTrain(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.9,100,1,TRUE)
     nbST_o<- SelfTrainOriginal(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.9,100,1,TRUE)
     nbST_gra<- funcSelfTrainGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.9,100,1,TRUE)
@@ -15,7 +16,7 @@ if(k==1){
   matriz_confusao_o<-table(predict(nbST_o, base_teste), base_teste$class)
   matriz_confusao_gra<-table(predict(nbST_gra, base_teste), base_teste$class)
 }
-if(k==2){
+if(c==2){
   if (t==1){
     ST <- funcSelfTrain(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.9,100,1,TRUE)
     ST_O <- SelfTrainOriginal(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.9,100,1,TRUE)

@@ -192,9 +192,7 @@ funcSelfTrainModificado2 <- function(form,data,
     if ((it>1)&&(qtd_Exemplos_Rot>0)){
 #      cat("entrou if da segunda iteração", '\n')
       N_instancias_por_classe2 <- ddply(data[id_conj_treino,],~class,summarise,number_of_distinct_orders=length(class))
-      teste1 <<-N_instancias_por_classe
-      teste2 <<-N_instancias_por_classe2
-      
+
       treino_valido <- FALSE
       if (nrow(N_instancias_por_classe2)  == N_classes){
         # teste <<- N_c

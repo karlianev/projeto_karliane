@@ -3,10 +3,10 @@ print("Iniciando Treinamento")
 #naive
 if(k==1){
   if (t==1){
-    nbST<- funcSelfTrainModificado2(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.9,100,1,TRUE,qtd_exem_menor_classe)
+    nbST<- funcSelfTrainModificado2(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.9,100,1,TRUE,qtd_exem_menor_classe, limiar = 70)
    
   }else if (t==2){
-    nbST<- funcSelfTrainModificado2(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.95,100,1,TRUE,qtd_exem_menor_classe)
+    nbST<- funcSelfTrainModificado2(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.95,100,1,TRUE,qtd_exem_menor_classe, limiar = 70)
    
   }
   matriz_confusao1<-table(predict(nbST, base_teste), base_teste$class)
@@ -14,10 +14,10 @@ if(k==1){
 }
 if(k==2){
   if (t==1){
-    ST <- funcSelfTrainModificado2(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.9,100,1,TRUE,qtd_exem_menor_classe)
+    ST <- funcSelfTrainModificado2(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.9,100,1,TRUE,qtd_exem_menor_classe, limiar = 70)
    
   }else if (t==2){    
-    ST <- funcSelfTrainModificado2(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.95,100,1,TRUE,qtd_exem_menor_classe)
+    ST <- funcSelfTrainModificado2(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.95,100,1,TRUE,qtd_exem_menor_classe, limiar = 70)
     
   }  
   matriz_confusao1 = table(predict(ST,base_teste,type='class'),base_teste$class)

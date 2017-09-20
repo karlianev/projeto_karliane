@@ -34,8 +34,8 @@ source('C:/local_R/projeto_karliane/scripts_comuns/configuracoes.R')
 
 source('C:/local_R/projeto_karliane/scripts_comuns/funcoes.R')
 # source('~/R/karliane/projeto_karliane/nayves_bayes/funcoes.R')
-for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
-  for(k in 1:2){  # 1 = NB, 2 = AD
+for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
+  for(k in 1:1){  # 1 = NB, 2 = AD
     it_g <-c() 
     bd_g <-c()
     thrConf_g<-c()
