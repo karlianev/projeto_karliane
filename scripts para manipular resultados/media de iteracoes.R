@@ -14,7 +14,10 @@ for (j in 1:4){ #qtde de arquivos a serem lidos
     # data <- read.csv("resultado_orig_ad_media_095.csv")
     # data <- read.csv("resultado_orig_ad_media_09.csv")
     # data <- read.csv("resultado_orig_nb_maximo_095.csv")
-    data <- read.csv("resultado_orig_nb_maximo_09.csv")
+    #data <- read.csv("resultado_orig_nb_maximo_09.csv")
+    #data <- read.csv("resultado_orig_nb_media_095.csv")
+     data <- read.csv("resultado_orig_nb_media_09.csv")
+    
   } 
   else if (j==2) {
     # data <- read.csv("resultado_grad_ad_maximo_095.csv")
@@ -22,7 +25,9 @@ for (j in 1:4){ #qtde de arquivos a serem lidos
     # data <- read.csv("resultado_grad_ad_media_095.csv")
     # data <- read.csv("resultado_grad_ad_media_09.csv")
     # data <- read.csv("resultado_grad_nb_maximo_095.csv")
-    data <- read.csv("resultado_grad_nb_maximo_09.csv")
+    # data <- read.csv("resultado_grad_nb_maximo_09.csv")
+    # data <- read.csv("resultado_grad_nb_media_095.csv")
+    data <- read.csv("resultado_grad_nb_media_09.csv")
   }
   else if (j==3) {
     # data <- read.csv("resultado_modif_ad_maximo_095.csv")
@@ -30,7 +35,9 @@ for (j in 1:4){ #qtde de arquivos a serem lidos
     # data <- read.csv("resultado_modif_ad_media_095.csv")
     # data <- read.csv("resultado_modif_ad_media_09.csv") #faltou
     # data <- read.csv("resultado_modif_nb_maximo_095.csv")
-    data <- read.csv("resultado_modif_nb_maximo_09.csv")
+    # data <- read.csv("resultado_modif_nb_maximo_09.csv")
+    # data <- read.csv("resultado_modif_nb_media_095.csv")
+     data <- read.csv("resultado_modif_nb_media_09.csv")
   }
   else if (j==4) {
     # data <- read.csv("resultado_modif2_ad_maximo_095_limiar70.csv")
@@ -38,7 +45,18 @@ for (j in 1:4){ #qtde de arquivos a serem lidos
     # data <- read.csv("resultado_modif2_ad_media_095_limiar70.csv")
     # data <- read.csv("resultado_modif2_ad_media_09_limiar70.csv")
     # data <- read.csv("resultado_modif2_nb_maximo_095_limiar70.csv")
-    data <- read.csv("resultado_modif2_nb_maximo_09_limiar70.csv")
+    # data <- read.csv("resultado_modif2_nb_maximo_09_limiar70.csv")
+    # data <- read.csv("resultado_modif2_nb_media_095_limiar70.csv")
+    # data <- read.csv("resultado_modif2_nb_media_09_limiar70.csv")
+
+    #ultima_exe = não usei a opção de manter a confiança quando a acc for muito próxima do limiar
+    #media de iterações continua alto
+    # data <- read.csv("resultado_modif2_nb_maximo_09_ultima_exe.csv")
+    
+     # data <- read.csv("resultado_modif2_nb_maximo_095_limiar_60.csv")
+    # data <- read.csv("resultado_modif2_nb_maximo_09_limiar_60.csv")
+    # data <- read.csv("resultado_modif2_nb_maximo_095_limiar_50.csv")     
+    data <- read.csv("resultado_modif2_nb_maximo_09_limiar_50.csv")
   }
   
   resultado_med <- c()
@@ -74,20 +92,35 @@ for (j in 1:4){ #qtde de arquivos a serem lidos
     #o resultado aparece no arquivo com colunas: original, gradativo, modificado e
     #modificado2 e as linhas: 5%, 10%, 15%, 20%, 25% rotulados
     # arquivo <- c(arquivo, data.frame("med_it_ad_max_095", resultado_med))
-   # arquivo <- c(arquivo, data.frame("med_it_ad_max_09", resultado_med))
-   # arquivo <- c(arquivo, data.frame("med_it_ad_med_095", resultado_med))
+    # arquivo <- c(arquivo, data.frame("med_it_ad_max_09", resultado_med))
+    # arquivo <- c(arquivo, data.frame("med_it_ad_med_095", resultado_med))
     # arquivo <- c(arquivo, data.frame("med_it_ad_med_09", resultado_med))
     # arquivo <- c(arquivo, data.frame("med_it_nb_max_095", resultado_med))
-    arquivo <- c(arquivo, data.frame("med_it_nb_max_09", resultado_med))
-
+    # arquivo <- c(arquivo, data.frame("med_it_nb_max_09", resultado_med))
+    # arquivo <- c(arquivo, data.frame("med_it_nb_med_095", resultado_med))
+    # arquivo <- c(arquivo, data.frame("med_it_nb_med_09", resultado_med))
+    
+#    arquivo <- c(arquivo, data.frame("med_it_modif2_nb_maximo_09_ultima_exe", resultado_med))
+     # arquivo <- c(arquivo, data.frame("med_it_modif2_nb_max_095_limiar60", resultado_med))
+     # arquivo <- c(arquivo, data.frame("med_it_modif2_nb_max_09_limiar60", resultado_med))
+     # arquivo <- c(arquivo, data.frame("med_it_modif2_nb_maximo_095_limiar_50", resultado_med))
+     arquivo <- c(arquivo, data.frame("med_it_modif2_nb_maximo_09_limiar_50", resultado_med))
+     
     #arquivo do desvio padrão
     # arquivo1 <- c(arquivo1, data.frame("dp_it_ad_max_095", resultado_dp))
     # arquivo1 <- c(arquivo1, data.frame("dp_it_ad_max_09", resultado_dp))
     # arquivo1 <- c(arquivo1, data.frame("dp_it_ad_med_095", resultado_dp))
     # arquivo1 <- c(arquivo1, data.frame("dp_it_ad_med_09", resultado_dp))
     # arquivo1 <- c(arquivo1, data.frame("dp_it_nb_max_095", resultado_dp))
-    arquivo1 <- c(arquivo1, data.frame("dp_it_nb_max_09", resultado_dp))
-    
+    # arquivo1 <- c(arquivo1, data.frame("dp_it_nb_max_09", resultado_dp))
+    # arquivo1 <- c(arquivo1, data.frame("dp_it_nb_med_095", resultado_dp))
+    # arquivo1 <- c(arquivo1, data.frame("dp_it_nb_med_09", resultado_dp))
+
+    #arquivo1 <- c(arquivo1, data.frame("dp_it_modif2_nb_maximo_09_ultima_exe", resultado_dp))
+     # arquivo1 <- c(arquivo1, data.frame("dp_it_modif2_nb_maximo_095_limiar60", resultado_dp))
+     # arquivo1 <- c(arquivo1, data.frame("dp_it_modif2_nb_maximo_09_limiar60", resultado_dp))
+     # arquivo1 <- c(arquivo1, data.frame("dp_it_modif2_nb_maximo_095_limiar_50", resultado_dp))
+     arquivo1 <- c(arquivo1, data.frame("dp_it_modif2_nb_maximo_09_limiar_50", resultado_dp))
   }
   else{
     arquivo <- c(arquivo, data.frame(resultado_med))
@@ -100,7 +133,16 @@ for (j in 1:4){ #qtde de arquivos a serem lidos
 # write.csv(arquivo, "media_iteracoes_ad_media_095", row.names = FALSE)
 # write.csv(arquivo, "media_iteracoes_ad_media_09", row.names = FALSE)
 # write.csv(arquivo, "media_iteracoes_nb_maximo_095", row.names = FALSE)
-write.csv(arquivo, "media_iteracoes_nb_maximo_09", row.names = FALSE)
+# write.csv(arquivo, "media_iteracoes_nb_maximo_09", row.names = FALSE)
+# write.csv(arquivo, "media_iteracoes_nb_media_095", row.names = FALSE)
+# write.csv(arquivo, "media_iteracoes_nb_media_09", row.names = FALSE)
+
+
+#write.csv(arquivo, "media_iteracoes_modif2_nb_maximo_09_ultima_exe", row.names = FALSE)
+# write.csv(arquivo, "media_iteracoes_modif2_nb_maximo_095_limiar60", row.names = FALSE)
+# write.csv(arquivo, "media_iteracoes_modif2_nb_maximo_09_limiar60", row.names = FALSE)
+# write.csv(arquivo, "media_iteracoes_modif2_nb_maximo_095_limiar50", row.names = FALSE)
+write.csv(arquivo, "media_iteracoes_modif2_nb_maximo_09_limiar50", row.names = FALSE)
 
 #gravando desvio padrão
 # write.csv(arquivo1, "dp_iteracoes_ad_maximo_095", row.names = FALSE)
@@ -108,4 +150,13 @@ write.csv(arquivo, "media_iteracoes_nb_maximo_09", row.names = FALSE)
 # write.csv(arquivo1, "dp_iteracoes_ad_media_095", row.names = FALSE)
 # write.csv(arquivo1, "dp_iteracoes_ad_media_09", row.names = FALSE)
 # write.csv(arquivo1, "dp_iteracoes_nb_maximo_095", row.names = FALSE)
-write.csv(arquivo1, "dp_iteracoes_nb_maximo_09", row.names = FALSE)
+# write.csv(arquivo1, "dp_iteracoes_nb_maximo_09", row.names = FALSE)
+# write.csv(arquivo1, "dp_iteracoes_nb_media_095", row.names = FALSE)
+# write.csv(arquivo1, "dp_iteracoes_nb_media_09", row.names = FALSE)
+
+#write.csv(arquivo1, "dp_iteracoes_modif2_nb_maximo_09_ultima_exe", row.names = FALSE)
+ # write.csv(arquivo1, "dp_iteracoes_modif2_nb_maximo_095_limiar60", row.names = FALSE)
+ # write.csv(arquivo1, "dp_iteracoes_modif2_nb_maximo_09_limiar60", row.names = FALSE)
+ # write.csv(arquivo1, "dp_iteracoes_modif2_nb_maximo_095_limiar50", row.names = FALSE)
+ write.csv(arquivo1, "dp_iteracoes_modif2_nb_maximo_09_limiar50", row.names = FALSE)
+ 

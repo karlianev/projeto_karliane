@@ -4,10 +4,15 @@ func <- function(m, d){
 }
 f <- function(m,d) {
   l <- predict(m,d,type='class')
-  c <- apply(predict(m,d),1,max)
+  c <- apply(predict(m,d),1,max) #predict(m,d) = a matriz com os dados(predição); 1 = trabalha as linhas; max = função a ser aplicada aos dados
   data.frame(cl=l,p=c)
 }
 
+f2 <- function(m,d) {
+  l <- predict(m,d,type='probability')
+  c <- apply(l,1,max) #predict(m,d) = a matriz com os dados(predição); 1 = trabalha as linhas; max = função a ser aplicada aos dados
+  data.frame(cl=l,p=c)
+}
 
 
 funcSelfTrain <- function(form,data,
@@ -56,8 +61,8 @@ funcSelfTrain <- function(form,data,
       sup <- c(sup,(1:N)[-sup][new])
     }
     if(length(new)==0){
-        # thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A MÉDIA DAS PREDIÇÕES.
-        thrConf<-mean(probPreds[,2])
+        thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A MÉDIA DAS PREDIÇÕES.
+        # thrConf<-mean(probPreds[,2])
     }
     if (it == maxIts || length(sup)/N >= percFull) break
     
@@ -151,8 +156,8 @@ funcSelfTrainGradativo <- function(form,data,
       sup <- c(sup,(1:N)[-sup][new])
     }
     if(length(new)==0){
-      # thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A MÉDIA DAS PREDIÇÕES.
-      thrConf<-mean(probPreds[,2])
+      thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A MÉDIA DAS PREDIÇÕES.
+      # thrConf<-mean(probPreds[,2])
     }
     if (it == maxIts || length(sup)/N >= percFull) break
     
@@ -232,10 +237,12 @@ funcSelfTrainModificado2 <- function(form,data,
         }
         
         acc_local <- ((sum(diag(matriz)) / length(base_rotulados_ini$class)) * 100)
-        if((acc_local>(limiar + 1)) && (thrConf-0.05>0.0)){
+         if((acc_local>(limiar + 1)) && (thrConf-0.05>0.0)){
+        #if(acc_local>=limiar){
             thrConf<-thrConf-0.05
           
         }else if((acc_local<(limiar - 1)) && (thrConf+0.05 < 1)){
+        #}else{
           thrConf<-thrConf+0.05
         } #caso contrario a confiança permanecerá a mesma
         
@@ -273,8 +280,8 @@ funcSelfTrainModificado2 <- function(form,data,
       
     }
     if(length(new)==0){
-      # thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A M?DIA DAS PREDI??ES.
-      thrConf<-mean(probPreds[,2])
+      thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A M?DIA DAS PREDI??ES.
+      # thrConf<-mean(probPreds[,2])
     }
     if (it == maxIts || length(sup)/N >= percFull) break
     

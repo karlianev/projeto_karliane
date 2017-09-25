@@ -23,6 +23,17 @@ if(k==2){
   matriz_confusao1 = table(predict(ST,base_teste,type='class'),base_teste$class)
 }
 
+if(k==3){
+  if (t==1){
+    ST <- funcSelfTrainModificado2(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.9,100,1,TRUE,qtd_exem_menor_classe, limiar = 70)
+    
+  }else if (t==2){    
+    ST <- funcSelfTrainModificado2(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.95,100,1,TRUE,qtd_exem_menor_classe, limiar = 70)
+    
+  }  
+  matriz_confusao1 = table(predict(ST,base_teste,type='class'),base_teste$class)
+}
+
 n <- length(base_teste$class)
 
 

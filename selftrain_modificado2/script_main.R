@@ -34,8 +34,8 @@ source('C:/local_R/projeto_karliane/scripts_comuns/configuracoes.R')
 
 source('C:/local_R/projeto_karliane/scripts_comuns/funcoes.R')
 # source('~/R/karliane/projeto_karliane/nayves_bayes/funcoes.R')
-for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
-  for(k in 1:1){  # 1 = NB, 2 = AD
+for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
+  for(k in 3:3){  # 1 = NB, 2 = AD 3 = ripper
     it_g <-c() 
     bd_g <-c()
     thrConf_g<-c()
@@ -80,7 +80,13 @@ for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
        
         write.csv(data_arquivo_acc_por_taxa, "resultado_acc_ad_09.csv", row.names = FALSE)
         
-      }      
+      }else if (k==3){
+        #escrever no arquivo rip
+        write.csv(data_arquivo, "resultado_rip_09.csv", row.names = FALSE)
+        
+        write.csv(data_arquivo_acc_por_taxa, "resultado_acc_rip_09.csv", row.names = FALSE)
+        
+      }
     }else if (t == 2){ #TAXA 0.95
       if (k==1){ #NB
         #escrever no arquivo NB
@@ -95,7 +101,13 @@ for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
        
         write.csv(data_arquivo_acc_por_taxa, "resultado_acc_ad_095.csv", row.names = FALSE)
         
-      }      
+      }else if (k==3){ #ripper
+        #escrever no arquivo ripper
+        write.csv(data_arquivo, "resultado_rip_095.csv", row.names = FALSE)
+        
+        write.csv(data_arquivo_acc_por_taxa, "resultado_acc_rip_095.csv", row.names = FALSE)
+        
+      }
     }
   }#FIM DO K
 }    #FIM DO T
