@@ -3,7 +3,7 @@ print("Iniciando Treinamento")
 #naive
 if(k==1){
   if (t==1){
-    nbST<- funcSelfTrainModificado2(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.9,100,1,TRUE,qtd_exem_menor_classe, limiar = 70)
+    nbST<- funcSelfTrainModificado2(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list(4)),'func',0.9,100,1,TRUE,qtd_exem_menor_classe, limiar = 70)
    
   }else if (t==2){
     nbST<- funcSelfTrainModificado2(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.95,100,1,TRUE,qtd_exem_menor_classe, limiar = 70)

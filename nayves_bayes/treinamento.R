@@ -3,9 +3,6 @@ print("Iniciando Treinamento")
 #naive
 if(c==1){
   if (t==1){
-    #Acho que o ripper é JRip e o SVM é svm
-    
-    # nbST<- funcSelfTrain(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("JRip", list()),'f',0.9,100,1,TRUE)
     nbST<- funcSelfTrain(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.9,100,1,TRUE)
     nbST_o<- SelfTrainOriginal(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.9,100,1,TRUE)
     nbST_gra<- funcSelfTrainGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.9,100,1,TRUE)
@@ -20,10 +17,6 @@ if(c==1){
 }
 if(c==2){
   if (t==1){
-#IMPLEMENTAR EM OUTRO SCRIPT SOMENTE O RIPPER. O SVM nao deu certo
-    # ST_O <- SelfTrainOriginal(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.9,100,1,TRUE)
-
-    
     ST <- funcSelfTrain(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.9,100,1,TRUE)
     ST_O <- SelfTrainOriginal(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.9,100,1,TRUE)
     ST_gra <- funcSelfTrainGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.9,100,1,TRUE)

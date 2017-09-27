@@ -61,8 +61,8 @@ funcSelfTrain <- function(form,data,
       sup <- c(sup,(1:N)[-sup][new])
     }
     if(length(new)==0){
-        thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A MÉDIA DAS PREDIÇÕES.
-        # thrConf<-mean(probPreds[,2])
+        # thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A MÉDIA DAS PREDIÇÕES.
+        thrConf<-mean(probPreds[,2])
     }
     if (it == maxIts || length(sup)/N >= percFull) break
     
@@ -125,8 +125,10 @@ funcSelfTrainGradativo <- function(form,data,
   repeat {
     it <- it+1
     
-    if ((it>1)&&(qtd_Exemplos_Rot>0))thrConf <- (thrConf - gradativo)
-
+    if ((it>1)&&(qtd_Exemplos_Rot>0)){
+      thrConf <- (thrConf - gradativo)
+      if (thrConf <= 0.0) thrConf <- (thrConf + gradativo)
+    }
     soma_Conf <- 0
     qtd_Exemplos_Rot <- 0
     
@@ -156,8 +158,8 @@ funcSelfTrainGradativo <- function(form,data,
       sup <- c(sup,(1:N)[-sup][new])
     }
     if(length(new)==0){
-      thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A MÉDIA DAS PREDIÇÕES.
-      # thrConf<-mean(probPreds[,2])
+      # thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A MÉDIA DAS PREDIÇÕES.
+      thrConf<-mean(probPreds[,2])
     }
     if (it == maxIts || length(sup)/N >= percFull) break
     
@@ -280,8 +282,8 @@ funcSelfTrainModificado2 <- function(form,data,
       
     }
     if(length(new)==0){
-      thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A M?DIA DAS PREDI??ES.
-      # thrConf<-mean(probPreds[,2])
+      # thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A M?DIA DAS PREDI??ES.
+      thrConf<-mean(probPreds[,2])
     }
     if (it == maxIts || length(sup)/N >= percFull) break
     

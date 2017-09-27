@@ -34,8 +34,8 @@ source('C:/local_R/projeto_karliane/scripts_comuns/configuracoes.R')
 
 source('C:/local_R/projeto_karliane/scripts_comuns/funcoes.R')
 # source('~/R/karliane/projeto_karliane/nayves_bayes/funcoes.R')
-for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
-  for(k in 3:3){  # 1 = NB, 2 = AD 3 = ripper
+for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
+  for(k in 1:1){  # 1 = NB, 2 = AD 3 = ripper
     it_g <-c() 
     bd_g <-c()
     thrConf_g<-c()
@@ -44,7 +44,7 @@ for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
     acc_g <- c()
     bd <- c()
     tx <- c()
-    for(i in 2:15){  # bases de dados
+    for(i in 2:2){  # bases de dados
       for(j in 1:5){ # taxas  #base 1 - IRIS 5% NB N?O FUNCIONA - da erro
         taxa <- j*5
         source('C:/local_R/projeto_karliane/scripts_comuns/carrega_dados.R')
@@ -60,52 +60,52 @@ for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
     }  #FIM DO I
     print("gerando data frame para arquivos")
     #data frame que sera guardado no arquivo
-    data_arquivo <- data.frame(bd_g,tx_g,it_g,thrConf_g,nr_added_exs_g)
+    data_arquivo_modif2 <- data.frame(bd_g,tx_g,it_g,thrConf_g,nr_added_exs_g)
   
 
-    data_arquivo_acc <- data.frame(tx, bd, acc_g)
-    data_arquivo_acc_por_taxa <- c(data_arquivo_acc[data_arquivo_acc$tx<10,],data_arquivo_acc[data_arquivo_acc$tx<15 & data_arquivo_acc$tx>5,], data_arquivo_acc[data_arquivo_acc$tx<20 & data_arquivo_acc$tx>10,], data_arquivo_acc[data_arquivo_acc$tx<25 & data_arquivo_acc$tx>15,], data_arquivo_acc[data_arquivo_acc$tx<30 & data_arquivo_acc$tx>20,])
+    data_arquivo_acc_modif2 <- data.frame(tx, bd, acc_g)
+    data_arquivo_acc_por_taxa_modif2 <- c(data_arquivo_acc_modif2[data_arquivo_acc$tx<10,],data_arquivo_acc_modif2[data_arquivo_acc_modif2$tx<15 & data_arquivo_acc_modif2$tx>5,], data_arquivo_acc_modif2[data_arquivo_acc_modif2$tx<20 & data_arquivo_acc_modif2$tx>10,], data_arquivo_acc_modif2[data_arquivo_acc_modif2$tx<25 & data_arquivo_acc_modif2$tx>15,], data_arquivo_acc_modif2[data_arquivo_acc_modif2$tx<30 & data_arquivo_acc_modif2$tx>20,])
 
     print("Gravando arquivos")    
     if (t == 1){ #TAXA 0.9
       if (k==1){ #NB
         #escrever no arquivo NB
-        write.csv(data_arquivo, "resultado_nb_09.csv", row.names = FALSE)
+        write.csv(data_arquivo_modif2, "resultado_modif2_nb_09.csv", row.names = FALSE)
       
-        write.csv(data_arquivo_acc_por_taxa, "resultado_acc_nb_09.csv", row.names = FALSE)
+        write.csv(data_arquivo_acc_por_taxa_modif2, "resultado_acc_modif2_nb_09.csv", row.names = FALSE)
         
       }else if (k==2){ #AD
         #escrever no arquivo AD
-        write.csv(data_arquivo, "resultado_ad_09.csv", row.names = FALSE)
+        write.csv(data_arquivo_modif2, "resultado_modif2_ad_09.csv", row.names = FALSE)
        
-        write.csv(data_arquivo_acc_por_taxa, "resultado_acc_ad_09.csv", row.names = FALSE)
+        write.csv(data_arquivo_acc_por_taxa_modif2, "resultado_acc_modif2_ad_09.csv", row.names = FALSE)
         
       }else if (k==3){
         #escrever no arquivo rip
-        write.csv(data_arquivo, "resultado_rip_09.csv", row.names = FALSE)
+        write.csv(data_arquivo_modif2, "resultado_modif2_rip_09.csv", row.names = FALSE)
         
-        write.csv(data_arquivo_acc_por_taxa, "resultado_acc_rip_09.csv", row.names = FALSE)
+        write.csv(data_arquivo_acc_por_taxa_modif2, "resultado_acc_modif2_rip_09.csv", row.names = FALSE)
         
       }
     }else if (t == 2){ #TAXA 0.95
       if (k==1){ #NB
         #escrever no arquivo NB
-        write.csv(data_arquivo, "resultado_nb_095.csv", row.names = FALSE)
+        write.csv(data_arquivo_modif2, "resultado_modif2_nb_095.csv", row.names = FALSE)
         
-        write.csv(data_arquivo_acc_por_taxa, "resultado_acc_nb_095.csv", row.names = FALSE)
+        write.csv(data_arquivo_acc_por_taxa_modif2, "resultado_acc_modif2_nb_095.csv", row.names = FALSE)
        
         
       }else if (k==2){ #AD
         #escrever no arquivo AD
-        write.csv(data_arquivo, "resultado_ad_095.csv", row.names = FALSE)
+        write.csv(data_arquivo_modif2, "resultado_modif2_ad_095.csv", row.names = FALSE)
        
-        write.csv(data_arquivo_acc_por_taxa, "resultado_acc_ad_095.csv", row.names = FALSE)
+        write.csv(data_arquivo_acc_por_taxa_modif2, "resultado_acc_modif2_ad_095.csv", row.names = FALSE)
         
       }else if (k==3){ #ripper
         #escrever no arquivo ripper
-        write.csv(data_arquivo, "resultado_rip_095.csv", row.names = FALSE)
+        write.csv(data_arquivo_modif2, "resultado_modif2_rip_095.csv", row.names = FALSE)
         
-        write.csv(data_arquivo_acc_por_taxa, "resultado_acc_rip_095.csv", row.names = FALSE)
+        write.csv(data_arquivo_acc_por_taxa_modif2, "resultado_acc_modif2_rip_095.csv", row.names = FALSE)
         
       }
     }

@@ -35,7 +35,7 @@ source('C:/local_R/projeto_karliane/scripts_comuns/funcoes.R')
 # source('~/R/karliane/projeto_karliane/scripts_comuns/funcoes.R')
 
 for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
-  for(c in 2:2){  # 1 = NB, 2 = AD
+  for(c in 1:1){  # 1 = NB, 2 = AD
     it_g <-c() 
     bd_g <-c()
     thrConf_g<-c()
@@ -59,7 +59,7 @@ for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
     
     bd <- c()
     tx <- c()
-    for(i in 2:15){  # bases de dados
+    for(i in 2:2){  # bases de dados
       for(j in 1:5){ # taxas  #base 1 - IRIS 5% NB N?O FUNCIONA - da erro
         taxa <- j*5
         source('C:/local_R/projeto_karliane/scripts_comuns/carrega_dados.R')
@@ -78,10 +78,10 @@ for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
 
     data_arquivo_acc <- data.frame(tx, bd, acc_g)
     data_arquivo_acc_por_taxa <- c(data_arquivo_acc[data_arquivo_acc$tx<10,],data_arquivo_acc[data_arquivo_acc$tx<15 & data_arquivo_acc$tx>5,], data_arquivo_acc[data_arquivo_acc$tx<20 & data_arquivo_acc$tx>10,], data_arquivo_acc[data_arquivo_acc$tx<25 & data_arquivo_acc$tx>15,], data_arquivo_acc[data_arquivo_acc$tx<30 & data_arquivo_acc$tx>20,])
-    data_arquivo_acc <- data.frame(tx, bd, acc_g_o)
-    data_arquivo_acc_por_taxa <- c(data_arquivo_acc[data_arquivo_acc$tx<10,],data_arquivo_acc[data_arquivo_acc$tx<15 & data_arquivo_acc$tx>5,], data_arquivo_acc[data_arquivo_acc$tx<20 & data_arquivo_acc$tx>10,], data_arquivo_acc[data_arquivo_acc$tx<25 & data_arquivo_acc$tx>15,], data_arquivo_acc[data_arquivo_acc$tx<30 & data_arquivo_acc$tx>20,])
-    data_arquivo_acc <- data.frame(tx, bd, acc_g_gra)
-    data_arquivo_acc_por_taxa <- c(data_arquivo_acc[data_arquivo_acc$tx<10,],data_arquivo_acc[data_arquivo_acc$tx<15 & data_arquivo_acc$tx>5,], data_arquivo_acc[data_arquivo_acc$tx<20 & data_arquivo_acc$tx>10,], data_arquivo_acc[data_arquivo_acc$tx<25 & data_arquivo_acc$tx>15,], data_arquivo_acc[data_arquivo_acc$tx<30 & data_arquivo_acc$tx>20,])
+    data_arquivo_acc_o <- data.frame(tx, bd, acc_g_o)
+    data_arquivo_acc_por_taxa_o <- c(data_arquivo_acc_o[data_arquivo_acc_o$tx<10,],data_arquivo_acc_o[data_arquivo_acc_o$tx<15 & data_arquivo_acc_o$tx>5,], data_arquivo_acc_o[data_arquivo_acc_o$tx<20 & data_arquivo_acc_o$tx>10,], data_arquivo_acc_o[data_arquivo_acc_o$tx<25 & data_arquivo_acc_o$tx>15,], data_arquivo_acc_o[data_arquivo_acc_o$tx<30 & data_arquivo_acc_o$tx>20,])
+    data_arquivo_acc_gra <- data.frame(tx, bd, acc_g_gra)
+    data_arquivo_acc_por_taxa_gra <- c(data_arquivo_acc_gra[data_arquivo_acc_gra$tx<10,],data_arquivo_acc_gra[data_arquivo_acc_gra$tx<15 & data_arquivo_acc_gra$tx>5,], data_arquivo_acc_gra[data_arquivo_acc_gra$tx<20 & data_arquivo_acc_gra$tx>10,], data_arquivo_acc_gra[data_arquivo_acc_gra$tx<25 & data_arquivo_acc_gra$tx>15,], data_arquivo_acc_gra[data_arquivo_acc_gra$tx<30 & data_arquivo_acc_gra$tx>20,])
     
     print("Gravando arquivos")    
     if (t == 1){ #TAXA 0.9
@@ -91,8 +91,8 @@ for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
         write.csv(data_arquivo_o, "resultado_nb_o_09.csv", row.names = FALSE)
         write.csv(data_arquivo_gra, "resultado_nb_gra_09.csv", row.names = FALSE)
         write.csv(data_arquivo_acc_por_taxa, "resultado_acc_nb_09.csv", row.names = FALSE)
-        write.csv(data_arquivo_acc_por_taxa, "resultado_acc_nb_o_09.csv", row.names = FALSE)
-        write.csv(data_arquivo_acc_por_taxa, "resultado_acc_nb_gra_09.csv", row.names = FALSE)
+        write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_nb_o_09.csv", row.names = FALSE)
+        write.csv(data_arquivo_acc_por_taxa_gra, "resultado_acc_nb_gra_09.csv", row.names = FALSE)
         
       }else if (c==2){
         #escrever no arquivo AD
@@ -100,8 +100,8 @@ for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
         write.csv(data_arquivo_o, "resultado_ad_o_09.csv", row.names = FALSE)
         write.csv(data_arquivo_gra, "resultado_ad_gra_09.csv", row.names = FALSE)
         write.csv(data_arquivo_acc_por_taxa, "resultado_acc_ad_09.csv", row.names = FALSE)
-        write.csv(data_arquivo_acc_por_taxa, "resultado_acc_ad_o_09.csv", row.names = FALSE)
-        write.csv(data_arquivo_acc_por_taxa, "resultado_acc_ad_gra_09.csv", row.names = FALSE)
+        write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_ad_o_09.csv", row.names = FALSE)
+        write.csv(data_arquivo_acc_por_taxa_gra, "resultado_acc_ad_gra_09.csv", row.names = FALSE)
       }      
     }else if (t == 2){ #TAXA 0.95
       if (c==1){
@@ -110,8 +110,8 @@ for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
         write.csv(data_arquivo_o, "resultado_nb_o_095.csv", row.names = FALSE)
         write.csv(data_arquivo_gra, "resultado_nb_gra_095.csv", row.names = FALSE)
         write.csv(data_arquivo_acc_por_taxa, "resultado_acc_nb_095.csv", row.names = FALSE)
-        write.csv(data_arquivo_acc_por_taxa, "resultado_acc_nb_o_095.csv", row.names = FALSE)
-        write.csv(data_arquivo_acc_por_taxa, "resultado_acc_nb_gra_095.csv", row.names = FALSE)
+        write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_nb_o_095.csv", row.names = FALSE)
+        write.csv(data_arquivo_acc_por_taxa_gra, "resultado_acc_nb_gra_095.csv", row.names = FALSE)
         
       }else if (c==2){
         #escrever no arquivo AD
@@ -119,8 +119,8 @@ for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
         write.csv(data_arquivo_o, "resultado_ad_o_095.csv", row.names = FALSE)
         write.csv(data_arquivo_gra, "resultado_ad_gra_095.csv", row.names = FALSE)
         write.csv(data_arquivo_acc_por_taxa, "resultado_acc_ad_095.csv", row.names = FALSE)
-        write.csv(data_arquivo_acc_por_taxa, "resultado_acc_ad_o_095.csv", row.names = FALSE)
-        write.csv(data_arquivo_acc_por_taxa, "resultado_acc_ad_gra_095.csv", row.names = FALSE)
+        write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_ad_o_095.csv", row.names = FALSE)
+        write.csv(data_arquivo_acc_por_taxa_gra, "resultado_acc_ad_gra_095.csv", row.names = FALSE)
       }      
     }
   }
