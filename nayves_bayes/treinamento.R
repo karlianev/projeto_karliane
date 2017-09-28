@@ -29,6 +29,21 @@ if(c==2){
   matriz_confusao1 = table(predict(ST,base_teste,type='class'),base_teste$class)
   matriz_confusao_gra=table(predict(ST_gra,base_teste,type='class'),base_teste$class)
 }
+if(c==3){
+  if (t==1){
+    ST <- funcSelfTrain(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.9,100,1,TRUE)
+    ST_O <- SelfTrainOriginal(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.9,100,1,TRUE)
+    ST_gra <- funcSelfTrainGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.9,100,1,TRUE)
+  }else if (t==2){
+    ST <- funcSelfTrain(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.95,100,1,TRUE)
+    ST_O <- SelfTrainOriginal(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.95,100,1,TRUE)
+    ST_gra <- funcSelfTrainGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.95,100,1,TRUE)
+  }  
+  matriz_confusao_o=table(predict(ST_O,base_teste,type='class'),base_teste$class)
+  matriz_confusao1 = table(predict(ST,base_teste,type='class'),base_teste$class)
+  matriz_confusao_gra=table(predict(ST_gra,base_teste,type='class'),base_teste$class)
+}
+
 
 n <- length(base_teste$class)
 

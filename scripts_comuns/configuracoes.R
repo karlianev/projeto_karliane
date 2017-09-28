@@ -22,9 +22,9 @@ print("instalação dos pacotes")
 
 print("carregar os pacotes")
 library("ggplot2")
-library("caret") #parece n?o ser necess?rio
-library("ssc") #esse ? obrigat?rio
-library("plyr") #pacote q tem a fun??o join_all
+library("caret") #parece nao ser necessario
+library("ssc") #esse eh obrigatorio
+library("plyr") #pacote q tem a funcao join_all
 library("DMwR2")
 library("DMwR")
 library("caTools")

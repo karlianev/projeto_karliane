@@ -14,7 +14,7 @@ f2 <- function(m,d) {
   data.frame(cl=l,p=c)
 }
 
-
+#função self-training modificado
 funcSelfTrain <- function(form,data,
                           learner,
                           predFunc,
@@ -22,7 +22,7 @@ funcSelfTrain <- function(form,data,
                           maxIts=10,percFull=1,
                           verbose=F){
   
-  data
+  
   N <- NROW(data)
   it <- 0
   soma_Conf <- 0
@@ -61,8 +61,8 @@ funcSelfTrain <- function(form,data,
       sup <- c(sup,(1:N)[-sup][new])
     }
     if(length(new)==0){
-        # thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A MÉDIA DAS PREDIÇÕES.
-        thrConf<-mean(probPreds[,2])
+        thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A MÉDIA DAS PREDIÇÕES.
+        # thrConf<-mean(probPreds[,2])
     }
     if (it == maxIts || length(sup)/N >= percFull) break
     
@@ -71,6 +71,7 @@ funcSelfTrain <- function(form,data,
   return(model)  
 }
 
+#função self-training padrão
 SelfTrainOriginal <- function (form, data, learner, predFunc, thrConf = 0.9, maxIts = 10, 
           percFull = 1, verbose = F) 
 {
@@ -106,7 +107,7 @@ SelfTrainOriginal <- function (form, data, learner, predFunc, thrConf = 0.9, max
 }
 
 
-
+#função self-training diminuindo a taxa de confiança para inclusão em 5 pontos percentuais a cada iteração
 funcSelfTrainGradativo <- function(form,data,
                           learner,
                           predFunc,
@@ -158,8 +159,8 @@ funcSelfTrainGradativo <- function(form,data,
       sup <- c(sup,(1:N)[-sup][new])
     }
     if(length(new)==0){
-      # thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A MÉDIA DAS PREDIÇÕES.
-      thrConf<-mean(probPreds[,2])
+      thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A MÉDIA DAS PREDIÇÕES.
+      # thrConf<-mean(probPreds[,2])
     }
     if (it == maxIts || length(sup)/N >= percFull) break
     
@@ -228,15 +229,20 @@ funcSelfTrainModificado2 <- function(form,data,
       }else classificar <- FALSE #a confiança permanece a mesma ao inves de parar
       
       if (classificar){
-        if(k==1){
+        if(c==1){
           classificador <- naiveBayes(as.factor(class) ~ .,conj_treino)
           matriz <- table(predict(classificador,base_rotulados_ini),base_rotulados_ini$class)
         }
-        else{
+        else if (c==2){
           #IMPLEMENTAR ARVORE DE DECISÃO
           classificador <- rpartXse(as.factor(class) ~ .,conj_treino)
           matriz <- table(predict(classificador,base_rotulados_ini, type="vector"),base_rotulados_ini$class)        
+        } else if (c==3){
+          #IMPLEMENTAR ripper
+          classificador <- JRip(as.factor(class) ~ .,conj_treino)
+          matriz <- table(predict(classificador,base_rotulados_ini, type="vector"),base_rotulados_ini$class)        
         }
+        
         
         acc_local <- ((sum(diag(matriz)) / length(base_rotulados_ini$class)) * 100)
          if((acc_local>(limiar + 1)) && (thrConf-0.05>0.0)){
@@ -282,8 +288,8 @@ funcSelfTrainModificado2 <- function(form,data,
       
     }
     if(length(new)==0){
-      # thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A M?DIA DAS PREDI??ES.
-      thrConf<-mean(probPreds[,2])
+      thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A M?DIA DAS PREDI??ES.
+      # thrConf<-mean(probPreds[,2])
     }
     if (it == maxIts || length(sup)/N >= percFull) break
     
