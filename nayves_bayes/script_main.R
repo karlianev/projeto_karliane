@@ -19,6 +19,9 @@ it_g <-c() #iterações
 bd_g <-c() #base de dados
 thrConf_g<-c() #taxa de confiança para inclusão de novos exemplos
 nr_added_exs_g<-c() #numero de exemplos adicionados ao conj dos rotulados na iteração corrente
+corretude_g <- c()
+cobertura_g <- c()
+
 tx_g <- c() #percentual de exemplos rotulados inicialmente
 acc_g <- c() #acurácia (percentual de acerto) do metodo modificado
 acc_g_o <- c() #acurácia (percentual de acerto) do metodo original
@@ -35,12 +38,15 @@ source('C:/local_R/projeto_karliane/scripts_comuns/configuracoes.R')
 source('C:/local_R/projeto_karliane/scripts_comuns/funcoes.R')
 # source('~/R/karliane/projeto_karliane/scripts_comuns/funcoes.R')
 
-for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
-  for(c in 3:3){  # 1 = NB, 2 = AD 3 = JRip
+for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
+  for(c in 1:2){  # 1 = NB, 2 = AD 3 = JRip
     it_g <-c() 
     bd_g <-c()
     thrConf_g<-c()
     nr_added_exs_g<-c()
+    corretude_g <- c()
+    cobertura_g <- c()
+  
     tx_g <- c()
     acc_g <- c()
     
@@ -48,6 +54,7 @@ for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
     bd_g_o <-c()
     thrConf_g_o <-c()
     nr_added_exs_g_o <-c()
+
     tx_g_o <- c()
     acc_g_o <- c()
   
@@ -55,12 +62,13 @@ for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
     bd_g_gra <-c()
     thrConf_g_gra <-c()
     nr_added_exs_g_gra <-c()
+
     tx_g_gra <- c()
     acc_g_gra <- c()
     
     bd <- c()
     tx <- c()
-    for(i in 2:2){  # bases de dados
+    for(i in 2:15){  # bases de dados
       for(j in 1:5){ # taxas  #base 1 - IRIS 5% NB N?O FUNCIONA - da erro
         taxa <- j*5
         source('C:/local_R/projeto_karliane/scripts_comuns/carrega_dados.R')
@@ -73,7 +81,7 @@ for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
     }
     print("gerando data frame para arquivos")
     #data frame que sera guardado no arquivo
-    data_arquivo <- data.frame(bd_g,tx_g,it_g,thrConf_g,nr_added_exs_g)
+    data_arquivo <- data.frame(bd_g,tx_g,it_g,thrConf_g,nr_added_exs_g, corretude_g, cobertura_g)
     data_arquivo_o <- data.frame(bd_g_o,tx_g_o,it_g_o,thrConf_g_o,nr_added_exs_g_o)
     data_arquivo_gra <- data.frame(bd_g_gra,tx_g_gra,it_g_gra,thrConf_g_gra,nr_added_exs_g_gra)
 

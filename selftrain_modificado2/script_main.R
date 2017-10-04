@@ -41,7 +41,7 @@ for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
     acc_g <- c()
     bd <- c()
     tx <- c()
-    for(i in 2:14){  # bases de dados
+    for(i in 15:15){  # bases de dados
       for(j in 1:5){ # taxas  #base 1 - IRIS 5% NB N?O FUNCIONA - da erro
         taxa <- j*5
         source('C:/local_R/projeto_karliane/scripts_comuns/carrega_dados.R')

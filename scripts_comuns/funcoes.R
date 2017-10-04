@@ -28,12 +28,18 @@ funcSelfTrain <- function(form,data,
   soma_Conf <- 0
   qtd_Exemplos_Rot <- 0
   totalrot <- 0
+  corret <- 0
+  cobert <- 0
   
   sup <- which(!is.na(data[,as.character(form[[2]])])) #sup recebe o indice de todos os exemplos rotulados
   repeat {
     it <- it+1
     
-    if ((it>1)&&(qtd_Exemplos_Rot>0))thrConf <- (thrConf + (soma_Conf/qtd_Exemplos_Rot) + (qtd_Exemplos_Rot/N))/3
+    if ((it>1)&&(qtd_Exemplos_Rot>0)){
+      thrConf <- (thrConf + (soma_Conf/qtd_Exemplos_Rot) + (qtd_Exemplos_Rot/N))/3
+      corret <- (soma_Conf/qtd_Exemplos_Rot)
+      cobert <- (qtd_Exemplos_Rot/N)
+    }
     soma_Conf <- 0
     qtd_Exemplos_Rot <- 0
   
@@ -49,6 +55,9 @@ funcSelfTrain <- function(form,data,
       thrConf_g <<-c(thrConf_g,thrConf)
       nr_added_exs_g <<-c(nr_added_exs_g,length(new))
       tx_g <<- c(tx_g, taxa)
+      corretude_g <<- c(corretude_g, corret)
+      cobertura_g <<- c(cobertura_g, cobert)
+      
     }
     
     if (length(new)) {
@@ -61,8 +70,8 @@ funcSelfTrain <- function(form,data,
       sup <- c(sup,(1:N)[-sup][new])
     }
     if(length(new)==0){
-        thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A MÉDIA DAS PREDIÇÕES.
-        # thrConf<-mean(probPreds[,2])
+        # thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A MÉDIA DAS PREDIÇÕES.
+        thrConf<-mean(probPreds[,2])
     }
     if (it == maxIts || length(sup)/N >= percFull) break
     
@@ -159,8 +168,8 @@ funcSelfTrainGradativo <- function(form,data,
       sup <- c(sup,(1:N)[-sup][new])
     }
     if(length(new)==0){
-      thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A MÉDIA DAS PREDIÇÕES.
-      # thrConf<-mean(probPreds[,2])
+      # thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A MÉDIA DAS PREDIÇÕES.
+      thrConf<-mean(probPreds[,2])
     }
     if (it == maxIts || length(sup)/N >= percFull) break
     
