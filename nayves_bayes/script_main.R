@@ -15,17 +15,17 @@
 
 #variaveis globais para guardar no arquivo de resultados
 
-it_g <-c() #iterações
+it_g <-c() #itera??es
 bd_g <-c() #base de dados
-thrConf_g<-c() #taxa de confiança para inclusão de novos exemplos
-nr_added_exs_g<-c() #numero de exemplos adicionados ao conj dos rotulados na iteração corrente
+thrConf_g<-c() #taxa de confian?a para inclus?o de novos exemplos
+nr_added_exs_g<-c() #numero de exemplos adicionados ao conj dos rotulados na itera??o corrente
 corretude_g <- c()
 cobertura_g <- c()
 
 tx_g <- c() #percentual de exemplos rotulados inicialmente
-acc_g <- c() #acurácia (percentual de acerto) do metodo modificado
-acc_g_o <- c() #acurácia (percentual de acerto) do metodo original
-acc_g_gra <- c() #acurácia (percentual de acerto) do metodo gradativo
+acc_g <- c() #acur?cia (percentual de acerto) do metodo modificado
+acc_g_o <- c() #acur?cia (percentual de acerto) do metodo original
+acc_g_gra <- c() #acur?cia (percentual de acerto) do metodo gradativo
 
 bd <- c()
 tx <- c()
@@ -39,7 +39,7 @@ source('C:/local_R/projeto_karliane/scripts_comuns/funcoes.R')
 # source('~/R/karliane/projeto_karliane/scripts_comuns/funcoes.R')
 
 for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
-  for(c in 1:3){  # 1 = NB, 2 = AD 3 = JRip
+  for(c in 1:4){  # 1 = NB, 2 = AD, 3 = JRip ,4 = IBK
     it_g <-c() 
     bd_g <-c()
     thrConf_g<-c()
@@ -120,7 +120,15 @@ for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
         write.csv(data_arquivo_acc_por_taxa, "resultado_acc_JRip_09.csv", row.names = FALSE)
         write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_JRip_o_09.csv", row.names = FALSE)
         write.csv(data_arquivo_acc_por_taxa_gra, "resultado_acc_JRip_gra_09.csv", row.names = FALSE)
-      }      
+      }else if (c==4){
+        #escrever no arquivo IBk
+        write.csv(data_arquivo, "resultado_IBk_09.csv", row.names = FALSE)
+        write.csv(data_arquivo_o, "resultado_IBk_o_09.csv", row.names = FALSE)
+        write.csv(data_arquivo_gra, "resultado_IBk_gra_09.csv", row.names = FALSE)
+        write.csv(data_arquivo_acc_por_taxa, "resultado_acc_IBk_09.csv", row.names = FALSE)
+        write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_IBk_o_09.csv", row.names = FALSE)
+        write.csv(data_arquivo_acc_por_taxa_gra, "resultado_acc_IBk_gra_09.csv", row.names = FALSE)
+      }       
     
     }else if (t == 2){ #TAXA 0.95
       if (c==1){
@@ -149,7 +157,15 @@ for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
         write.csv(data_arquivo_acc_por_taxa, "resultado_acc_JRip_095.csv", row.names = FALSE)
         write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_JRip_o_095.csv", row.names = FALSE)
         write.csv(data_arquivo_acc_por_taxa_gra, "resultado_acc_JRip_gra_095.csv", row.names = FALSE)
-      }      
+      }else if (c==4){
+        #escrever no arquivo ibk
+        write.csv(data_arquivo, "resultado_IBk_095.csv", row.names = FALSE)
+        write.csv(data_arquivo_o, "resultado_IBk_o_095.csv", row.names = FALSE)
+        write.csv(data_arquivo_gra, "resultado_IBk_gra_095.csv", row.names = FALSE)
+        write.csv(data_arquivo_acc_por_taxa, "resultado_acc_IBk_095.csv", row.names = FALSE)
+        write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_IBk_o_095.csv", row.names = FALSE)
+        write.csv(data_arquivo_acc_por_taxa_gra, "resultado_acc_IBk_gra_095.csv", row.names = FALSE)
+      } 
     
     }
   }
