@@ -38,8 +38,8 @@ source('C:/local_R/projeto_karliane/scripts_comuns/configuracoes.R')
 source('C:/local_R/projeto_karliane/scripts_comuns/funcoes.R')
 # source('~/R/karliane/projeto_karliane/scripts_comuns/funcoes.R')
 
-for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
-  for(c in 1:2){  # 1 = NB, 2 = AD 3 = JRip
+for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
+  for(c in 2:2){  # 1 = NB, 2 = AD 3 = JRip
     it_g <-c() 
     bd_g <-c()
     thrConf_g<-c()
@@ -68,7 +68,7 @@ for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
     
     bd <- c()
     tx <- c()
-    for(i in 2:15){  # bases de dados
+    for(i in 2:2){  # bases de dados
       for(j in 1:5){ # taxas  #base 1 - IRIS 5% NB N?O FUNCIONA - da erro
         taxa <- j*5
         source('C:/local_R/projeto_karliane/scripts_comuns/carrega_dados.R')

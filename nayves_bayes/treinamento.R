@@ -29,7 +29,7 @@ if(c==2){
   matriz_confusao1 = table(predict(ST,base_teste,type='class'),base_teste$class)
   matriz_confusao_gra=table(predict(ST_gra,base_teste,type='class'),base_teste$class)
 }
-if(c==3){
+if(c==3){ #RIPPER
   if (t==1){
     ST <- funcSelfTrain(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.9,100,1,TRUE)
     ST_O <- SelfTrainOriginal(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.9,100,1,TRUE)
@@ -49,9 +49,13 @@ n <- length(base_teste$class)
 
 
 
-acc <- ((sum(diag(matriz_confusao1)) / n) * 100)
-acc_o<-((sum(diag(matriz_confusao_o)) / n) * 100)
-acc_gra<-((sum(diag(matriz_confusao_gra)) / n) * 100)
+# acc <- ((sum(diag(matriz_confusao1)) / n) * 100)
+# acc_o<-((sum(diag(matriz_confusao_o)) / n) * 100)
+# acc_gra<-((sum(diag(matriz_confusao_gra)) / n) * 100)
+
+acc <- ((sum(diag(matriz_confusao1)) / sum(matriz_confusao1)) * 100)
+acc_o<-((sum(diag(matriz_confusao_o)) / sum(matriz_confusao_o)) * 100)
+acc_gra<-((sum(diag(matriz_confusao_gra)) / sum(matriz_confusao_gra)) * 100)
 
 acc_g <- c(acc_g, acc)
 acc_g_o <- c(acc_g_o, acc_o)
@@ -59,9 +63,9 @@ acc_g_gra <- c(acc_g_gra, acc_gra)
 
 bd <- c(bd, bd_nome)
 tx <- c(tx, taxa)
-cat("\n Acerto global (%) =", acc)
+cat("\n Acerto global modificado (%) =", acc)
 cat("\n Acerto global original (%) =", acc_o)
-cat("\n Acerto global original (%) =", acc_gra)
+cat("\n Acerto global gradativo (%) =", acc_gra)
 
 cat('FIM') #, '\t base de dados ', i, '\n', 'total rotulados: ', total_rotulados, '\n')
 

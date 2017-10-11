@@ -22,6 +22,7 @@ base_teste <- base_original[H$ts,]
 
 ids_treino_rot<-sample(nrow(base),nrow(base)*(taxa/100))
 
+
 base[-ids_treino_rot,"class"] <- NA
 base_treino_self_training<-base
 base_rotulados_ini <-base[ids_treino_rot,]
