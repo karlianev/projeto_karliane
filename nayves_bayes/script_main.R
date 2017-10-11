@@ -1,6 +1,3 @@
-
-####SO PARA TESTAR #####
-
 # PROBLEMAS A RESOLVER: 
 #EXTRATIFICAR os conjuntos de treinamento e teste, resolve : 
 #ta dando erro enas bases iris (com taxa de 5 %) e cleveland 
