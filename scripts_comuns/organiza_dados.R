@@ -19,9 +19,11 @@ base <- base_original[H$tr,]
 base_teste <- base_original[H$ts,]
 
 
+H2 <- holdout(base$class, ratio = (taxa/100), mode="stratified")
+ids_treino_rot <- H2$tr #ids dos exemplos que iniciarão rotulados
 
-ids_treino_rot<-sample(nrow(base),nrow(base)*(taxa/100))
-
+#ids_treino_rot<-sample(nrow(base),nrow(base)*(taxa/100))
+##VER SE REALMENTE ESTÁ PEGANDO 5% (PEGAR UMA QTDE PEQ DE EXEMPLOS PARA VALIDAR)
 
 base[-ids_treino_rot,"class"] <- NA
 base_treino_self_training<-base

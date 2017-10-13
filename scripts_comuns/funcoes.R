@@ -92,14 +92,14 @@ funcSelfTrain <- function(form,data,
 SelfTrainOriginal <- function (form, data, learner, predFunc, thrConf = 0.9, maxIts = 10, 
           percFull = 1, verbose = F) 
 {
+  #NROW = nrow??? validar
   N <- NROW(data)
   it <- 0
   sup <- which(!is.na(data[, as.character(form[[2]])]))
   repeat {
     it <- it + 1
     model <- runLearner(learner, form, data[sup, ])
-    probPreds <- do.call(predFunc, list(model, data[-sup, 
-                                                    ]))
+    probPreds <- do.call(predFunc, list(model, data[-sup,]))
     new <- which(probPreds[, 2] > thrConf)
     if (verbose) {
       #cat("IT.", it, "\t nr. added exs. =", length(new), 
@@ -112,8 +112,7 @@ SelfTrainOriginal <- function (form, data, learner, predFunc, thrConf = 0.9, max
       tx_g_o <<- c(tx_g_o, taxa)
     }
     if (length(new)) {
-      data[(1:N)[-sup][new], as.character(form[[2]])] <- probPreds[new, 
-                                                                   1]
+      data[(1:N)[-sup][new], as.character(form[[2]])] <- probPreds[new, 1]
       sup <- c(sup, (1:N)[-sup][new])
     }
     else break

@@ -27,6 +27,9 @@ acc_g <- c() #acurácia (percentual de acerto) do metodo modificado
 acc_g_o <- c() #acurácia (percentual de acerto) do metodo original
 acc_g_gra <- c() #acurácia (percentual de acerto) do metodo gradativo
 
+#fazendo teste com classificador supervisionado
+acc_g_sup <- c() #acurácia (percentual de acerto) do metodo supervisionado
+
 bd <- c()
 tx <- c()
 grad_g<-c()
@@ -37,9 +40,10 @@ source('C:/local_R/projeto_karliane/scripts_comuns/configuracoes.R')
 
 source('C:/local_R/projeto_karliane/scripts_comuns/funcoes.R')
 # source('~/R/karliane/projeto_karliane/scripts_comuns/funcoes.R')
-
-for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
-  for(c in 1:3){  # 1 = NB, 2 = AD 3 = JRip
+# t<-1
+# c<-2
+for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
+  for(c in 2:2){  # 1 = NB, 2 = AD 3 = JRip
     it_g <-c() 
     bd_g <-c()
     thrConf_g<-c()
@@ -49,6 +53,8 @@ for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
   
     tx_g <- c()
     acc_g <- c()
+    #fazendo teste com classificador supervisionado
+    acc_g_sup <- c()
     
     it_g_o <-c() 
     bd_g_o <-c()
@@ -68,7 +74,9 @@ for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
     
     bd <- c()
     tx <- c()
-    for(i in 2:15){  # bases de dados
+    # i<-1
+    # j <-1
+    for(i in 1:1){  # bases de dados - testar bases 2 (2000), 3(20000), 4(300), 8 (900), 13(5000)
       for(j in 1:5){ # taxas  #base 1 - IRIS 5% NB N?O FUNCIONA - da erro
         taxa <- j*5
         source('C:/local_R/projeto_karliane/scripts_comuns/carrega_dados.R')
@@ -85,6 +93,10 @@ for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
     data_arquivo_o <- data.frame(bd_g_o,tx_g_o,it_g_o,thrConf_g_o,nr_added_exs_g_o)
     data_arquivo_gra <- data.frame(bd_g_gra,tx_g_gra,it_g_gra,thrConf_g_gra,nr_added_exs_g_gra)
 
+    #fazendo teste com classificador supervisionado
+    data_arquivo_acc_sup <- data.frame(tx, bd, acc_g_sup)
+    data_arquivo_acc_por_taxa_sup <- c(data_arquivo_acc_sup[data_arquivo_acc_sup$tx<10,],data_arquivo_acc_sup[data_arquivo_acc_sup$tx<15 & data_arquivo_acc_sup$tx>5,], data_arquivo_acc_sup[data_arquivo_acc_sup$tx<20 & data_arquivo_acc_sup$tx>10,], data_arquivo_acc_sup[data_arquivo_acc_sup$tx<25 & data_arquivo_acc_sup$tx>15,], data_arquivo_acc_sup[data_arquivo_acc_sup$tx<30 & data_arquivo_acc_sup$tx>20,])
+    
     data_arquivo_acc <- data.frame(tx, bd, acc_g)
     data_arquivo_acc_por_taxa <- c(data_arquivo_acc[data_arquivo_acc$tx<10,],data_arquivo_acc[data_arquivo_acc$tx<15 & data_arquivo_acc$tx>5,], data_arquivo_acc[data_arquivo_acc$tx<20 & data_arquivo_acc$tx>10,], data_arquivo_acc[data_arquivo_acc$tx<25 & data_arquivo_acc$tx>15,], data_arquivo_acc[data_arquivo_acc$tx<30 & data_arquivo_acc$tx>20,])
     data_arquivo_acc_o <- data.frame(tx, bd, acc_g_o)
@@ -95,6 +107,7 @@ for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
     print("Gravando arquivos")    
     if (t == 1){ #TAXA 0.9
       if (c==1){
+        
         #escrever no arquivo NB
         write.csv(data_arquivo, "resultado_nb_09.csv", row.names = FALSE)
         write.csv(data_arquivo_o, "resultado_nb_o_09.csv", row.names = FALSE)
@@ -104,6 +117,10 @@ for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
         write.csv(data_arquivo_acc_por_taxa_gra, "resultado_acc_nb_gra_09.csv", row.names = FALSE)
         
       }else if (c==2){
+        #fazendo teste com classificador supervisionado
+        write.csv(data_arquivo_acc_sup, "resultado_ad_sup_09.csv", row.names = FALSE)
+        
+        
         #escrever no arquivo AD
         write.csv(data_arquivo, "resultado_ad_09.csv", row.names = FALSE)
         write.csv(data_arquivo_o, "resultado_ad_o_09.csv", row.names = FALSE)
@@ -124,6 +141,7 @@ for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
     
     }else if (t == 2){ #TAXA 0.95
       if (c==1){
+
         #escrever no arquivo NB
         write.csv(data_arquivo, "resultado_nb_095.csv", row.names = FALSE)
         write.csv(data_arquivo_o, "resultado_nb_o_095.csv", row.names = FALSE)
