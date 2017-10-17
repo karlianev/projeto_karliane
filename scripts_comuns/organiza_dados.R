@@ -2,7 +2,7 @@ print("organizando os dados")
 
 set.seed(214)# garante que o conjunto de dados escolhido para treinamento ser? sempre o mesmo - n?o sei se preciso dessa garantia
 
-exemplos = nrow(base_original)
+exemplos = NROW(base_original) #TAVA nrow
 
 #comando que retorna a quantidade de exemplos em cada uma das classes
 qtd_exem_por_classe <- ddply(base_original,~class,summarise,number_of_distinct_orders=length(class))
@@ -18,6 +18,7 @@ H <- holdout(base_original$class, ratio = 0.75, mode="stratified")
 base <- base_original[H$tr,]
 base_teste <- base_original[H$ts,]
 
+base_rotulada_treino <- base_original[H$tr,]
 
 H2 <- holdout(base$class, ratio = (taxa/100), mode="stratified")
 ids_treino_rot <- H2$tr #ids dos exemplos que iniciarão rotulados

@@ -1,18 +1,28 @@
 func <- function(m, d){
-  p <- predict(m, d, type = "raw")
-  data.frame(c1=colnames(p)[apply(p,1,which.max)], p = apply(p,1,max))
+  col1=predict(m,d, type='class')
+  col2 <- predict(m, d, type = "raw")
+  data.frame(c1=col1, p = apply(col2,1,max))
+  
+  # data.frame(c1=colnames(p)[apply(p,1,which.max)], p = apply(p,1,max))
 }
 f <- function(m,d) {
-  l <- predict(m,d,type='class')
-  c <- apply(predict(m,d),1,max) #predict(m,d) = a matriz com os dados(predição); 1 = trabalha as linhas; max = função a ser aplicada aos dados
-  data.frame(cl=l,p=c)
+  col1 <- predict(m,d,type='class')
+  col2 <- apply(predict(m,d),1,max) #predict(m,d) = a matriz com os dados(predição); 1 = trabalha as linhas; max = função a ser aplicada aos dados
+  data.frame(cl=col1,p=col2)
 }
 
 f2 <- function(m,d) {
-  l <- predict(m,d,type='probability')
-  c <- apply(l,1,max) #predict(m,d) = a matriz com os dados(predição); 1 = trabalha as linhas; max = função a ser aplicada aos dados
-  data.frame(cl=l,p=c)
-}
+  #predict(m,d) = a matriz com os dados(predição); 1 = trabalha as linhas; max = função a ser aplicada aos dados
+  col1 <- predict(m,d,type='class')  # c é um vetor com a classe a qual cada exemplo pertence
+  col2 <- apply(predict(m,d,type='probability'),1,max) # l é uma matriz com a confiança da predição de cada exemplo
+  data.frame(cl=col1,p=col2) #um data frame com 2 colunas: 1) a predição de cada exemplo; 2) a classe predita para cada exemplo
+
+  #anteriormente estava assim, acho q estava errado  
+  # l <- predict(m,d,type='probability')
+  # c <- apply(l,1,max) #predict(m,d) = a matriz com os dados(predição); 1 = trabalha as linhas; max = função a ser aplicada aos dados
+  # data.frame(cl=l,p=c)
+  
+  }
 
 #função self-training modificado
 funcSelfTrain <- function(form,data,
@@ -220,9 +230,9 @@ funcSelfTrainModificado2 <- function(form,data,
       N_instancias_por_classe2 <- ddply(data[id_conj_treino,],~class,summarise,number_of_distinct_orders=length(class))
 
       treino_valido <- FALSE
-      if (nrow(N_instancias_por_classe2)  == N_classes){
+      if (NROW(N_instancias_por_classe2)  == N_classes){#TAVA nrow
         # teste <<- N_c
-        for (x in 1:nrow(N_instancias_por_classe2)){
+        for (x in 1:NROW(N_instancias_por_classe2)){ #TAVA nrow
           
           if (N_instancias_por_classe2$number_of_distinct_orders[x]>= min_exem_por_classe) #N_classes*5)
             treino_valido <- TRUE
@@ -243,7 +253,7 @@ funcSelfTrainModificado2 <- function(form,data,
         #o conjunto de treinamento serÃ¡ o anterior + as instancias incluidas (rotuladas)
         conj_treino <- rbind(data[id_conj_treino,],data[id_conj_treino_antigo,])
         classificar <- TRUE
-        cat("juntou", nrow(conj_treino), "\n")
+        cat("juntou", NROW(conj_treino), "\n") #TAVA nrow
       }else classificar <- FALSE #a confiança permanece a mesma ao inves de parar
       
       if (classificar){

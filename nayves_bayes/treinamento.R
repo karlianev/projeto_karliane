@@ -11,14 +11,18 @@ if(c==1){
     nbST_o<- SelfTrainOriginal(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.95,100,1,TRUE)
     nbST_gra<- funcSelfTrainGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.95,100,1,TRUE)
   }
-  matriz_confusao1<-table(predict(nbST, base_teste), base_teste$class)
-  matriz_confusao_o<-table(predict(nbST_o, base_teste), base_teste$class)
-  matriz_confusao_gra<-table(predict(nbST_gra, base_teste), base_teste$class)
+  matriz_confusao_supervisionado <- c()
+  matriz_confusao_tot_supervisionado <- c()
+  
+  matriz_confusao1<-table(predict(nbST, base_teste, type = 'class'), base_teste$class) #antes estava sem o type='class', karliane acrescentou apenas para ficar tudo igual
+  matriz_confusao_o<-table(predict(nbST_o, base_teste, type = 'class'), base_teste$class)
+  matriz_confusao_gra<-table(predict(nbST_gra, base_teste, type = 'class'), base_teste$class)
 }
 if(c==2){
   if (t==1){
     #fazendo teste com classificador supervisionado
     stdTree <- rpartXse(as.formula(paste(classe,'~', '.')),base_rotulados_ini,se=0.5)
+    stdTree_tot <- rpartXse(as.formula(paste(classe,'~', '.')),base_rotulada_treino,se=0.5)
 
     ST <- funcSelfTrain(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.9,100,1,TRUE)
     ST_O <- SelfTrainOriginal(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.9,100,1,TRUE)
@@ -31,6 +35,7 @@ if(c==2){
   
   #fazendo teste com classificador supervisionado
   matriz_confusao_supervisionado <- table(predict(stdTree,base_teste,type='class'),base_teste$class)
+  matriz_confusao_tot_supervisionado <- table(predict(stdTree_tot,base_teste,type='class'),base_teste$class)
   
   matriz_confusao_o=table(predict(ST_O,base_teste,type='class'),base_teste$class)
   matriz_confusao1 = table(predict(ST,base_teste,type='class'),base_teste$class)
@@ -46,6 +51,9 @@ if(c==3){ #RIPPER
     ST_O <- SelfTrainOriginal(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.95,100,1,TRUE)
     ST_gra <- funcSelfTrainGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.95,100,1,TRUE)
   }  
+  matriz_confusao_supervisionado <- c()
+  matriz_confusao_tot_supervisionado <- c()
+  
   matriz_confusao_o=table(predict(ST_O,base_teste,type='class'),base_teste$class)
   matriz_confusao1 = table(predict(ST,base_teste,type='class'),base_teste$class)
   matriz_confusao_gra=table(predict(ST_gra,base_teste,type='class'),base_teste$class)
@@ -78,6 +86,7 @@ n <- length(base_teste$class)
 
 #fazendo teste com classificador supervisionado
 acc_sup <- ((sum(diag(matriz_confusao_supervisionado)) / sum(matriz_confusao_supervisionado)) * 100)
+acc_sup_tot <- ((sum(diag(matriz_confusao_tot_supervisionado)) / sum(matriz_confusao_tot_supervisionado)) * 100)
 
 acc <- ((sum(diag(matriz_confusao1)) / sum(matriz_confusao1)) * 100)
 acc_o<-((sum(diag(matriz_confusao_o)) / sum(matriz_confusao_o)) * 100)
@@ -85,6 +94,7 @@ acc_gra<-((sum(diag(matriz_confusao_gra)) / sum(matriz_confusao_gra)) * 100)
 
 #fazendo teste com classificador supervisionado
 acc_g_sup <- c(acc_g_sup, acc_sup)
+acc_g_sup_tot <- c(acc_g_sup, acc_sup)
 
 acc_g <- c(acc_g, acc)
 acc_g_o <- c(acc_g_o, acc_o)
@@ -98,6 +108,7 @@ cat("\n Acerto global gradativo (%) =", acc_gra)
 
 #fazendo teste com classificador supervisionado
 cat("\n Acerto global supervisionado (%) =", acc_sup)
+cat("\n Acerto global totalmente supervisionado (%) =", acc_sup_tot)
 
 cat('FIM') #, '\t base de dados ', i, '\n', 'total rotulados: ', total_rotulados, '\n')
 

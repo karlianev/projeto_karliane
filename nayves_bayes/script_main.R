@@ -44,7 +44,7 @@ source('C:/local_R/projeto_karliane/scripts_comuns/funcoes.R')
 # t<-1
 # c<-2
 for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
-  for(c in 1:4){  # 1 = NB, 2 = AD, 3 = JRip ,4 = IBK
+  for(c in 3:3){  # 1 = NB, 2 = AD, 3 = JRip ,4 = IBK
     it_g <-c() 
     bd_g <-c()
     thrConf_g<-c()
@@ -77,7 +77,7 @@ for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
     tx <- c()
     # i<-1
     # j <-1
-    for(i in 1:1){  # bases de dados - testar bases 2 (2000), 3(20000), 4(300), 8 (900), 13(5000)
+    for(i in 2:14){  # bases de dados - testar bases 2 (2000), 3(20000), 4(300), 8 (900), 13(5000)
       for(j in 1:5){ # taxas  #base 1 - IRIS 5% NB N?O FUNCIONA - da erro
         taxa <- j*5
         source('C:/local_R/projeto_karliane/scripts_comuns/carrega_dados.R')
