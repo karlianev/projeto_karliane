@@ -7,24 +7,24 @@ func <- function(m, d){
 }
 f <- function(m,d) {
   col1 <- predict(m,d,type='class')
-  col2 <- apply(predict(m,d),1,max) #predict(m,d) = a matriz com os dados(predição); 1 = trabalha as linhas; max = função a ser aplicada aos dados
+  col2 <- apply(predict(m,d),1,max) #predict(m,d) = a matriz com os dados(predi??o); 1 = trabalha as linhas; max = fun??o a ser aplicada aos dados
   data.frame(cl=col1,p=col2)
 }
 
 f2 <- function(m,d) {
-  #predict(m,d) = a matriz com os dados(predição); 1 = trabalha as linhas; max = função a ser aplicada aos dados
-  col1 <- predict(m,d,type='class')  # c é um vetor com a classe a qual cada exemplo pertence
-  col2 <- apply(predict(m,d,type='probability'),1,max) # l é uma matriz com a confiança da predição de cada exemplo
-  data.frame(cl=col1,p=col2) #um data frame com 2 colunas: 1) a predição de cada exemplo; 2) a classe predita para cada exemplo
+  #predict(m,d) = a matriz com os dados(predi??o); 1 = trabalha as linhas; max = fun??o a ser aplicada aos dados
+  col1 <- predict(m,d,type='class')  # c ? um vetor com a classe a qual cada exemplo pertence
+  col2 <- apply(predict(m,d,type='probability'),1,max) # l ? uma matriz com a confian?a da predi??o de cada exemplo
+  data.frame(cl=col1,p=col2) #um data frame com 2 colunas: 1) a predi??o de cada exemplo; 2) a classe predita para cada exemplo
 
   #anteriormente estava assim, acho q estava errado  
   # l <- predict(m,d,type='probability')
-  # c <- apply(l,1,max) #predict(m,d) = a matriz com os dados(predição); 1 = trabalha as linhas; max = função a ser aplicada aos dados
+  # c <- apply(l,1,max) #predict(m,d) = a matriz com os dados(predi??o); 1 = trabalha as linhas; max = fun??o a ser aplicada aos dados
   # data.frame(cl=l,p=c)
   
   }
 
-#função self-training modificado
+#fun??o self-training modificado
 funcSelfTrain <- function(form,data,
                           learner,
                           predFunc,
@@ -87,7 +87,7 @@ funcSelfTrain <- function(form,data,
 
 
     if(length(new)==0){
-        thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A MÉDIA DAS PREDIÇÕES.
+        thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A M?DIA DAS PREDI??ES.
         # thrConf<-mean(probPreds[,2])
     }
 
@@ -98,7 +98,7 @@ funcSelfTrain <- function(form,data,
   return(model)  
 }
 
-#função self-training padrão
+#fun??o self-training padr?o
 SelfTrainOriginal <- function (form, data, learner, predFunc, thrConf = 0.9, maxIts = 10, 
           percFull = 1, verbose = F) 
 {
@@ -133,7 +133,7 @@ SelfTrainOriginal <- function (form, data, learner, predFunc, thrConf = 0.9, max
 }
 
 
-#função self-training diminuindo a taxa de confiança para inclusão em 5 pontos percentuais a cada iteração
+#fun??o self-training diminuindo a taxa de confian?a para inclus?o em 5 pontos percentuais a cada itera??o
 funcSelfTrainGradativo <- function(form,data,
                           learner,
                           predFunc,
@@ -187,7 +187,7 @@ funcSelfTrainGradativo <- function(form,data,
     }
 
     if(length(new)==0){
-      thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A MÉDIA DAS PREDIÇÕES.
+      thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A M?DIA DAS PREDI??ES.
       # thrConf<-mean(probPreds[,2])
     }
     if (it == maxIts || length(sup)/N >= percFull) break
@@ -209,7 +209,7 @@ funcSelfTrainModificado2 <- function(form,data,
   N <- NROW(data)
   N_instancias_por_classe <- ddply(data,~class,summarise,number_of_distinct_orders=length(class))
 #substituido por min_exem_por_classe
-  N_classes <- NROW(N_instancias_por_classe)-1 # uso do -1 pq N_instancias_por_classe tem uma linha com a quantidade de exemplos não rotulados
+  N_classes <- NROW(N_instancias_por_classe)-1 # uso do -1 pq N_instancias_por_classe tem uma linha com a quantidade de exemplos n?o rotulados
   it <- 0
   soma_Conf <- 0
   qtd_Exemplos_Rot <- 0
@@ -226,7 +226,7 @@ funcSelfTrainModificado2 <- function(form,data,
     it <- it+1
     
     if ((it>1)&&(qtd_Exemplos_Rot>0)){
-#      cat("entrou if da segunda iteração", '\n')
+#      cat("entrou if da segunda itera??o", '\n')
       N_instancias_por_classe2 <- ddply(data[id_conj_treino,],~class,summarise,number_of_distinct_orders=length(class))
 
       treino_valido <- FALSE
@@ -242,9 +242,9 @@ funcSelfTrainModificado2 <- function(form,data,
       }
 
       
-      #data[sup,] corresponde os que possuem rotulos (INICIALMENTE ROTULADOS OU NÃfO)
+      #data[sup,] corresponde os que possuem rotulos (INICIALMENTE ROTULADOS OU N?fO)
       if (treino_valido){
-        #o conjunto de treinamento serao as instancias incluÃ???das (rotuladas)
+        #o conjunto de treinamento serao as instancias inclu????das (rotuladas)
         conj_treino <- data[id_conj_treino,]
         id_conj_treino_antigo <- c()
         classificar <- TRUE
@@ -254,7 +254,7 @@ funcSelfTrainModificado2 <- function(form,data,
         conj_treino <- rbind(data[id_conj_treino,],data[id_conj_treino_antigo,])
         classificar <- TRUE
         cat("juntou", NROW(conj_treino), "\n") #TAVA nrow
-      }else classificar <- FALSE #a confiança permanece a mesma ao inves de parar
+      }else classificar <- FALSE #a confian?a permanece a mesma ao inves de parar
       
       if (classificar){
         if(c==1){
@@ -262,14 +262,19 @@ funcSelfTrainModificado2 <- function(form,data,
           matriz <- table(predict(classificador,base_rotulados_ini),base_rotulados_ini$class)
         }
         else if (c==2){
-          #IMPLEMENTAR ARVORE DE DECISÃO
+          #IMPLEMENTAR ARVORE DE DECIS?O
           classificador <- rpartXse(as.factor(class) ~ .,conj_treino)
           matriz <- table(predict(classificador,base_rotulados_ini, type="vector"),base_rotulados_ini$class)        
         } else if (c==3){
           #IMPLEMENTAR ripper
           classificador <- JRip(as.factor(class) ~ .,conj_treino)
           matriz <- table(predict(classificador,base_rotulados_ini, type="vector"),base_rotulados_ini$class)        
+        } else if (c==4){
+          #IMPLEMENTAR IBk
+          classificador <- IBk(as.factor(class) ~ .,conj_treino)
+          matriz <- table(predict(classificador,base_rotulados_ini, type="vector"),base_rotulados_ini$class)
         }
+          
         
         
         acc_local <- ((sum(diag(matriz)) / length(base_rotulados_ini$class)) * 100)
@@ -280,7 +285,7 @@ funcSelfTrainModificado2 <- function(form,data,
         }else if((acc_local<(limiar - 1)) && (thrConf+0.05 < 1)){
         #}else{
           thrConf<-thrConf+0.05
-        } #caso contrario a confiança permanecerá a mesma
+        } #caso contrario a confian?a permanecer? a mesma
         
       }  
     }
