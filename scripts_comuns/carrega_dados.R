@@ -1,8 +1,10 @@
 print("carregando os dados")
+#setando o diretório local para ser a pasta onde estão as bases
 setwd("C:\\local_R\\projeto_karliane\\bases")
 
+
 if (i==1) {
-  base_original <- read.arff("iris.arff")
+  base_original <- read.arff("iris.arff") 
   bd_nome <- "iris"
 }else if (i==2){
   base_original <- read.arff("phishingData.arff")
@@ -59,5 +61,5 @@ if (i==1) {
 
 classe <- "class"
 
-
+#setando o diretório local para ser a pasta onde esta o projeto
 setwd("C:\\local_R\\projeto_karliane")

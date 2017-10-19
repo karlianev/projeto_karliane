@@ -1,50 +1,39 @@
-# PROBLEMAS A RESOLVER: 
-#EXTRATIFICAR os conjuntos de treinamento e teste, resolve : 
-#ta dando erro enas bases iris (com taxa de 5 %) e cleveland 
-#Problema da base cleveland para todas as taxas: no momento da predi√ß√£o a classe 4  n√£o √© rotulada para nenhum exemplo. Isso acontece pq n√£o existe nenhum exemplo da classe 4 no conjunto de teste
-#Posso resolver esse problema for√ßando a sele√ß√£o de exemplos a pegar pelo menos um exemplo de cada classe?
-#fazer funcionar o Naive bayes para bases iris e cleveland
 
-#Tentar dados categoricos(splice com nb deu certo)
+#inicializando variaveis globais para guardar no arquivo de resultados
 
-#aprender a usar outros classificadores (knn, svm, jrip=ripper) que n?o seja arvore, naive pag 223 livro torgo
-#selecionar outras base de dados para somar 15
-#fazer experimentos com o outro calculo da taxa de confian?a (thrconf)
-#comparar selftrain com co-training
-
-
-#variaveis globais para guardar no arquivo de resultados
-
-it_g <-c() #itera??es
+it_g <-c() #iteracoes
 bd_g <-c() #base de dados
-thrConf_g<-c() #taxa de confian?a para inclus?o de novos exemplos
-nr_added_exs_g<-c() #numero de exemplos adicionados ao conj dos rotulados na itera??o corrente
-corretude_g <- c()
-cobertura_g <- c()
+thrConf_g<-c() #taxa de confianca para inclusao de novos exemplos
+nr_added_exs_g<-c() #numero de exemplos adicionados ao conj dos rotulados na iteracao corrente
+corretude_g <- c() #corretude do metodo modificado
+cobertura_g <- c() #cobertura do metodo modificado
 
 tx_g <- c() #percentual de exemplos rotulados inicialmente
-acc_g <- c() #acur?cia (percentual de acerto) do metodo modificado
-acc_g_o <- c() #acur?cia (percentual de acerto) do metodo original
+acc_g <- c() #acuracia (percentual de acerto) do metodo modificado
+acc_g_o <- c() #acuracia (percentual de acerto) do metodo original
 acc_g_gra <- c() #acur?cia (percentual de acerto) do metodo gradativo
 
 #fazendo teste com classificador supervisionado
-acc_g_sup <- c() #acur·cia (percentual de acerto) do metodo supervisionado
+acc_g_sup <- c() #acuracia (percentual de acerto) do metodo supervisionado
 
-bd <- c()
-tx <- c()
-grad_g<-c()
+bd <- c() #base de dados
+tx <- c() #percentual de exemplos rotulados inicialmente
+grad_g <-c()
 grad<-c()
 
+#chamada para o script que faz as configuracoes necess·rias ao cÛdigo (instalacao e carregamento de pacotes)
 source('C:/local_R/projeto_karliane/scripts_comuns/configuracoes.R')
 # source('~/R/karliane/projeto_karliane/scripts_comuns/configuracoes.R')
 
+#chamada para o script que cria as funÁıes original, gradativo, modificado e modificado2
 source('C:/local_R/projeto_karliane/scripts_comuns/funcoes.R')
 # source('~/R/karliane/projeto_karliane/scripts_comuns/funcoes.R')
 
-# t<-1
-# c<-2
-for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
-  for(c in 3:3){  # 1 = NB, 2 = AD, 3 = JRip ,4 = IBK
+#loop para definir a taxa de confianÁa da primeira iteracao
+for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
+  #loop para definir qual classificador sera usado
+  for(c in 1:1){  # 1 = NB, 2 = AD, 3 = JRip ,4 = IBK
+    #inicializaÁ„o das vari·veis
     it_g <-c() 
     bd_g <-c()
     thrConf_g<-c()
@@ -75,29 +64,36 @@ for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
     
     bd <- c()
     tx <- c()
-    # i<-1
-    # j <-1
+    
+    #loop para definir a base de dados a ser utilizada (no script carrega dados tem os nomes das bases)
     for(i in 2:14){  # bases de dados - testar bases 2 (2000), 3(20000), 4(300), 8 (900), 13(5000)
+      #loop para definir o percentual de exemplos que ficar„o rotulados inicialmente
       for(j in 1:5){ # taxas  #base 1 - IRIS 5% NB N?O FUNCIONA - da erro
         taxa <- j*5
+        #chamada do script que ler o .arff
         source('C:/local_R/projeto_karliane/scripts_comuns/carrega_dados.R')
+        #chamada do script que divide a base em conjunto de treinamento e teste, sorteia os exemplos inicialmente rotulados e tira o rÛtulo dos demais exemplos 
         source('C:/local_R/projeto_karliane/scripts_comuns/organiza_dados.R')
+        #chama o script que tem as chamadas das funÁıes original, gradativo, modificado e modificado2
         source('C:/local_R/projeto_karliane/nayves_bayes/treinamento.R')
+        
         # source('~/R/karliane/projeto_karliane/scripts_comuns/carrega_dados.R')
         # source('~/R/karliane/projeto_karliane/scripts_comuns/organiza_dados.R')
         # source('~/R/karliane/projeto_karliane/nayves_bayes/treinamento.R')
       }    
     }
     print("gerando data frame para arquivos")
-    #data frame que sera guardado no arquivo
+    #cirando data frame que sera guardado no arquivo com os seguintes dados: base, %rotulados inicialmente, iteracao, taxa de confianÁa, numero de exemplos adicionados, corretude e cobertura
     data_arquivo <- data.frame(bd_g,tx_g,it_g,thrConf_g,nr_added_exs_g, corretude_g, cobertura_g)
     data_arquivo_o <- data.frame(bd_g_o,tx_g_o,it_g_o,thrConf_g_o,nr_added_exs_g_o)
     data_arquivo_gra <- data.frame(bd_g_gra,tx_g_gra,it_g_gra,thrConf_g_gra,nr_added_exs_g_gra)
 
+    #cirando data frame que sera guardado no arquivo com os seguintes dados: %rotulados inicialmente, base, acuracia
+    
     #fazendo teste com classificador supervisionado
     data_arquivo_acc_sup <- data.frame(tx, bd, acc_g_sup)
     data_arquivo_acc_por_taxa_sup <- c(data_arquivo_acc_sup[data_arquivo_acc_sup$tx<10,],data_arquivo_acc_sup[data_arquivo_acc_sup$tx<15 & data_arquivo_acc_sup$tx>5,], data_arquivo_acc_sup[data_arquivo_acc_sup$tx<20 & data_arquivo_acc_sup$tx>10,], data_arquivo_acc_sup[data_arquivo_acc_sup$tx<25 & data_arquivo_acc_sup$tx>15,], data_arquivo_acc_sup[data_arquivo_acc_sup$tx<30 & data_arquivo_acc_sup$tx>20,])
-    
+    #cirando data frame que sera guardado no arquivo com os seguintes dados: %rotulados inicialmente, base, acuracia
     data_arquivo_acc <- data.frame(tx, bd, acc_g)
     data_arquivo_acc_por_taxa <- c(data_arquivo_acc[data_arquivo_acc$tx<10,],data_arquivo_acc[data_arquivo_acc$tx<15 & data_arquivo_acc$tx>5,], data_arquivo_acc[data_arquivo_acc$tx<20 & data_arquivo_acc$tx>10,], data_arquivo_acc[data_arquivo_acc$tx<25 & data_arquivo_acc$tx>15,], data_arquivo_acc[data_arquivo_acc$tx<30 & data_arquivo_acc$tx>20,])
     data_arquivo_acc_o <- data.frame(tx, bd, acc_g_o)

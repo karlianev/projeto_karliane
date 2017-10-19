@@ -1,13 +1,15 @@
+#func, f, e f2 retornam um data frame (matriz) com duas colunas: 1)a classe predita pelo classificador; 2) a confiança dessa predicao
+#a diferença dessas 3 funções é apenas o type = class (AD) ou raw (NB) ou probability (RIPPER E KNN)
 func <- function(m, d){
-  col1=predict(m,d, type='class')
-  col2 <- predict(m, d, type = "raw")
-  data.frame(c1=col1, p = apply(col2,1,max))
+  col1=predict(m,d, type='class') #col1 armazena a classe predita pelo classificador para cada exemplo
+  col2 <- predict(m, d, type = "raw") #col2 armazena a confiança em cada classe predita pelo classificador (ex: classe 1 = 0.8, classe2 = 0.1, classe 3= 0.1)
+  data.frame(c1=col1, p = apply(col2,1,max)) #o comando apply seleciona a maior confiança de cada exemplo/classe armazenada no col2
   
   # data.frame(c1=colnames(p)[apply(p,1,which.max)], p = apply(p,1,max))
 }
 f <- function(m,d) {
   col1 <- predict(m,d,type='class')
-  col2 <- apply(predict(m,d),1,max) #predict(m,d) = a matriz com os dados(predi??o); 1 = trabalha as linhas; max = fun??o a ser aplicada aos dados
+  col2 <- apply(predict(m,d),1,max) #predict(m,d) = a matriz com os dados(predicao); 1 = trabalha as linhas; max = fun??o a ser aplicada aos dados
   data.frame(cl=col1,p=col2)
 }
 
@@ -24,7 +26,7 @@ f2 <- function(m,d) {
   
   }
 
-#fun??o self-training modificado
+#funcao self-training modificado
 funcSelfTrain <- function(form,data,
                           learner,
                           predFunc,
@@ -33,32 +35,37 @@ funcSelfTrain <- function(form,data,
                           verbose=F){
   
   
+  #N armazena a quantidade de exemplos na base de dados
   N <- NROW(data)
-  it <- 0
+  #inicializando variáveis
+  it <- 0 #iteracao
   
-
-  soma_Conf <- 0
-  qtd_Exemplos_Rot <- 0
-  totalrot <- 0
-  corret <- 0
-  cobert <- 0
-  
-  sup <- which(!is.na(data[,as.character(form[[2]])])) #sup recebe o indice de todos os exemplos rotulados
+  soma_Conf <- 0 #soma da confianca
+  qtd_Exemplos_Rot <- 0 #quantidade de eemplos rotulados
+  totalrot <- 0 #total de exemplos rotulados
+  corret <- 0 #corretude
+  cobert <- 0 #cobertura
+  #sup recebe o indice de todos os exemplos rotulados
+  sup <- which(!is.na(data[,as.character(form[[2]])])) 
   repeat {
     it <- it+1
-
+    #O cálculo da taxa de confianca (thrConf) será realizado a partir da segunda iteracao e se houver exemplos rotulados
     if ((it>1)&&(qtd_Exemplos_Rot>0)){
       thrConf <- (thrConf + (soma_Conf/qtd_Exemplos_Rot) + (qtd_Exemplos_Rot/N))/3
     }
 
     soma_Conf <- 0
     qtd_Exemplos_Rot <- 0
-
+    
+    #model armazena o modelo gerado utilizando o aprendiz learner (AD, NB, KNN OU RIPPER), a base data[sup,] que são os dados rotulados e a classe é passada no parâmetro form
     model <- runLearner(learner,form,data[sup,])
-    probPreds <- do.call(predFunc,list(model,data[-sup,]))
+    #a predicao e gerada de acordo com predFunc (func ou f1 ou f2 que foi passado como parâmetro)
+    probPreds <- do.call(predFunc,list(model,data[-sup,])) #data[-sup,] são os dados não rotulados
+    #a variavel new armazena os exemplos cuja confiança na predicao é maior do que a taxa de confianca minima (thrConf)
     new <- which(probPreds[,2] >= thrConf)
     
     if (verbose) {
+      #imprime na tela o % de exemplos rotulados inicialmente, a iteracao, a base de dados, a taxa de confianca e a quantidade de exemplos rotulados
       cat('tx_incl',taxa,'IT.',it,'BD',i,thrConf,'\t nr. added exs. =',length(new),'\n') 
       ##guardando nas variaveis 
       it_g <<-c(it_g,it)
@@ -69,6 +76,7 @@ funcSelfTrain <- function(form,data,
 
     }
     
+    #Se existir algum exemplo a ser rotulado, serão inseridos no conjunto dos rotulados
     if (length(new)) {
       data[(1:N)[-sup][new],as.character(form[[2]])] <- as.character(probPreds[new,1])
 
@@ -85,24 +93,26 @@ funcSelfTrain <- function(form,data,
     corretude_g <<- c(corretude_g, corret)
     cobertura_g <<- c(cobertura_g, cobert)
 
-
+    #se não existir nenhum exemplo a ser rotulado, atribua a taxa de confianca (thrConf) a maior confiança na predicao
     if(length(new)==0){
-        thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A M?DIA DAS PREDI??ES.
+        thrConf<-max(probPreds[,2]) 
         # thrConf<-mean(probPreds[,2])
     }
 
+    #termine se chegar ao número máximo de iterações ou se atingir o percentual máximo de exemplos rotulados
     if (it == maxIts || length(sup)/N >= percFull) break
     
   }
-  
+
+  #retorne o modelo criado pelo classificador  
   return(model)  
 }
 
-#fun??o self-training padr?o
+#funcao self-training padrao (original)
 SelfTrainOriginal <- function (form, data, learner, predFunc, thrConf = 0.9, maxIts = 10, 
           percFull = 1, verbose = F) 
 {
-  #NROW = nrow??? validar
+  
   N <- NROW(data)
   it <- 0
   sup <- which(!is.na(data[, as.character(form[[2]])]))
@@ -268,7 +278,7 @@ funcSelfTrainModificado2 <- function(form,data,
         } else if (c==3){
           #IMPLEMENTAR ripper
           classificador <- JRip(as.factor(class) ~ .,conj_treino)
-          matriz <- table(predict(classificador,base_rotulados_ini, type="vector"),base_rotulados_ini$class)        
+          matriz <- table(predict(classificador,base_rotulados_ini, type="class"),base_rotulados_ini$class)        
         } else if (c==4){
           #IMPLEMENTAR IBk
           classificador <- IBk(as.factor(class) ~ .,conj_treino)
