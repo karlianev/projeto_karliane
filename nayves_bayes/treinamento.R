@@ -75,7 +75,7 @@ if(c==3){ #RIPPER
 }
 if(c==4){ #IBK
   if (t==1){
-    ST <- funcSelfTrain(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('IBk',list()),'f2',0.9,100,1,TRUE)
+    ST <- funcSelfTrain(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('IBk',list(Weka_control(K=5, X=TRUE))),'f2',0.9,100,1,TRUE)
     ST_O <- SelfTrainOriginal(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('IBk',list()),'f2',0.9,100,1,TRUE)
     ST_gra <- funcSelfTrainGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('IBk',list()),'f2',0.9,100,1,TRUE)
   }else if (t==2){
