@@ -40,21 +40,27 @@ funcSelfTrain <- function(form,data,
   #inicializando variáveis
   it <- 0 #iteracao
   
-  soma_Conf <- 0 #soma da confianca
+  # soma_Conf <- 0 #soma da confianca
+  conf_media <- 0 #confiança média da predicao dos exemplos rotulados em cada iteração
   qtd_Exemplos_Rot <- 0 #quantidade de eemplos rotulados
   totalrot <- 0 #total de exemplos rotulados
   corret <- 0 #corretude
   cobert <- 0 #cobertura
   #sup recebe o indice de todos os exemplos rotulados
   sup <- which(!is.na(data[,as.character(form[[2]])])) 
+  #quantidade de linhas do conjunto de dados retirando os exemplos rotulados, ou seja, a quantidade de exemplos não rotulados no conjunto de dados
+  N_nao_rot <- NROW(data[-sup,])
   repeat {
     it <- it+1
     #O cálculo da taxa de confianca (thrConf) será realizado a partir da segunda iteracao e se houver exemplos rotulados
     if ((it>1)&&(qtd_Exemplos_Rot>0)){
-      thrConf <- (thrConf + (soma_Conf/qtd_Exemplos_Rot) + (qtd_Exemplos_Rot/N))/3
+      #o cálculo comentado está errado, substituí pela linha de baixo
+      # thrConf <- (thrConf + (soma_Conf/qtd_Exemplos_Rot) + (qtd_Exemplos_Rot/N))/3
+      thrConf <- (thrConf + conf_media + (qtd_Exemplos_Rot/N_nao_rot))/3
     }
 
-    soma_Conf <- 0
+    # soma_Conf <- 0
+    conf_media <- 0
     qtd_Exemplos_Rot <- 0
     
     #model armazena o modelo gerado utilizando o aprendiz learner (AD, NB, KNN OU RIPPER), a base data[sup,] que são os dados rotulados e a classe é passada no parâmetro form
@@ -73,23 +79,27 @@ funcSelfTrain <- function(form,data,
       thrConf_g <<-c(thrConf_g,thrConf)
       nr_added_exs_g <<-c(nr_added_exs_g,length(new))
       tx_g <<- c(tx_g, taxa)
-
     }
     
     #Se existir algum exemplo a ser rotulado, serão inseridos no conjunto dos rotulados
     if (length(new)) {
+      #quantidade de exemplos não rotulados no conjunto de dados
+      N_nao_rot <- NROW(data[-sup,])
+        
       data[(1:N)[-sup][new],as.character(form[[2]])] <- as.character(probPreds[new,1])
 
 
-      soma_Conf <- sum(soma_Conf, probPreds[new,2])
+      # soma_Conf <- sum(soma_Conf, probPreds[new,2])
+      conf_media <- mean(probPreds[new,2])
       qtd_Exemplos_Rot <- length(data[(1:N)[-sup][new],as.character(form[[2]])])
       totalrot <- totalrot + qtd_Exemplos_Rot
 
       sup <- c(sup,(1:N)[-sup][new])
     }
 
-    corret <- (soma_Conf/qtd_Exemplos_Rot)
-    cobert <- (qtd_Exemplos_Rot/N)
+    # corret <- (soma_Conf/qtd_Exemplos_Rot)
+    corret <- conf_media
+    cobert <- (qtd_Exemplos_Rot/N_nao_rot)
     corretude_g <<- c(corretude_g, corret)
     cobertura_g <<- c(cobertura_g, cobert)
 
@@ -154,9 +164,9 @@ funcSelfTrainGradativo <- function(form,data,
   data
   N <- NROW(data)
   it <- 0
-  soma_Conf <- 0
+  # soma_Conf <- 0
   qtd_Exemplos_Rot <- 0
-  totalrot <- 0
+  # totalrot <- 0
   
   sup <- which(!is.na(data[,as.character(form[[2]])])) #sup recebe o indice de todos os exemplos rotulados
   repeat {
@@ -167,7 +177,7 @@ funcSelfTrainGradativo <- function(form,data,
       thrConf <- (thrConf - gradativo)
       if (thrConf <= 0.0) thrConf <- (thrConf + gradativo)
     }
-    soma_Conf <- 0
+    # soma_Conf <- 0
     qtd_Exemplos_Rot <- 0
     
     model <- runLearner(learner,form,data[sup,])
@@ -189,9 +199,9 @@ funcSelfTrainGradativo <- function(form,data,
     if (length(new)) {
       data[(1:N)[-sup][new],as.character(form[[2]])] <- as.character(probPreds[new,1])
       
-      soma_Conf <- sum(soma_Conf, probPreds[new,2])
+      # soma_Conf <- sum(soma_Conf, probPreds[new,2])
       qtd_Exemplos_Rot <- length(data[(1:N)[-sup][new],as.character(form[[2]])])
-      totalrot <- totalrot + qtd_Exemplos_Rot
+      # totalrot <- totalrot + qtd_Exemplos_Rot
       
       sup <- c(sup,(1:N)[-sup][new])
     }
