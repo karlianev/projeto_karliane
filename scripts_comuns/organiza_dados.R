@@ -22,11 +22,13 @@ base <- base_original[H$tr,]
 base_teste <- base_original[H$ts,]
 
 #variável que armazena os exemplos inicialmente routlados, será usado para treinamento supervisionado
-base_rotulada_treino <- base_original[H$tr,]
+treinamento <<- base_rotulada_treino <- base_original[H$tr,]
+
 
 #sorteando os exemplos que ficarão rotulados inicialmente
 H2 <- holdout(base$class, ratio = (taxa/100), mode="stratified")
 ids_treino_rot <- H2$tr #ids dos exemplos que iniciarão rotulados
+
 
 #ids_treino_rot<-sample(nrow(base),nrow(base)*(taxa/100))
 ##VER SE REALMENTE ESTÁ PEGANDO 5% (PEGAR UMA QTDE PEQ DE EXEMPLOS PARA VALIDAR)

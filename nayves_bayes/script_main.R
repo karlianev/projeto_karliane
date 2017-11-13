@@ -1,17 +1,21 @@
 
 #inicializando variaveis globais para guardar no arquivo de resultados
-
+treinamento <- c()
 it_g <-c() #iteracoes
 bd_g <-c() #base de dados
 thrConf_g<-c() #taxa de confianca para inclusao de novos exemplos
 nr_added_exs_g<-c() #numero de exemplos adicionados ao conj dos rotulados na iteracao corrente
 corretude_g <- c() #corretude do metodo modificado
 cobertura_g <- c() #cobertura do metodo modificado
+acertou_g <- c() #quantidade de exemplos rotulados corretamente
+acertou_g_o <- c() #quantidade de exemplos rotulados corretamente
+acertou_g_gra <- c() #quantidade de exemplos rotulados corretamente
 
 tx_g <- c() #percentual de exemplos rotulados inicialmente
 acc_g <- c() #acuracia (percentual de acerto) do metodo modificado
 acc_g_o <- c() #acuracia (percentual de acerto) do metodo original
 acc_g_gra <- c() #acur?cia (percentual de acerto) do metodo gradativo
+
 
 #fazendo teste com classificador supervisionado
 acc_g_sup <- c() #acuracia (percentual de acerto) do metodo supervisionado
@@ -30,16 +34,18 @@ source('C:/local_R/projeto_karliane/scripts_comuns/funcoes.R')
 # source('~/R/karliane/projeto_karliane/scripts_comuns/funcoes.R')
 
 #loop para definir a taxa de confiança da primeira iteracao
-for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
+for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
   #loop para definir qual classificador sera usado
-  for(c in 2:2){  # 1 = NB, 2 = AD, 3 = JRip ,4 = IBK
+  for(c in 1:4){  # 1 = NB, 2 = AD, 3 = JRip ,4 = IBK
     #inicialização das variáveis
     it_g <-c() 
     bd_g <-c()
     thrConf_g<-c()
     nr_added_exs_g<-c()
+    acertou_g <- c()
     corretude_g <- c()
     cobertura_g <- c()
+    
   
     tx_g <- c()
     acc_g <- c()
@@ -50,7 +56,8 @@ for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
     bd_g_o <-c()
     thrConf_g_o <-c()
     nr_added_exs_g_o <-c()
-
+    acertou_g_o <- c() 
+    
     tx_g_o <- c()
     acc_g_o <- c()
   
@@ -58,9 +65,11 @@ for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
     bd_g_gra <-c()
     thrConf_g_gra <-c()
     nr_added_exs_g_gra <-c()
-
+    acertou_g_gra <- c()
+    
     tx_g_gra <- c()
     acc_g_gra <- c()
+    
     
     bd <- c()
     tx <- c()
@@ -84,9 +93,9 @@ for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
     }
     print("gerando data frame para arquivos")
     #cirando data frame que sera guardado no arquivo com os seguintes dados: base, %rotulados inicialmente, iteracao, taxa de confiança, numero de exemplos adicionados, corretude e cobertura
-    data_arquivo <- data.frame(bd_g,tx_g,it_g,thrConf_g,nr_added_exs_g, corretude_g, cobertura_g)
-    data_arquivo_o <- data.frame(bd_g_o,tx_g_o,it_g_o,thrConf_g_o,nr_added_exs_g_o)
-    data_arquivo_gra <- data.frame(bd_g_gra,tx_g_gra,it_g_gra,thrConf_g_gra,nr_added_exs_g_gra)
+    data_arquivo <- data.frame(bd_g,tx_g,it_g,thrConf_g,nr_added_exs_g, acertou_g, corretude_g, cobertura_g )
+    data_arquivo_o <- data.frame(bd_g_o,tx_g_o,it_g_o,thrConf_g_o,nr_added_exs_g_o, acertou_g_o)
+    data_arquivo_gra <- data.frame(bd_g_gra,tx_g_gra,it_g_gra,thrConf_g_gra,nr_added_exs_g_gra, acertou_g_gra)
 
     #cirando data frame que sera guardado no arquivo com os seguintes dados: %rotulados inicialmente, base, acuracia
     
@@ -184,5 +193,6 @@ for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
     
     }
   }
+  cat('FIM')
 }    
   

@@ -1,18 +1,3 @@
-# PROBLEMAS A RESOLVER: 
-#EXTRATIFICAR os conjuntos de treinamento e teste, resolve : 
-#ta dando erro enas bases iris (com taxa de 5 %) e cleveland 
-#Problema da base cleveland para todas as taxas: no momento da predição a classe 4  não é rotulada para nenhum exemplo. Isso acontece pq não existe nenhum exemplo da classe 4 no conjunto de teste
-#Posso resolver esse problema forçando a seleção de exemplos a pegar pelo menos um exemplo de cada classe?
-#fazer funcionar o Naive bayes para bases iris e cleveland
-
-#Tentar dados categoricos(splice com nb deu certo)
-
-#aprender a usar outros classificadores (knn, svm, jrip=ripper) que n?o seja arvore, naive pag 223 livro torgo
-#selecionar outras base de dados para somar 15
-#fazer experimentos com o outro calculo da taxa de confian?a (thrconf)
-#comparar selftrain com co-training
-
-
 #variaveis globais para guardar no arquivo de resultados
 
 it_g <-c() 
@@ -31,8 +16,8 @@ source('C:/local_R/projeto_karliane/scripts_comuns/configuracoes.R')
 
 source('C:/local_R/projeto_karliane/scripts_comuns/funcoes.R')
 # source('~/R/karliane/projeto_karliane/nayves_bayes/funcoes.R')
-for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
-  for(c in 2:2){  # 1 = NB, 2 = AD 3 = ripper
+for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
+  for(c in 3:3){  # 1 = NB, 2 = AD 3 = ripper
     it_g <-c() 
     bd_g <-c()
     thrConf_g<-c()
@@ -41,7 +26,7 @@ for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
     acc_g <- c()
     bd <- c()
     tx <- c()
-    for(i in 3:3){  # bases de dados
+    for(i in 15:15){  # bases de dados
       for(j in 1:5){ # taxas  #base 1 - IRIS 5% NB N?O FUNCIONA - da erro
         taxa <- j*5
         source('C:/local_R/projeto_karliane/scripts_comuns/carrega_dados.R')

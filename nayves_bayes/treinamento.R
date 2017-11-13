@@ -26,12 +26,13 @@ if(c==1){ #NAIVE BAYES
   matriz_confusao_gra<-table(predict(nbST_gra, base_teste, type = 'class'), base_teste$class)
 }
 if(c==2){ #ARVORE DE DECISAO
+  #fazendo teste com classificador supervisionado
+  #chamada da arvore de decisão usando os exemplos inicialmente rotulados
+  stdTree <- rpartXse(as.formula(paste(classe,'~', '.')),base_rotulados_ini,se=0.5)
+  #chamada da arvore de decisão usando todos os exemplos de treinamento rotulados
+  stdTree_tot <- rpartXse(as.formula(paste(classe,'~', '.')),base_rotulada_treino,se=0.5)
+  
   if (t==1){ #TAXA INICIAL 0.9
-    #fazendo teste com classificador supervisionado
-    #chamada da arvore de decisão usando os exemplos inicialmente rotulados
-    stdTree <- rpartXse(as.formula(paste(classe,'~', '.')),base_rotulados_ini,se=0.5)
-    #chamada da arvore de decisão usando todos os exemplos de treinamento rotulados
-    stdTree_tot <- rpartXse(as.formula(paste(classe,'~', '.')),base_rotulada_treino,se=0.5)
     #chamada da funcao que implementa o metodo modificado usando arvore de decisão
     ST <- funcSelfTrain(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.9,100,1,TRUE)
     #chamada da funcao que implementa o metodo original usando arvore de decisão
@@ -57,6 +58,7 @@ if(c==2){ #ARVORE DE DECISAO
   matriz_confusao_gra=table(predict(ST_gra,base_teste,type='class'),base_teste$class)
 }
 if(c==3){ #RIPPER
+  
   if (t==1){
     ST <- funcSelfTrain(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.9,100,1,TRUE)
     ST_O <- SelfTrainOriginal(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.9,100,1,TRUE)

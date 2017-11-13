@@ -1,30 +1,42 @@
 #func, f, e f2 retornam um data frame (matriz) com duas colunas: 1)a classe predita pelo classificador; 2) a confiança dessa predicao
 #a diferença dessas 3 funções é apenas o type = class (AD) ou raw (NB) ou probability (RIPPER E KNN)
-func <- function(m, d){
-  col1=predict(m,d, type='class') #col1 armazena a classe predita pelo classificador para cada exemplo
-  col2 <- predict(m, d, type = "raw") #col2 armazena a confiança em cada classe predita pelo classificador (ex: classe 1 = 0.8, classe2 = 0.1, classe 3= 0.1)
-  data.frame(c1=col1, p = apply(col2,1,max)) #o comando apply seleciona a maior confiança de cada exemplo/classe armazenada no col2
+func <- function(m, d){ #NB
+
+  p <- predict(m, d, type = "raw") #col2 armazena a confiança em cada classe predita pelo classificador (ex: classe 1 = 0.8, classe2 = 0.1, classe 3= 0.1)
+  data.frame(c1=colnames(p)[apply(p,1,which.max)], p = apply(p,1,max))
   
-  # data.frame(c1=colnames(p)[apply(p,1,which.max)], p = apply(p,1,max))
+  #estava assim, mas otimizei usando o código acima que chama o predict apenas uma vez
+  # col1<-predict(m,d, type='class') #col1 armazena a classe predita pelo classificador para cada exemplo
+  # col2 <- predict(m, d, type = "raw") #col2 armazena a confiança em cada classe predita pelo classificador (ex: classe 1 = 0.8, classe2 = 0.1, classe 3= 0.1)
+  # data.frame(c1=col1, p = apply(col2,1,max)) #o comando apply seleciona a maior confiança de cada exemplo/classe armazenada no col2
+  
 }
-f <- function(m,d) {
-  col1 <- predict(m,d,type='class')
-  col2 <- apply(predict(m,d),1,max) #predict(m,d) = a matriz com os dados(predicao); 1 = trabalha as linhas; max = fun??o a ser aplicada aos dados
+f <- function(m,d) { #AD
+  p <- predict(m,d,type='prob') #predicao dos dados (d) de acordo com o modelo (m)
+  col1 <- colnames(p)[apply(p,1,which.max)] #nome da coluna com a maior predicao, ou seja, a classe
+  col2 <- apply(p,1,max) # valor da maior predicao
   data.frame(cl=col1,p=col2)
+  
+  #estava assim, mas otimizei usando o código acima que chama o predict apenas uma vez
+  # col1 <- predict(m,d,type='class')
+  # col2 <- apply(predict(m,d),1,max) #predict(m,d) = a matriz com os dados(predicao); 1 = trabalha as linhas; max = fun??o a ser aplicada aos dados
+  # data.frame(cl=col1,p=col2)
+  
 }
 
-f2 <- function(m,d) {
-  #predict(m,d) = a matriz com os dados(predi??o); 1 = trabalha as linhas; max = fun??o a ser aplicada aos dados
-  col1 <- predict(m,d,type='class')  # c ? um vetor com a classe a qual cada exemplo pertence
-  col2 <- apply(predict(m,d,type='probability'),1,max) # l ? uma matriz com a confian?a da predi??o de cada exemplo
-  data.frame(cl=col1,p=col2) #um data frame com 2 colunas: 1) a predi??o de cada exemplo; 2) a classe predita para cada exemplo
+f2 <- function(m,d) { #JRip e KNN
+    p <- predict(m,d,type='probability') # l ? uma matriz com a confian?a da predi??o de cada exemplo
+    col1 <- colnames(p)[apply(p,1,which.max)] #nome da coluna com a maior predicao, ou seja, a classe
+    col2 <- apply(p,1,max) # valor da maior predicao
+    data.frame(cl=col1,p=col2) #um data frame com 2 colunas: 1) a predi??o de cada exemplo; 2) a classe predita para cada exemplo
 
-  #anteriormente estava assim, acho q estava errado  
-  # l <- predict(m,d,type='probability')
-  # c <- apply(l,1,max) #predict(m,d) = a matriz com os dados(predi??o); 1 = trabalha as linhas; max = fun??o a ser aplicada aos dados
-  # data.frame(cl=l,p=c)
-  
-  }
+  #estava assim, mas otimizei usando o código acima que chama o predict apenas uma vez
+  #predict(m,d) = a matriz com os dados(predi??o); 1 = trabalha as linhas; max = fun??o a ser aplicada aos dados
+  # col1 <- predict(m,d,type='class')  # c ? um vetor com a classe a qual cada exemplo pertence
+  # col2 <- apply(predict(m,d,type='probability'),1,max) # l ? uma matriz com a confian?a da predi??o de cada exemplo
+  # data.frame(cl=col1,p=col2) #um data frame com 2 colunas: 1) a predi??o de cada exemplo; 2) a classe predita para cada exemplo
+
+}
 
 #funcao self-training modificado
 funcSelfTrain <- function(form,data,
@@ -35,10 +47,12 @@ funcSelfTrain <- function(form,data,
                           verbose=F){
   
   
+  
   #N armazena a quantidade de exemplos na base de dados
   N <- NROW(data)
   #inicializando variáveis
   it <- 0 #iteracao
+  
   
   # soma_Conf <- 0 #soma da confianca
   conf_media <- 0 #confiança média da predicao dos exemplos rotulados em cada iteração
@@ -51,6 +65,7 @@ funcSelfTrain <- function(form,data,
   #quantidade de linhas do conjunto de dados retirando os exemplos rotulados, ou seja, a quantidade de exemplos não rotulados no conjunto de dados
   N_nao_rot <- NROW(data[-sup,])
   repeat {
+    acertou <- 0
     it <- it+1
     #O cálculo da taxa de confianca (thrConf) será realizado a partir da segunda iteracao e se houver exemplos rotulados
     if ((it>1)&&(qtd_Exemplos_Rot>0)){
@@ -94,7 +109,16 @@ funcSelfTrain <- function(form,data,
       qtd_Exemplos_Rot <- length(data[(1:N)[-sup][new],as.character(form[[2]])])
       totalrot <- totalrot + qtd_Exemplos_Rot
 
-      sup <- c(sup,(1:N)[-sup][new])
+      acertou <- 0
+      acerto <- treinamento[(1:N)[-sup][new], as.character(form[2])]== data[(1:N)[-sup][new], as.character(form[2])]
+      tam_acerto <- NROW(acerto)
+      for (w in 1:tam_acerto){
+        if (acerto[w] == TRUE)
+          acertou <- acertou + 1
+      }
+      
+      
+      sup <- c(sup,(1:N)[-sup][new])      
     }
 
     # corret <- (soma_Conf/qtd_Exemplos_Rot)
@@ -102,7 +126,8 @@ funcSelfTrain <- function(form,data,
     cobert <- (qtd_Exemplos_Rot/N_nao_rot)
     corretude_g <<- c(corretude_g, corret)
     cobertura_g <<- c(cobertura_g, cobert)
-
+    acertou_g <<- c(acertou_g, acertou)
+    
     #se não existir nenhum exemplo a ser rotulado, atribua a taxa de confianca (thrConf) a maior confiança na predicao
     if(length(new)==0){
         thrConf<-max(probPreds[,2]) 
@@ -114,6 +139,14 @@ funcSelfTrain <- function(form,data,
     
   }
 
+  # #codigo usado apenas para avaliar quantos exemplos estão sendo rotulados errado.
+  # acerto <- treinamento[(1:N), as.character(form[2])]== data[(1:N), as.character(form[2])]
+  # tam_acerto <- NROW(acerto)
+  # for (w in 1:tam_acerto){
+  #   if (acerto[w] == TRUE)
+  #     acertou <- acertou + 1
+  # }
+  
   #retorne o modelo criado pelo classificador  
   return(model)  
 }
@@ -123,10 +156,12 @@ SelfTrainOriginal <- function (form, data, learner, predFunc, thrConf = 0.9, max
           percFull = 1, verbose = F) 
 {
   
+
   N <- NROW(data)
   it <- 0
   sup <- which(!is.na(data[, as.character(form[[2]])]))
   repeat {
+    acertou <- 0
     it <- it + 1
     model <- runLearner(learner, form, data[sup, ])
     probPreds <- do.call(predFunc, list(model, data[-sup,]))
@@ -143,12 +178,39 @@ SelfTrainOriginal <- function (form, data, learner, predFunc, thrConf = 0.9, max
     }
     if (length(new)) {
       data[(1:N)[-sup][new], as.character(form[[2]])] <- probPreds[new, 1]
+      
+      acertou <- 0
+      acerto <- treinamento[(1:N)[-sup][new], as.character(form[2])]== data[(1:N)[-sup][new], as.character(form[2])]
+      tam_acerto <- NROW(acerto)
+      for (w in 1:tam_acerto){
+        if (acerto[w] == TRUE)
+          acertou <- acertou + 1
+      }
+      
       sup <- c(sup, (1:N)[-sup][new])
+      acertou_g_o <<- c(acertou_g_o, acertou)
     }
-    else break
+    else{
+      acertou <- 0
+      acertou_g_o <<- c(acertou_g_o, acertou)
+      break
+    }
+    
+    
+    
     if (it == maxIts || length(sup)/N >= percFull) 
       break
   }
+  
+  
+  # #codigo usado apenas para avaliar quantos exemplos estão sendo rotulados errado.
+  # acerto <- treinamento[(1:N), as.character(form[2])]== data[(1:N), as.character(form[2])]
+  # tam_acerto <- NROW(acerto)
+  # for (w in 1:tam_acerto){
+  #   if ((!is.na(acerto[w])) && (acerto[w] == TRUE))
+  #     acertou <- acertou + 1
+  # }
+  
   return(model)
 }
 
@@ -161,6 +223,7 @@ funcSelfTrainGradativo <- function(form,data,
                           maxIts=10,percFull=1,
                           verbose=F,gradativo=0.05){
   
+  
   data
   N <- NROW(data)
   it <- 0
@@ -170,6 +233,7 @@ funcSelfTrainGradativo <- function(form,data,
   
   sup <- which(!is.na(data[,as.character(form[[2]])])) #sup recebe o indice de todos os exemplos rotulados
   repeat {
+    acertou <- 0
     it <- it+1
 
 
@@ -203,9 +267,20 @@ funcSelfTrainGradativo <- function(form,data,
       qtd_Exemplos_Rot <- length(data[(1:N)[-sup][new],as.character(form[[2]])])
       # totalrot <- totalrot + qtd_Exemplos_Rot
       
+      acertou <- 0
+      acerto <- treinamento[(1:N)[-sup][new], as.character(form[2])]== data[(1:N)[-sup][new], as.character(form[2])]
+      tam_acerto <- NROW(acerto)
+      for (w in 1:tam_acerto){
+        if (acerto[w] == TRUE)
+          acertou <- acertou + 1
+      }
+      
+      
       sup <- c(sup,(1:N)[-sup][new])
     }
-
+    
+    acertou_g_gra <<- c(acertou_g_gra, acertou)
+    
     if(length(new)==0){
       thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A M?DIA DAS PREDI??ES.
       # thrConf<-mean(probPreds[,2])
