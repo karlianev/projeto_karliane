@@ -1,14 +1,14 @@
-#func, f, e f2 retornam um data frame (matriz) com duas colunas: 1)a classe predita pelo classificador; 2) a confiança dessa predicao
-#a diferença dessas 3 funções é apenas o type = class (AD) ou raw (NB) ou probability (RIPPER E KNN)
+#func, f, e f2 retornam um data frame (matriz) com duas colunas: 1)a classe predita pelo classificador; 2) a confian?a dessa predicao
+#a diferen?a dessas 3 fun??es ? apenas o type = class (AD) ou raw (NB) ou probability (RIPPER E KNN)
 func <- function(m, d){ #NB
 
-  p <- predict(m, d, type = "raw") #col2 armazena a confiança em cada classe predita pelo classificador (ex: classe 1 = 0.8, classe2 = 0.1, classe 3= 0.1)
+  p <- predict(m, d, type = "raw") #col2 armazena a confian?a em cada classe predita pelo classificador (ex: classe 1 = 0.8, classe2 = 0.1, classe 3= 0.1)
   data.frame(c1=colnames(p)[apply(p,1,which.max)], p = apply(p,1,max))
   
-  #estava assim, mas otimizei usando o código acima que chama o predict apenas uma vez
+  #estava assim, mas otimizei usando o c?digo acima que chama o predict apenas uma vez
   # col1<-predict(m,d, type='class') #col1 armazena a classe predita pelo classificador para cada exemplo
-  # col2 <- predict(m, d, type = "raw") #col2 armazena a confiança em cada classe predita pelo classificador (ex: classe 1 = 0.8, classe2 = 0.1, classe 3= 0.1)
-  # data.frame(c1=col1, p = apply(col2,1,max)) #o comando apply seleciona a maior confiança de cada exemplo/classe armazenada no col2
+  # col2 <- predict(m, d, type = "raw") #col2 armazena a confian?a em cada classe predita pelo classificador (ex: classe 1 = 0.8, classe2 = 0.1, classe 3= 0.1)
+  # data.frame(c1=col1, p = apply(col2,1,max)) #o comando apply seleciona a maior confian?a de cada exemplo/classe armazenada no col2
   
 }
 f <- function(m,d) { #AD
@@ -17,7 +17,7 @@ f <- function(m,d) { #AD
   col2 <- apply(p,1,max) # valor da maior predicao
   data.frame(cl=col1,p=col2)
   
-  #estava assim, mas otimizei usando o código acima que chama o predict apenas uma vez
+  #estava assim, mas otimizei usando o c?digo acima que chama o predict apenas uma vez
   # col1 <- predict(m,d,type='class')
   # col2 <- apply(predict(m,d),1,max) #predict(m,d) = a matriz com os dados(predicao); 1 = trabalha as linhas; max = fun??o a ser aplicada aos dados
   # data.frame(cl=col1,p=col2)
@@ -30,7 +30,7 @@ f2 <- function(m,d) { #JRip e KNN
     col2 <- apply(p,1,max) # valor da maior predicao
     data.frame(cl=col1,p=col2) #um data frame com 2 colunas: 1) a predi??o de cada exemplo; 2) a classe predita para cada exemplo
 
-  #estava assim, mas otimizei usando o código acima que chama o predict apenas uma vez
+  #estava assim, mas otimizei usando o c?digo acima que chama o predict apenas uma vez
   #predict(m,d) = a matriz com os dados(predi??o); 1 = trabalha as linhas; max = fun??o a ser aplicada aos dados
   # col1 <- predict(m,d,type='class')  # c ? um vetor com a classe a qual cada exemplo pertence
   # col2 <- apply(predict(m,d,type='probability'),1,max) # l ? uma matriz com a confian?a da predi??o de cada exemplo
@@ -50,26 +50,26 @@ funcSelfTrain <- function(form,data,
   
   #N armazena a quantidade de exemplos na base de dados
   N <- NROW(data)
-  #inicializando variáveis
+  #inicializando vari?veis
   it <- 0 #iteracao
   
   
   # soma_Conf <- 0 #soma da confianca
-  conf_media <- 0 #confiança média da predicao dos exemplos rotulados em cada iteração
+  conf_media <- 0 #confian?a m?dia da predicao dos exemplos rotulados em cada itera??o
   qtd_Exemplos_Rot <- 0 #quantidade de eemplos rotulados
   totalrot <- 0 #total de exemplos rotulados
   corret <- 0 #corretude
   cobert <- 0 #cobertura
   #sup recebe o indice de todos os exemplos rotulados
   sup <- which(!is.na(data[,as.character(form[[2]])])) 
-  #quantidade de linhas do conjunto de dados retirando os exemplos rotulados, ou seja, a quantidade de exemplos não rotulados no conjunto de dados
+  #quantidade de linhas do conjunto de dados retirando os exemplos rotulados, ou seja, a quantidade de exemplos n?o rotulados no conjunto de dados
   N_nao_rot <- NROW(data[-sup,])
   repeat {
     acertou <- 0
     it <- it+1
-    #O cálculo da taxa de confianca (thrConf) será realizado a partir da segunda iteracao e se houver exemplos rotulados
+    #O c?lculo da taxa de confianca (thrConf) ser? realizado a partir da segunda iteracao e se houver exemplos rotulados
     if ((it>1)&&(qtd_Exemplos_Rot>0)){
-      #o cálculo comentado está errado, substituí pela linha de baixo
+      #o c?lculo comentado est? errado, substitu? pela linha de baixo
       # thrConf <- (thrConf + (soma_Conf/qtd_Exemplos_Rot) + (qtd_Exemplos_Rot/N))/3
       thrConf <- (thrConf + conf_media + (qtd_Exemplos_Rot/N_nao_rot))/3
     }
@@ -78,11 +78,36 @@ funcSelfTrain <- function(form,data,
     conf_media <- 0
     qtd_Exemplos_Rot <- 0
     
-    #model armazena o modelo gerado utilizando o aprendiz learner (AD, NB, KNN OU RIPPER), a base data[sup,] que são os dados rotulados e a classe é passada no parâmetro form
+    #model armazena o modelo gerado utilizando o aprendiz learner (AD, NB, KNN OU RIPPER), a base data[sup,] que s?o os dados rotulados e a classe ? passada no par?metro form
     model <- runLearner(learner,form,data[sup,])
-    #a predicao e gerada de acordo com predFunc (func ou f1 ou f2 que foi passado como parâmetro)
-    probPreds <- do.call(predFunc,list(model,data[-sup,])) #data[-sup,] são os dados não rotulados
-    #a variavel new armazena os exemplos cuja confiança na predicao é maior do que a taxa de confianca minima (thrConf)
+    #a predicao e gerada de acordo com predFunc (func ou f1 ou f2 que foi passado como par?metro)
+    probPreds <- do.call(predFunc,list(model,data[-sup,])) #data[-sup,] s?o os dados n?o rotulados
+    
+    ## teste ##
+    if(it == 1){
+      cat("############# PRIMEIRA ITERAÃ‡ÃƒO ##################")
+      probPreds_1_it <- probPreds
+    }else{
+      indices <- row.names(probPreds) # pega o id de cada exemplo
+      if(max(probPreds[,2]) < thrConf) {
+        thrConf <- max(probPreds[,"p"])
+      }
+      for (i in indices) {
+        conf <- probPreds[i,"p"]
+        clx <- probPreds[i,"cl"]
+        if((conf >= thrConf) && (clx == probPreds_1_it[i,"cl"])) {
+          # Adicionar ao conjunto
+          print(format(data.frame("It" = it,"thrConf" = thrConf,
+                                  "IteraÃ§Ã£o x" = probPreds[i,],"IteraÃ§Ã£o 1" = probPreds_1_it[i,],
+                                  check.names = FALSE)))
+        } else if(clx != probPreds_1_it[i,"cl"]) {
+          # Adicionar classe da primeira iteraÃ§Ã£o
+        }
+      }
+    }
+    ## teste ##
+    
+    #a variavel new armazena os exemplos cuja confian?a na predicao ? maior do que a taxa de confianca minima (thrConf)
     new <- which(probPreds[,2] >= thrConf)
     
     if (verbose) {
@@ -96,9 +121,9 @@ funcSelfTrain <- function(form,data,
       tx_g <<- c(tx_g, taxa)
     }
     
-    #Se existir algum exemplo a ser rotulado, serão inseridos no conjunto dos rotulados
+    #Se existir algum exemplo a ser rotulado, ser?o inseridos no conjunto dos rotulados
     if (length(new)) {
-      #quantidade de exemplos não rotulados no conjunto de dados
+      #quantidade de exemplos n?o rotulados no conjunto de dados
       N_nao_rot <- NROW(data[-sup,])
         
       data[(1:N)[-sup][new],as.character(form[[2]])] <- as.character(probPreds[new,1])
@@ -128,18 +153,18 @@ funcSelfTrain <- function(form,data,
     cobertura_g <<- c(cobertura_g, cobert)
     acertou_g <<- c(acertou_g, acertou)
     
-    #se não existir nenhum exemplo a ser rotulado, atribua a taxa de confianca (thrConf) a maior confiança na predicao
+    #se n?o existir nenhum exemplo a ser rotulado, atribua a taxa de confianca (thrConf) a maior confian?a na predicao
     if(length(new)==0){
         thrConf<-max(probPreds[,2]) 
         # thrConf<-mean(probPreds[,2])
     }
 
-    #termine se chegar ao número máximo de iterações ou se atingir o percentual máximo de exemplos rotulados
+    #termine se chegar ao n?mero m?ximo de itera??es ou se atingir o percentual m?ximo de exemplos rotulados
     if (it == maxIts || length(sup)/N >= percFull) break
     
   }
 
-  # #codigo usado apenas para avaliar quantos exemplos estão sendo rotulados errado.
+  # #codigo usado apenas para avaliar quantos exemplos est?o sendo rotulados errado.
   # acerto <- treinamento[(1:N), as.character(form[2])]== data[(1:N), as.character(form[2])]
   # tam_acerto <- NROW(acerto)
   # for (w in 1:tam_acerto){
@@ -203,7 +228,7 @@ SelfTrainOriginal <- function (form, data, learner, predFunc, thrConf = 0.9, max
   }
   
   
-  # #codigo usado apenas para avaliar quantos exemplos estão sendo rotulados errado.
+  # #codigo usado apenas para avaliar quantos exemplos est?o sendo rotulados errado.
   # acerto <- treinamento[(1:N), as.character(form[2])]== data[(1:N), as.character(form[2])]
   # tam_acerto <- NROW(acerto)
   # for (w in 1:tam_acerto){
@@ -521,7 +546,7 @@ funcSelfTrainModificado3 <- function(form,data,
     model <- runLearner(learner,form,data[sup,])
     probPreds <- do.call(predFunc,list(model,data[-sup,]))
     probPreds_model_superv <- do.call(predFunc,list(model_supervisionado,data[-sup,]))
-#ESTÁ DANDO ERRO AQUI NA BASE PHISHING PQ NA IT 9 O PROBPREDS NÃO PREDIZ NINGUEM COMO SENDO A CLASSE0
+#EST? DANDO ERRO AQUI NA BASE PHISHING PQ NA IT 9 O PROBPREDS N?O PREDIZ NINGUEM COMO SENDO A CLASSE0
 #DESTA FORMA, O CONJUNTO DE ROTULOS DO PROBPREDS E PROBPRES_MODEL_SUPERV FICAM DIFERENTES    
     new <- which((probPreds[,2] >= thrConf) & (probPreds[,1]==probPreds_model_superv[,1]))
     if (length(new)==0){
@@ -535,14 +560,14 @@ funcSelfTrainModificado3 <- function(form,data,
       new_probpreds_confianca <- which(probPreds[,2] >= thrConf)
 
       if (length(new_probpreds_model_sup)==0){
-        cat("não tem exemplo com mesmo rotulo em probpreds e probpreds_model_sup")
+        cat("n?o tem exemplo com mesmo rotulo em probpreds e probpreds_model_sup")
       }
       if (length(new_probpreds_model_sup_confianca)==0){
-        cat("não tem exemplo em probpreds_model_sup cuja confianca seja maior que thrconf")
+        cat("n?o tem exemplo em probpreds_model_sup cuja confianca seja maior que thrconf")
       }
       
       if (length(new_probpreds_confianca)==0)
-        cat("não tem exemplo em probpreds cuja confianca seja maior que thrconf")
+        cat("n?o tem exemplo em probpreds cuja confianca seja maior que thrconf")
       
     }
     
