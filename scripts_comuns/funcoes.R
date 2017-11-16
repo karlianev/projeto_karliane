@@ -359,15 +359,15 @@ funcSelfTrainModificado2 <- function(form,data,
         else if (c==2){
           #IMPLEMENTAR ARVORE DE DECIS?O
           classificador <- rpartXse(as.factor(class) ~ .,conj_treino)
-          matriz <- table(predict(classificador,base_rotulados_ini, type="vector"),base_rotulados_ini$class)        
+          matriz <- table(predict(classificador,base_rotulados_ini, type="class"),base_rotulados_ini$class)        
         } else if (c==3){
           #IMPLEMENTAR ripper
           classificador <- JRip(as.factor(class) ~ .,conj_treino)
-          matriz <- table(predict(classificador,base_rotulados_ini, type="class"),base_rotulados_ini$class)        
+          matriz <- table(predict(classificador,base_rotulados_ini),base_rotulados_ini$class)        
         } else if (c==4){
           #IMPLEMENTAR IBk
           classificador <- IBk(as.factor(class) ~ .,conj_treino)
-          matriz <- table(predict(classificador,base_rotulados_ini, type="vector"),base_rotulados_ini$class)
+          matriz <- table(predict(classificador,base_rotulados_ini),base_rotulados_ini$class)
         }
           
         
@@ -412,6 +412,164 @@ funcSelfTrainModificado2 <- function(form,data,
       
       id_conj_treino_antigo <- c(id_conj_treino_antigo,id_conj_treino)
       id_conj_treino <- (1:N)[-sup][new]
+      sup <- c(sup,(1:N)[-sup][new])
+      
+    }
+    if(length(new)==0){
+      thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A M?DIA DAS PREDI??ES.
+      # thrConf<-mean(probPreds[,2])
+    }
+    if (it == maxIts || length(sup)/N >= percFull) break
+    
+  } #FIM DO REPEAT
+  
+  return(model)  
+}
+
+funcSelfTrainModificado3 <- function(form,data,
+                                     learner,
+                                     predFunc,
+                                     thrConf=0.9,
+                                     maxIts=10,percFull=1,
+                                     verbose=F,
+                                     min_exem_por_classe,
+                                     limiar=70,
+                                     model_supervisionado){
+  
+  N <- NROW(data)
+  N_instancias_por_classe <- ddply(data,~class,summarise,number_of_distinct_orders=length(class))
+  #substituido por min_exem_por_classe
+  N_classes <- NROW(N_instancias_por_classe)-1 # uso do -1 pq N_instancias_por_classe tem uma linha com a quantidade de exemplos n?o rotulados
+  it <- 0
+  soma_Conf <- 0
+  qtd_Exemplos_Rot <- 0
+  totalrot <- 0
+  conj_treino <- c()
+  classificar <- TRUE
+  add_rot_superv <- FALSE
+  
+  
+  sup <- which(!is.na(data[,as.character(form[[2]])])) #sup recebe o indice de todos os exemplos rotulados
+  id_conj_treino <- c()
+  id_conj_treino_antigo <- c()
+  repeat {
+    #cat("conj_treino", conj_treino, "nrow(conj_treino)", nrow(conj_treino))
+    it <- it+1
+    
+    if ((it>1)&&(qtd_Exemplos_Rot>0)){
+      #      cat("entrou if da segunda itera??o", '\n')
+      # conj_treino <- rbind(data[id_conj_treino,],data[id_conj_treino_antigo,])
+      N_instancias_por_classe2 <- ddply(conj_treino,~class,summarise,number_of_distinct_orders=length(class))
+      # N_instancias_por_classe2 <- ddply(data[id_conj_treino,],~class,summarise,number_of_distinct_orders=length(class))
+      
+      treino_valido <- FALSE
+      if (NROW(N_instancias_por_classe2) == N_classes){#TAVA nrow
+        # teste <<- N_c
+        for (x in 1:NROW(N_instancias_por_classe2)){ #TAVA nrow
+
+          if (N_instancias_por_classe2$number_of_distinct_orders[x]>= min_exem_por_classe) #N_classes*5)
+            treino_valido <- TRUE
+          else treino_valido <- FALSE
+        }
+
+      }
+      
+      
+      
+      if (treino_valido){
+        #o conjunto de treinamento serÃ¡ o anterior + as instancias incluidas (rotuladas)
+        classificar <- TRUE
+        # cat("juntou", NROW(conj_treino), "\n") #TAVA nrow
+      }else classificar <- FALSE #a confian?a permanece a mesma ao inves de parar
+      
+      if (classificar){
+        if(c==1){
+          classificador <- naiveBayes(as.factor(class) ~ .,conj_treino)
+          matriz <- table(predict(classificador,base_rotulados_ini),base_rotulados_ini$class)
+        }else if (c==2){
+          #IMPLEMENTAR ARVORE DE DECIS?O
+          classificador <- rpartXse(as.factor(class) ~ .,conj_treino)
+          matriz <- table(predict(classificador,base_rotulados_ini, type="class"),base_rotulados_ini$class)        
+        } else if (c==3){
+          #IMPLEMENTAR ripper
+          classificador <- JRip(as.factor(class) ~ .,conj_treino)
+          matriz <- table(predict(classificador,base_rotulados_ini),base_rotulados_ini$class)        
+        } else if (c==4){
+          #IMPLEMENTAR IBk
+          classificador <- IBk(as.factor(class) ~ .,conj_treino, control = Weka_control(K=5, X=TRUE))
+          matriz <- table(predict(classificador,base_rotulados_ini),base_rotulados_ini$class)
+        }
+        
+        
+        
+        acc_local <- ((sum(diag(matriz)) / length(base_rotulados_ini$class)) * 100)
+        if((acc_local>(limiar + 1)) && (thrConf-0.05>0.0)){
+          #if(acc_local>=limiar){
+          thrConf<-thrConf-0.05
+          
+        }else if((acc_local<(limiar - 1)) && (thrConf+0.05 < 1)){
+          #}else{
+          thrConf<-thrConf+0.05
+        } #caso contrario a confian?a permanecer? a mesma
+        
+      }  
+    }
+    
+    soma_Conf <- 0
+    qtd_Exemplos_Rot <- 0
+    
+    model <- runLearner(learner,form,data[sup,])
+    probPreds <- do.call(predFunc,list(model,data[-sup,]))
+    probPreds_model_superv <- do.call(predFunc,list(model_supervisionado,data[-sup,]))
+#ESTÁ DANDO ERRO AQUI NA BASE PHISHING PQ NA IT 9 O PROBPREDS NÃO PREDIZ NINGUEM COMO SENDO A CLASSE0
+#DESTA FORMA, O CONJUNTO DE ROTULOS DO PROBPREDS E PROBPRES_MODEL_SUPERV FICAM DIFERENTES    
+    new <- which((probPreds[,2] >= thrConf) & (probPreds[,1]==probPreds_model_superv[,1]))
+    if (length(new)==0){
+      new <- which((probPreds_model_superv[,2] >= thrConf) & (probPreds[,1]==probPreds_model_superv[,1]))  
+      add_rot_superv <- TRUE
+    }
+
+    if (length(new)==0){
+      new_probpreds_model_sup <- which(probPreds[,1]==probPreds_model_superv[,1])
+      new_probpreds_model_sup_confianca <- which(probPreds_model_superv[,2] >= thrConf)
+      new_probpreds_confianca <- which(probPreds[,2] >= thrConf)
+
+      if (length(new_probpreds_model_sup)==0){
+        cat("não tem exemplo com mesmo rotulo em probpreds e probpreds_model_sup")
+      }
+      if (length(new_probpreds_model_sup_confianca)==0){
+        cat("não tem exemplo em probpreds_model_sup cuja confianca seja maior que thrconf")
+      }
+      
+      if (length(new_probpreds_confianca)==0)
+        cat("não tem exemplo em probpreds cuja confianca seja maior que thrconf")
+      
+    }
+    
+    if (verbose) {
+      cat('tx_incl',taxa,'IT.',it,'BD',i,thrConf,'\t nr. added exs. =',length(new),'\n') 
+      ##guardando nas variaveis 
+      it_g_3 <<-c(it_g,it)
+      bd_g_3 <<-c(bd_g,bd_nome)
+      thrConf_g_3 <<-c(thrConf_g,thrConf)
+      nr_added_exs_g_3 <<-c(nr_added_exs_g,length(new))
+      tx_g_3 <<- c(tx_g, taxa)
+    }
+    
+    if (length(new)) {
+      if (add_rot_superv) {
+        data[(1:N)[-sup][new],as.character(form[[2]])] <- as.character(probPreds_model_superv[new,1])
+      }else{
+        data[(1:N)[-sup][new],as.character(form[[2]])] <- as.character(probPreds[new,1])
+      }
+      soma_Conf <- sum(soma_Conf, probPreds[new,2])
+      qtd_Exemplos_Rot <- length(data[(1:N)[-sup][new],as.character(form[[2]])])
+      totalrot <- totalrot + qtd_Exemplos_Rot
+      
+      id_conj_treino_antigo <- c(id_conj_treino_antigo,id_conj_treino)
+      id_conj_treino <- (1:N)[-sup][new]
+      conj_treino <- rbind(data[id_conj_treino,],data[id_conj_treino_antigo,])
+      
       sup <- c(sup,(1:N)[-sup][new])
       
     }
