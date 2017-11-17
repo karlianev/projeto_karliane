@@ -69,12 +69,10 @@ funcSelfTrain <- function(form,data,
     it <- it+1
     #O c?lculo da taxa de confianca (thrConf) ser? realizado a partir da segunda iteracao e se houver exemplos rotulados
     if ((it>1)&&(qtd_Exemplos_Rot>0)){
-      #o c?lculo comentado est? errado, substitu? pela linha de baixo
-      # thrConf <- (thrConf + (soma_Conf/qtd_Exemplos_Rot) + (qtd_Exemplos_Rot/N))/3
       thrConf <- (thrConf + conf_media + (qtd_Exemplos_Rot/N_nao_rot))/3
     }
 
-    # soma_Conf <- 0
+
     conf_media <- 0
     qtd_Exemplos_Rot <- 0
     
@@ -546,31 +544,27 @@ funcSelfTrainModificado3 <- function(form,data,
     model <- runLearner(learner,form,data[sup,])
     probPreds <- do.call(predFunc,list(model,data[-sup,]))
     probPreds_model_superv <- do.call(predFunc,list(model_supervisionado,data[-sup,]))
-#EST? DANDO ERRO AQUI NA BASE PHISHING PQ NA IT 9 O PROBPREDS N?O PREDIZ NINGUEM COMO SENDO A CLASSE0
-#DESTA FORMA, O CONJUNTO DE ROTULOS DO PROBPREDS E PROBPRES_MODEL_SUPERV FICAM DIFERENTES    
-    new <- which((probPreds[,2] >= thrConf) & (probPreds[,1]==probPreds_model_superv[,1]))
-    if (length(new)==0){
-      new <- which((probPreds_model_superv[,2] >= thrConf) & (probPreds[,1]==probPreds_model_superv[,1]))  
-      add_rot_superv <- TRUE
-    }
 
-    if (length(new)==0){
-      new_probpreds_model_sup <- which(probPreds[,1]==probPreds_model_superv[,1])
-      new_probpreds_model_sup_confianca <- which(probPreds_model_superv[,2] >= thrConf)
-      new_probpreds_confianca <- which(probPreds[,2] >= thrConf)
-
-      if (length(new_probpreds_model_sup)==0){
-        cat("n?o tem exemplo com mesmo rotulo em probpreds e probpreds_model_sup")
-      }
-      if (length(new_probpreds_model_sup_confianca)==0){
-        cat("n?o tem exemplo em probpreds_model_sup cuja confianca seja maior que thrconf")
-      }
-      
-      if (length(new_probpreds_confianca)==0)
-        cat("n?o tem exemplo em probpreds cuja confianca seja maior que thrconf")
-      
-    }
+    #transformando os dados dos factors probpreds e probpreds_model_superv em caracter para não ter problema quando a quantidade de classes preditas em um factor não for a mesma do outro
+    w <- sapply(probPreds, is.factor)
+    probPreds[w] <- lapply(probPreds[w], as.character)
+    w <- sapply(probPreds_model_superv, is.factor)
+    probPreds_model_superv[w] <- lapply(probPreds_model_superv[w], as.character)
     
+    #adiciona exemplos cuja confiança dos dois classificadores seja maior que thrconf e cuja predicao de probpreds e probpreds_model_superv seja a mesma
+    new <- which((probPreds[,2] >= thrConf) & (probPreds_model_superv[,2] >= thrConf) & (probPreds[,1]==probPreds_model_superv[,1]))
+    if (length(new)==0){
+      #adiciona exemplos cuja confiança de um dos classificadores seja maior que thrconf e cuja predicao de probpreds e probpreds_model_superv seja a mesma
+      new <- which((probPreds[,2] >= thrConf) | (probPreds_model_superv[,2] >= thrConf) & (probPreds[,1]==probPreds_model_superv[,1]))  
+      
+      if (length(new)==0){
+        #adiciona exemplos cuja confiança dos dois classificadores seja maior que thrconf e cuja predicao de probpreds e probpreds_model_superv seja a mesma
+        new <- which((probPreds[,2] >= thrConf) & (probPreds_model_superv[,2] >= thrConf) & (probPreds[,1] != probPreds_model_superv[,1]))  
+        add_rot_superv <- TRUE
+
+      }
+    }
+
     if (verbose) {
       cat('tx_incl',taxa,'IT.',it,'BD',i,thrConf,'\t nr. added exs. =',length(new),'\n') 
       ##guardando nas variaveis 
