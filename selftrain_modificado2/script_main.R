@@ -1,11 +1,14 @@
 #variaveis globais para guardar no arquivo de resultados
-
+treinamento <- c()
 it_g <-c() 
 bd_g <-c()
 thrConf_g<-c()
 nr_added_exs_g<-c()
 tx_g <- c()
 acc_g <- c()
+acertou_g <- c() #quantidade de exemplos rotulados corretamente
+
+
 
 it_g_3 <-c() 
 bd_g_3 <-c()
@@ -13,6 +16,7 @@ thrConf_g_3 <-c()
 nr_added_exs_g_3 <-c()
 tx_g_3 <- c()
 acc_g_3 <- c()
+acertou_g_3 <- c() #quantidade de exemplos rotulados corretamente
 
 grad_g <- c()
 
@@ -24,15 +28,16 @@ source('C:/local_R/projeto_karliane/scripts_comuns/configuracoes.R')
 
 source('C:/local_R/projeto_karliane/scripts_comuns/funcoes.R')
 # source('~/R/karliane/projeto_karliane/nayves_bayes/funcoes.R')
-for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
-  for(c in 1:1){  # 1 = NB, 2 = AD 3 = ripper 4 = IBK
+for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
+  for(c in 1:4){  # 1 = NB, 2 = AD 3 = ripper 4 = IBK
     it_g <-c() 
     bd_g <-c()
     thrConf_g<-c()
     nr_added_exs_g<-c()
     tx_g <- c()
     acc_g <- c()
-
+    acertou_g <- c()
+    
     it_g_3 <-c() 
     bd_g_3 <-c()
     thrConf_g_3 <-c()
@@ -40,6 +45,7 @@ for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
     tx_g_3 <- c()
     acc_g_3 <- c()
     acc_g_3 <- c()
+    acertou_g_3 <- c()
     
     bd <- c()
     tx <- c()
@@ -57,8 +63,8 @@ for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
     }  #FIM DO I
     print("gerando data frame para arquivos")
     #data frame que sera guardado no arquivo
-    data_arquivo_modif2 <- data.frame(bd_g,tx_g,it_g,thrConf_g,nr_added_exs_g)
-    data_arquivo_modif3 <- data.frame(bd_g_3,tx_g_3,it_g_3,thrConf_g_3,nr_added_exs_g_3)
+    data_arquivo_modif2 <- data.frame(bd_g,tx_g,it_g,thrConf_g,nr_added_exs_g, acertou_g)
+    data_arquivo_modif3 <- data.frame(bd_g_3,tx_g_3,it_g_3,thrConf_g_3,nr_added_exs_g_3, acertou_g_3)
   
 
     data_arquivo_acc_modif2 <- data.frame(tx, bd, acc_g)

@@ -340,6 +340,7 @@ funcSelfTrainModificado2 <- function(form,data,
   id_conj_treino <- c()
   id_conj_treino_antigo <- c()
   repeat {
+    acertou <- 0
     #cat("conj_treino", conj_treino, "nrow(conj_treino)", nrow(conj_treino))
     it <- it+1
     
@@ -433,11 +434,23 @@ funcSelfTrainModificado2 <- function(form,data,
       qtd_Exemplos_Rot <- length(data[(1:N)[-sup][new],as.character(form[[2]])])
       totalrot <- totalrot + qtd_Exemplos_Rot
       
+      acertou <- 0
+      acerto <- treinamento[(1:N)[-sup][new], as.character(form[2])]== data[(1:N)[-sup][new], as.character(form[2])]
+      tam_acerto <- NROW(acerto)
+      for (w in 1:tam_acerto){
+        if (acerto[w] == TRUE)
+          acertou <- acertou + 1
+      }
+      
+      
       id_conj_treino_antigo <- c(id_conj_treino_antigo,id_conj_treino)
       id_conj_treino <- (1:N)[-sup][new]
       sup <- c(sup,(1:N)[-sup][new])
       
+
     }
+    
+    acertou_g <<- c(acertou_g, acertou)    
     if(length(new)==0){
       thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A M?DIA DAS PREDI??ES.
       # thrConf<-mean(probPreds[,2])
@@ -476,6 +489,7 @@ funcSelfTrainModificado3 <- function(form,data,
   id_conj_treino <- c()
   id_conj_treino_antigo <- c()
   repeat {
+    acertou <- 0
     #cat("conj_treino", conj_treino, "nrow(conj_treino)", nrow(conj_treino))
     it <- it+1
     
@@ -546,10 +560,10 @@ funcSelfTrainModificado3 <- function(form,data,
     probPreds_model_superv <- do.call(predFunc,list(model_supervisionado,data[-sup,]))
 
     #transformando os dados dos factors probpreds e probpreds_model_superv em caracter para não ter problema quando a quantidade de classes preditas em um factor não for a mesma do outro
-    w <- sapply(probPreds, is.factor)
-    probPreds[w] <- lapply(probPreds[w], as.character)
-    w <- sapply(probPreds_model_superv, is.factor)
-    probPreds_model_superv[w] <- lapply(probPreds_model_superv[w], as.character)
+    z <- sapply(probPreds, is.factor)
+    probPreds[z] <- lapply(probPreds[z], as.character)
+    z <- sapply(probPreds_model_superv, is.factor)
+    probPreds_model_superv[z] <- lapply(probPreds_model_superv[z], as.character)
     
     #adiciona exemplos cuja confiança dos dois classificadores seja maior que thrconf e cuja predicao de probpreds e probpreds_model_superv seja a mesma
     new <- which((probPreds[,2] >= thrConf) & (probPreds_model_superv[,2] >= thrConf) & (probPreds[,1]==probPreds_model_superv[,1]))
@@ -568,11 +582,11 @@ funcSelfTrainModificado3 <- function(form,data,
     if (verbose) {
       cat('tx_incl',taxa,'IT.',it,'BD',i,thrConf,'\t nr. added exs. =',length(new),'\n') 
       ##guardando nas variaveis 
-      it_g_3 <<-c(it_g,it)
-      bd_g_3 <<-c(bd_g,bd_nome)
-      thrConf_g_3 <<-c(thrConf_g,thrConf)
-      nr_added_exs_g_3 <<-c(nr_added_exs_g,length(new))
-      tx_g_3 <<- c(tx_g, taxa)
+      it_g_3 <<-c(it_g_3,it)
+      bd_g_3 <<-c(bd_g_3,bd_nome)
+      thrConf_g_3 <<-c(thrConf_g_3,thrConf)
+      nr_added_exs_g_3 <<-c(nr_added_exs_g_3,length(new))
+      tx_g_3 <<- c(tx_g_3, taxa)
     }
     
     if (length(new)) {
@@ -584,14 +598,29 @@ funcSelfTrainModificado3 <- function(form,data,
       soma_Conf <- sum(soma_Conf, probPreds[new,2])
       qtd_Exemplos_Rot <- length(data[(1:N)[-sup][new],as.character(form[[2]])])
       totalrot <- totalrot + qtd_Exemplos_Rot
+
+      acertou <- 0
+      acerto <- treinamento[(1:N)[-sup][new], as.character(form[2])]== data[(1:N)[-sup][new], as.character(form[2])]
+      tam_acerto <- NROW(acerto)
+      for (w in 1:tam_acerto){
+        if (acerto[w] == TRUE)
+          acertou <- acertou + 1
+      }
       
       id_conj_treino_antigo <- c(id_conj_treino_antigo,id_conj_treino)
       id_conj_treino <- (1:N)[-sup][new]
       conj_treino <- rbind(data[id_conj_treino,],data[id_conj_treino_antigo,])
       
-      sup <- c(sup,(1:N)[-sup][new])
       
+      
+      
+      sup <- c(sup,(1:N)[-sup][new])
     }
+    
+    acertou_g_3 <<- c(acertou_g_3, acertou)
+    
+    cat('acertou',acertou,'\n') 
+    
     if(length(new)==0){
       thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A M?DIA DAS PREDI??ES.
       # thrConf<-mean(probPreds[,2])
