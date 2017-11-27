@@ -38,6 +38,87 @@ f2 <- function(m,d) { #JRip e KNN
 
 }
 
+################################
+#                              #
+# Funções para o SF-Modificado #
+#                              #
+################################
+# compara se as classes esão iguais e se as confianças são maiores q a da iteração atual
+checa_classe <- function(data_1_it, data_x_it, indices, thrConf){
+  examples <- c()
+  xid <- c() # Vetor de id
+  pos <- 0
+  for (i in indices){
+    if (!is.na(data_1_it[i, 1]) && (data_x_it[i, 1] == data_1_it[i, 1])){
+      if ((data_1_it[i, 2] >= thrConf) && (data_x_it[i, 2] >= thrConf)){
+        pos <- pos + 1
+        xid[pos] <- i
+        # print(format(data.frame("thrConf" = thrConf,
+        #                         "Iteração x" = data_x_it[i,],"Iteração 1" = data_1_it[i,],
+        #                         check.names = FALSE)))
+      }
+    }
+  }
+  #cria o data frame com colunas ID e CLASSE
+  examples <- data.frame(id = xid,cl = data_x_it[xid, 1])
+  return (examples)
+}
+
+# compara se as classes são iguais e uma das confiaças é maior qua a confiança da iteração atual
+checa_confiaca <- function(data_1_it, data_x_it, indices, thrConf){
+  examples <- c()
+  xid <- c()
+  pos <- 0
+  for (i in indices){
+    if (!is.na(data_1_it[i, 1]) && (data_1_it[i, 1] == data_x_it[i, 1])){
+      if((data_1_it[i, 2] >= thrConf) || (data_x_it[i, 2] >= thrConf)){
+        pos <- pos + 1
+        xid[pos] <- i
+        # print(format(data.frame("thrConf" = thrConf,
+        #                         "Iteração x" = data_x_it[i,],"Iteração 1" = data_1_it[i,],
+        #                         check.names = FALSE)))
+      }
+    }
+  }
+  examples <- data.frame(id = xid,cl = data_x_it[xid, 1])
+  return (examples)
+}
+
+# compara se as classes são diferentes e as confianças são maiores que a confiança atual
+checa_classe_diferentes <- function(data_1_it, data_x_it, indices, thrConf, moda){
+  pos <- 0
+  classes <- colnames(moda)
+  xid <- c()
+  ycl <- c()
+  for (i in indices){
+    maior <- 0
+    if ((data_1_it[i, 2] >= thrConf) && (data_x_it[i, 2] >= thrConf)){
+      if (data_1_it[i, 1] != data_x_it[i, 1]){
+        pos <- pos + 1
+        # votação (pesquisa a classe que mais foi atribuida a um exemplo)
+        for (j in 1:length(moda[i,])){
+          if(moda[i,j] >= maior){
+            maior <- moda[i,j] 
+            cl <- classes[j] 
+          }
+        }
+        xid[pos] <- i
+        ycl[pos] <- cl
+      }
+    }
+  }
+  if (length(ycl) > 1){
+    runif(n = 1, min = 1, max = length(ycl))
+  }
+  examples <- data.frame(id = xid,cl = ycl)
+  return (examples)
+}
+################################
+#                              #
+#            FIM               #
+#                              #
+################################
+
 #funcao self-training modificado
 funcSelfTrain <- function(form,data,
                           learner,
@@ -67,12 +148,14 @@ funcSelfTrain <- function(form,data,
   repeat {
     acertou <- 0
     it <- it+1
+    new <- c()
+    rotulados <- c()
     #O c?lculo da taxa de confianca (thrConf) ser? realizado a partir da segunda iteracao e se houver exemplos rotulados
     if ((it>1)&&(qtd_Exemplos_Rot>0)){
       thrConf <- (thrConf + conf_media + (qtd_Exemplos_Rot/N_nao_rot))/3
     }
-
-
+    
+    # soma_Conf <- 0
     conf_media <- 0
     qtd_Exemplos_Rot <- 0
     
@@ -81,32 +164,39 @@ funcSelfTrain <- function(form,data,
     #a predicao e gerada de acordo com predFunc (func ou f1 ou f2 que foi passado como par?metro)
     probPreds <- do.call(predFunc,list(model,data[-sup,])) #data[-sup,] s?o os dados n?o rotulados
     
-    ## teste ##
     if(it == 1){
-      cat("############# PRIMEIRA ITERAÇÃO ##################")
-      probPreds_1_it <- probPreds
+      probPreds_1_it <<- probPreds
+      moda <<- matrix(data = rep(0,length(data$class)),ncol = length(unique(base_original$class)), nrow = N, byrow = TRUE, 
+                      dimnames = list(row.names(data),unique(base_original$class)))# matrix
+      #new <- which(probPreds[,2] >= thrConf)
     }else{
-      indices <- row.names(probPreds) # pega o id de cada exemplo
-      if(max(probPreds[,2]) < thrConf) {
-        thrConf <- max(probPreds[,"p"])
+      dist_classes <- unique(probPreds[,1]) #pega as classes distintas
+      indices <- row.names(probPreds)   # pega o id de cada exemplo 
+      
+      ## Em teste ##
+      
+      # for (x in indices){
+      #   for(y in 1:length(dist_classes)){
+      #     if(probPreds[x,1] == dist_classes[y]){
+      #       moda[x,y] <<- moda[x,y] + 1
+      #       break
+      #     }
+      #   }
+      # }
+      
+      rotulados <- checa_classe(probPreds_1_it, probPreds, indices, thrConf)
+      if (length(rotulados$id) == 0){
+        rotulados <- checa_confiaca(probPreds_1_it, probPreds, indices, thrConf)
+        # if (length(rotulados$id) == 0){
+        #   rotulados <- checa_classe_diferentes(probPreds_1_it, probPreds, indices, thrConf, moda)
+        #  
+        # }
       }
-      for (i in indices) {
-        conf <- probPreds[i,"p"]
-        clx <- probPreds[i,"cl"]
-        if((conf >= thrConf) && (clx == probPreds_1_it[i,"cl"])) {
-          # Adicionar ao conjunto
-          print(format(data.frame("It" = it,"thrConf" = thrConf,
-                                  "Iteração x" = probPreds[i,],"Iteração 1" = probPreds_1_it[i,],
-                                  check.names = FALSE)))
-        } else if(clx != probPreds_1_it[i,"cl"]) {
-          # Adicionar classe da primeira iteração
-        }
-      }
+      new <- rotulados$id
     }
+    
     ## teste ##
     
-    #a variavel new armazena os exemplos cuja confian?a na predicao ? maior do que a taxa de confianca minima (thrConf)
-    new <- which(probPreds[,2] >= thrConf)
     
     if (verbose) {
       #imprime na tela o % de exemplos rotulados inicialmente, a iteracao, a base de dados, a taxa de confianca e a quantidade de exemplos rotulados
@@ -124,7 +214,8 @@ funcSelfTrain <- function(form,data,
       #quantidade de exemplos n?o rotulados no conjunto de dados
       N_nao_rot <- NROW(data[-sup,])
         
-      data[(1:N)[-sup][new],as.character(form[[2]])] <- as.character(probPreds[new,1])
+      data[(1:N)[-sup][new],as.character(form[[2]])] <- as.character(rotulados[,2])
+      # data[(1:N)[-sup][new],as.character(form[[2]])] <- as.character(probPreds[new,1])
 
 
       # soma_Conf <- sum(soma_Conf, probPreds[new,2])
@@ -559,20 +650,20 @@ funcSelfTrainModificado3 <- function(form,data,
     probPreds <- do.call(predFunc,list(model,data[-sup,]))
     probPreds_model_superv <- do.call(predFunc,list(model_supervisionado,data[-sup,]))
 
-    #transformando os dados dos factors probpreds e probpreds_model_superv em caracter para n�o ter problema quando a quantidade de classes preditas em um factor n�o for a mesma do outro
+    #transformando os dados dos factors probpreds e probpreds_model_superv em caracter para n?o ter problema quando a quantidade de classes preditas em um factor n?o for a mesma do outro
     z <- sapply(probPreds, is.factor)
     probPreds[z] <- lapply(probPreds[z], as.character)
     z <- sapply(probPreds_model_superv, is.factor)
     probPreds_model_superv[z] <- lapply(probPreds_model_superv[z], as.character)
     
-    #adiciona exemplos cuja confian�a dos dois classificadores seja maior que thrconf e cuja predicao de probpreds e probpreds_model_superv seja a mesma
+    #adiciona exemplos cuja confian?a dos dois classificadores seja maior que thrconf e cuja predicao de probpreds e probpreds_model_superv seja a mesma
     new <- which((probPreds[,2] >= thrConf) & (probPreds_model_superv[,2] >= thrConf) & (probPreds[,1]==probPreds_model_superv[,1]))
     if (length(new)==0){
-      #adiciona exemplos cuja confian�a de um dos classificadores seja maior que thrconf e cuja predicao de probpreds e probpreds_model_superv seja a mesma
+      #adiciona exemplos cuja confian?a de um dos classificadores seja maior que thrconf e cuja predicao de probpreds e probpreds_model_superv seja a mesma
       new <- which((probPreds[,2] >= thrConf) | (probPreds_model_superv[,2] >= thrConf) & (probPreds[,1]==probPreds_model_superv[,1]))  
       
       if (length(new)==0){
-        #adiciona exemplos cuja confian�a dos dois classificadores seja maior que thrconf e cuja predicao de probpreds e probpreds_model_superv seja a mesma
+        #adiciona exemplos cuja confian?a dos dois classificadores seja maior que thrconf e cuja predicao de probpreds e probpreds_model_superv seja a mesma
         new <- which((probPreds[,2] >= thrConf) & (probPreds_model_superv[,2] >= thrConf) & (probPreds[,1] != probPreds_model_superv[,1]))  
         add_rot_superv <- TRUE
 

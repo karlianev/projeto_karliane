@@ -25,19 +25,19 @@ tx <- c() #percentual de exemplos rotulados inicialmente
 grad_g <-c()
 grad<-c()
 
-#chamada para o script que faz as configuracoes necessárias ao código (instalacao e carregamento de pacotes)
+#chamada para o script que faz as configuracoes necess?rias ao c?digo (instalacao e carregamento de pacotes)
 source('C:/local_R/projeto_karliane/scripts_comuns/configuracoes.R')
 # source('~/R/karliane/projeto_karliane/scripts_comuns/configuracoes.R')
 
-#chamada para o script que cria as funções original, gradativo, modificado e modificado2
+#chamada para o script que cria as fun??es original, gradativo, modificado e modificado2
 source('C:/local_R/projeto_karliane/scripts_comuns/funcoes.R')
 # source('~/R/karliane/projeto_karliane/scripts_comuns/funcoes.R')
 
-#loop para definir a taxa de confiança da primeira iteracao
-for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
+#loop para definir a taxa de confian?a da primeira iteracao
+for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
   #loop para definir qual classificador sera usado
-  for(c in 1:4){  # 1 = NB, 2 = AD, 3 = JRip ,4 = IBK
-    #inicialização das variáveis
+  for(c in 2:2){  # 1 = NB, 2 = AD, 3 = JRip ,4 = IBK
+    #inicializa??o das vari?veis
     it_g <-c() 
     bd_g <-c()
     thrConf_g<-c()
@@ -76,14 +76,14 @@ for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
     
     #loop para definir a base de dados a ser utilizada (no script carrega dados tem os nomes das bases)
     for(i in 2:2){  # bases de dados - testar bases 2 (2000), 3(20000), 4(300), 8 (900), 13(5000)
-      #loop para definir o percentual de exemplos que ficarão rotulados inicialmente
-      for(j in 1:5){ # taxas  #base 1 - IRIS 5% NB N?O FUNCIONA - da erro
+      #loop para definir o percentual de exemplos que ficar?o rotulados inicialmente
+      for(j in 1:1){ # taxas  #base 1 - IRIS 5% NB N?O FUNCIONA - da erro
         taxa <- j*5
-        #chamada do script que ler o .arff
+        # #chamada do script que ler o .arff
         source('C:/local_R/projeto_karliane/scripts_comuns/carrega_dados.R')
-        #chamada do script que divide a base em conjunto de treinamento e teste, sorteia os exemplos inicialmente rotulados e tira o rótulo dos demais exemplos 
+        #chamada do script que divide a base em conjunto de treinamento e teste, sorteia os exemplos inicialmente rotulados e tira o r?tulo dos demais exemplos
         source('C:/local_R/projeto_karliane/scripts_comuns/organiza_dados.R')
-        #chama o script que tem as chamadas das funções original, gradativo, modificado e modificado2
+        #chama o script que tem as chamadas das fun??es original, gradativo, modificado e modificado2
         source('C:/local_R/projeto_karliane/nayves_bayes/treinamento.R')
         
         # source('~/R/karliane/projeto_karliane/scripts_comuns/carrega_dados.R')
@@ -92,7 +92,7 @@ for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
       }    
     }
     print("gerando data frame para arquivos")
-    #cirando data frame que sera guardado no arquivo com os seguintes dados: base, %rotulados inicialmente, iteracao, taxa de confiança, numero de exemplos adicionados, corretude e cobertura
+    #cirando data frame que sera guardado no arquivo com os seguintes dados: base, %rotulados inicialmente, iteracao, taxa de confian?a, numero de exemplos adicionados, corretude e cobertura
     data_arquivo <- data.frame(bd_g,tx_g,it_g,thrConf_g,nr_added_exs_g, acertou_g, corretude_g, cobertura_g )
     data_arquivo_o <- data.frame(bd_g_o,tx_g_o,it_g_o,thrConf_g_o,nr_added_exs_g_o, acertou_g_o)
     data_arquivo_gra <- data.frame(bd_g_gra,tx_g_gra,it_g_gra,thrConf_g_gra,nr_added_exs_g_gra, acertou_g_gra)
