@@ -1,16 +1,29 @@
+guardar_predicao <- function(predic,iterac){
+  if (iterac==1){
+    voto = matrix(nrow=NROW(predic),ncol = NCOL(predic))
+    voto <<- predic
+    soma <<- predic
+    cat("criar vetor com o voto e a soma")  
+  }else{
+    cat("incrementar o voto e a soma")
+    
+  }
+  
+}
 #func, f, e f2 retornam um data frame (matriz) com duas colunas: 1)a classe predita pelo classificador; 2) a confian?a dessa predicao
 #a diferen?a dessas 3 fun??es ? apenas o type = class (AD) ou raw (NB) ou probability (RIPPER E KNN)
 func <- function(m, d){ #NB
 
   p <- predict(m, d, type = "raw") #col2 armazena a confian?a em cada classe predita pelo classificador (ex: classe 1 = 0.8, classe2 = 0.1, classe 3= 0.1)
+  predicao <<- data.frame(p)
   data.frame(c1=colnames(p)[apply(p,1,which.max)], p = apply(p,1,max))
   
   #estava assim, mas otimizei usando o c?digo acima que chama o predict apenas uma vez
   # col1<-predict(m,d, type='class') #col1 armazena a classe predita pelo classificador para cada exemplo
   # col2 <- predict(m, d, type = "raw") #col2 armazena a confian?a em cada classe predita pelo classificador (ex: classe 1 = 0.8, classe2 = 0.1, classe 3= 0.1)
   # data.frame(c1=col1, p = apply(col2,1,max)) #o comando apply seleciona a maior confian?a de cada exemplo/classe armazenada no col2
-  
 }
+
 f <- function(m,d) { #AD
   p <- predict(m,d,type='prob') #predicao dos dados (d) de acordo com o modelo (m)
   col1 <- colnames(p)[apply(p,1,which.max)] #nome da coluna com a maior predicao, ou seja, a classe
@@ -21,7 +34,6 @@ f <- function(m,d) { #AD
   # col1 <- predict(m,d,type='class')
   # col2 <- apply(predict(m,d),1,max) #predict(m,d) = a matriz com os dados(predicao); 1 = trabalha as linhas; max = fun??o a ser aplicada aos dados
   # data.frame(cl=col1,p=col2)
-  
 }
 
 f2 <- function(m,d) { #JRip e KNN
@@ -35,7 +47,6 @@ f2 <- function(m,d) { #JRip e KNN
   # col1 <- predict(m,d,type='class')  # c ? um vetor com a classe a qual cada exemplo pertence
   # col2 <- apply(predict(m,d,type='probability'),1,max) # l ? uma matriz com a confian?a da predi??o de cada exemplo
   # data.frame(cl=col1,p=col2) #um data frame com 2 colunas: 1) a predi??o de cada exemplo; 2) a classe predita para cada exemplo
-
 }
 
 ################################
@@ -504,6 +515,7 @@ funcSelfTrainModificado2 <- function(form,data,
     qtd_Exemplos_Rot <- 0
     
     model <- runLearner(learner,form,data[sup,])
+predicao <<- c()
     probPreds <- do.call(predFunc,list(model,data[-sup,]))
     new <- which(probPreds[,2] >= thrConf)
 
@@ -648,6 +660,7 @@ funcSelfTrainModificado3 <- function(form,data,
     
     model <- runLearner(learner,form,data[sup,])
     probPreds <- do.call(predFunc,list(model,data[-sup,]))
+    guardar_predicao(predicao, it)
     probPreds_model_superv <- do.call(predFunc,list(model_supervisionado,data[-sup,]))
 
     #transformando os dados dos factors probpreds e probpreds_model_superv em caracter para n?o ter problema quando a quantidade de classes preditas em um factor n?o for a mesma do outro
@@ -664,9 +677,10 @@ funcSelfTrainModificado3 <- function(form,data,
       
       if (length(new)==0){
         #adiciona exemplos cuja confian?a dos dois classificadores seja maior que thrconf e cuja predicao de probpreds e probpreds_model_superv seja a mesma
+#IMPLEMENTAR O COMIT?
+        #adiciona exemplos cuja confian?a dos dois classificadores seja maior que thrconf e cuja predicao de probpreds e probpreds_model_superv seja a mesma
         new <- which((probPreds[,2] >= thrConf) & (probPreds_model_superv[,2] >= thrConf) & (probPreds[,1] != probPreds_model_superv[,1]))  
         add_rot_superv <- TRUE
-
       }
     }
 
@@ -722,3 +736,4 @@ funcSelfTrainModificado3 <- function(form,data,
   
   return(model)  
 }
+
