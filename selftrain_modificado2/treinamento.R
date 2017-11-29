@@ -10,7 +10,6 @@ if(c==1){ #NB
   
   if (t==1){ #0.9
     nbST<- funcSelfTrainModificado2(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list(4)),'func',0.9,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3)
-
     nbST_3<- funcSelfTrainModificado3(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list(4)),'func',0.9,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, stdNB)
   }else if (t==2){ #0.95
     nbST<- funcSelfTrainModificado2(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.95,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3)

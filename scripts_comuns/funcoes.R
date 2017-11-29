@@ -434,17 +434,17 @@ validar_treino<- function(data,id_conj_treino,N_classes,min_exem_por_classe){
     
   }
 } 
-validar_classificacao<-function(treino_valido,data,id_conj_treino,base_rotulados_ini){
+validar_classificacao<-function(treino_valido_i,id_conj_treino,id_conj_treino_antigo,data,conj_treino_i){
   #data[sup,] corresponde os que possuem rotulos (INICIALMENTE ROTULADOS OU N?fO)
-  if (treino_valido){
+  if (treino_valido_i){
     #o conjunto de treinamento serao as instancias inclu????das (rotuladas)
-    conj_treino <- data[id_conj_treino,]
-    id_conj_treino_antigo <- c()
+    conj_treino <<- data[id_conj_treino,]
+    id_conj_treino_antigo <<- c()
     classificar <<- TRUE
     
-  }else if (length(conj_treino)>=1) {
+  }else if (length(conj_treino_i)>=1) {
     #o conjunto de treinamento será o anterior + as instancias incluidas (rotuladas)
-    conj_treino <- rbind(data[id_conj_treino,],data[id_conj_treino_antigo,])
+    conj_treino <<- rbind(data[id_conj_treino,],data[id_conj_treino_antigo,])
     classificar <<- TRUE
     cat("juntou", NROW(conj_treino), "\n") #TAVA nrow
   }else classificar <<- FALSE #a confian?a permanece a mesma ao inves de parar
@@ -471,7 +471,7 @@ validar_classificacao<-function(treino_valido,data,id_conj_treino,base_rotulados
   }
 }
 
-calculo_confianca(acc_local,limiar,thrConf){
+calcula_confianca<-function(acc_local,limiar,thrConf){
   if((acc_local>(limiar + 1)) && (thrConf-0.05>0.0)){
     #if(acc_local>=limiar){
     thrConf<<-thrConf-0.05
@@ -513,9 +513,11 @@ funcSelfTrainModificado2 <- function(form,data,
     
     if ((it>1)&&(qtd_Exemplos_Rot>0)){
       validar_treino(data,id_conj_treino,N_classes,min_exem_por_classe);
-      validar_classificacao(treino_valido,data,id_conj_treino,base_rotulados_ini);
-      calculo_confianca(acc_local,limiar,thrConf);
-    }
+      validar_classificacao(treino_valido,id_conj_treino,id_conj_treino_antigo,data,conj_treino)
+      calcula_confianca(acc_local,limiar,thrConf)
+        
+      }  
+    
     soma_Conf <- 0
     qtd_Exemplos_Rot <- 0
     
@@ -565,9 +567,10 @@ predicao <<- c()
     }
     if (it == maxIts || length(sup)/N >= percFull) break
     
-  } #FIM DO REPEAT
-  
+   #FIM DO REPEAT
+  }
   return(model)  
+  
 }
 
 funcSelfTrainModificado3 <- function(form,data,
@@ -603,8 +606,8 @@ funcSelfTrainModificado3 <- function(form,data,
     
     if ((it>1)&&(qtd_Exemplos_Rot>0)){
       validar_treino(data,id_conj_treino,N_classes,min_exem_por_classe);
-      validar_classificacao(treino_valido,data,id_conj_treino,base_rotulados_ini);
-      calculo_confianca(acc_local,limiar,thrConf);
+      validar_classificacao(treino_valido,id_conj_treino,id_conj_treino_antigo,data,conj_treino);
+      calcula_confianca(acc_local,limiar,thrConf);
     }
     
     soma_Conf <- 0
