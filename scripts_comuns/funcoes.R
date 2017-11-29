@@ -175,6 +175,8 @@ funcSelfTrain <- function(form,data,
     #a predicao e gerada de acordo com predFunc (func ou f1 ou f2 que foi passado como par?metro)
     probPreds <- do.call(predFunc,list(model,data[-sup,])) #data[-sup,] s?o os dados n?o rotulados
     
+    probPreds$cl <- as.character(probPreds$cl) 
+    
     if(it == 1){
       probPreds_1_it <<- probPreds
       moda <<- matrix(data = rep(0,length(data$class)),ncol = length(unique(base_original$class)), nrow = N, byrow = TRUE, 
@@ -225,7 +227,7 @@ funcSelfTrain <- function(form,data,
       #quantidade de exemplos n?o rotulados no conjunto de dados
       N_nao_rot <- NROW(data[-sup,])
         
-      data[(1:N)[-sup][new],as.character(form[[2]])] <- as.character(rotulados[,2])
+      data[(1:N)[-sup][new],as.character(form[[2]])] <- rotulados[,2]
       # data[(1:N)[-sup][new],as.character(form[[2]])] <- as.character(probPreds[new,1])
 
 
