@@ -50,7 +50,7 @@ for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
     bd <- c()
     tx <- c()
     for(i in 4:4){  # bases de dados
-      for(j in 1:5){ # taxas  #base 1 - IRIS 5% NB N?O FUNCIONA - da erro
+      for(j in 1:1){ # taxas  #base 1 - IRIS 5% NB N?O FUNCIONA - da erro
         taxa <- j*5
         source('C:/local_R/projeto_karliane/scripts_comuns/carrega_dados.R')
         source('C:/local_R/projeto_karliane/scripts_comuns/organiza_dados.R')
