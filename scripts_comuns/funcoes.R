@@ -467,23 +467,21 @@ validar_classificacao<-function(treino_valido,data,id_conj_treino,base_rotulados
       classificador <- IBk(as.factor(class) ~ .,conj_treino)
       matriz <- table(predict(classificador,base_rotulados_ini),base_rotulados_ini$class)
     }
-    
-    
-    
     acc_local <<- ((sum(diag(matriz)) / length(base_rotulados_ini$class)) * 100)
   }
 }
+
 calculo_confianca(acc_local,limiar,thrConf){
   if((acc_local>(limiar + 1)) && (thrConf-0.05>0.0)){
     #if(acc_local>=limiar){
     thrConf<<-thrConf-0.05
     
   }else if((acc_local<(limiar - 1)) && (thrConf+0.05 < 1)){
-    #}else{
+ 
     thrConf<<-thrConf+0.05
   } #caso contrario a confian?a permanecer? a mesma
-  
 }
+
 funcSelfTrainModificado2 <- function(form,data,
                           learner,
                           predFunc,
@@ -517,7 +515,7 @@ funcSelfTrainModificado2 <- function(form,data,
       validar_treino(data,id_conj_treino,N_classes,min_exem_por_classe);
       validar_classificacao(treino_valido,data,id_conj_treino,base_rotulados_ini);
       calculo_confianca(acc_local,limiar,thrConf);
-    
+    }
     soma_Conf <- 0
     qtd_Exemplos_Rot <- 0
     
