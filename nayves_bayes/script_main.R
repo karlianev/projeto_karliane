@@ -36,7 +36,7 @@ source('C:/local_R/projeto_karliane/scripts_comuns/funcoes.R')
 #loop para definir a taxa de confian?a da primeira iteracao
 for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
   #loop para definir qual classificador sera usado
-  for(c in 2:2){  # 1 = NB, 2 = AD, 3 = JRip ,4 = IBK
+  for(c in 1:1){  # 1 = NB, 2 = AD, 3 = JRip ,4 = IBK
     #inicializa??o das vari?veis
     it_g <-c() 
     bd_g <-c()

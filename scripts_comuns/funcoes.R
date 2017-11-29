@@ -16,7 +16,7 @@ func <- function(m, d){ #NB
 
   p <- predict(m, d, type = "raw") #col2 armazena a confian?a em cada classe predita pelo classificador (ex: classe 1 = 0.8, classe2 = 0.1, classe 3= 0.1)
   predicao <<- data.frame(p)
-  data.frame(c1=colnames(p)[apply(p,1,which.max)], p = apply(p,1,max))
+  data.frame(cl=colnames(p)[apply(p,1,which.max)], p = apply(p,1,max))
   
   #estava assim, mas otimizei usando o c?digo acima que chama o predict apenas uma vez
   # col1<-predict(m,d, type='class') #col1 armazena a classe predita pelo classificador para cada exemplo
