@@ -76,7 +76,7 @@ checa_classe <- function(data_1_it, data_x_it, indices, thrConf){
 }
 
 # compara se as classes sao iguais e uma das confiacas é maior qua a confianca da iteracao atual
-checa_confiaca <- function(data_1_it, data_x_it, indices, thrConf){
+checa_confianca <- function(data_1_it, data_x_it, indices, thrConf){
   examples <- c()
   xid <- c()
   pos <- 0
@@ -199,7 +199,7 @@ funcSelfTrain <- function(form,data,
       
       rotulados <- checa_classe(probPreds_1_it, probPreds, indices, thrConf)
       if (length(rotulados$id) == 0){
-        rotulados <- checa_confiaca(probPreds_1_it, probPreds, indices, thrConf)
+        rotulados <- checa_confianca(probPreds_1_it, probPreds, indices, thrConf)
         # if (length(rotulados$id) == 0){
         #   rotulados <- checa_classe_diferentes(probPreds_1_it, probPreds, indices, thrConf, moda)
         #  
