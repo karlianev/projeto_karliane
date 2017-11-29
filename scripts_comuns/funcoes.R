@@ -51,10 +51,10 @@ f2 <- function(m,d) { #JRip e KNN
 
 ################################
 #                              #
-# Funções para o SF-Modificado #
+# Funcoes para o ST-Modificado #
 #                              #
 ################################
-# compara se as classes esão iguais e se as confianças são maiores q a da iteração atual
+# compara se as classes estao iguais e se as confiancas sao maiores q a da iteracao atual
 checa_classe <- function(data_1_it, data_x_it, indices, thrConf){
   examples <- c()
   xid <- c() # Vetor de id
@@ -75,7 +75,7 @@ checa_classe <- function(data_1_it, data_x_it, indices, thrConf){
   return (examples)
 }
 
-# compara se as classes são iguais e uma das confiaças é maior qua a confiança da iteração atual
+# compara se as classes sao iguais e uma das confiacas é maior qua a confianca da iteracao atual
 checa_confiaca <- function(data_1_it, data_x_it, indices, thrConf){
   examples <- c()
   xid <- c()
@@ -106,7 +106,7 @@ checa_classe_diferentes <- function(data_1_it, data_x_it, indices, thrConf, moda
     if ((data_1_it[i, 2] >= thrConf) && (data_x_it[i, 2] >= thrConf)){
       if (data_1_it[i, 1] != data_x_it[i, 1]){
         pos <- pos + 1
-        # votação (pesquisa a classe que mais foi atribuida a um exemplo)
+        # votacao (pesquisa a classe que mais foi atribuida a um exemplo)
         for (j in 1:length(moda[i,])){
           if(moda[i,j] >= maior){
             maior <- moda[i,j] 
