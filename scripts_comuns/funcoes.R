@@ -175,8 +175,6 @@ funcSelfTrain <- function(form,data,
     #a predicao e gerada de acordo com predFunc (func ou f1 ou f2 que foi passado como par?metro)
     probPreds <- do.call(predFunc,list(model,data[-sup,])) #data[-sup,] s?o os dados n?o rotulados
     
-    probPreds$cl <- as.character(probPreds$cl) 
-    
     if(it == 1){
       probPreds_1_it <<- probPreds
       moda <<- matrix(data = rep(0,length(data$class)),ncol = length(unique(base_original$class)), nrow = N, byrow = TRUE, 
@@ -227,7 +225,7 @@ funcSelfTrain <- function(form,data,
       #quantidade de exemplos n?o rotulados no conjunto de dados
       N_nao_rot <- NROW(data[-sup,])
         
-      data[(1:N)[-sup][new],as.character(form[[2]])] <- rotulados[,2]
+      data[(1:N)[-sup][new],as.character(form[[2]])] <- as.character(rotulados[,2])
       # data[(1:N)[-sup][new],as.character(form[[2]])] <- as.character(probPreds[new,1])
 
 
@@ -418,7 +416,72 @@ funcSelfTrainGradativo <- function(form,data,
   
   return(model)  
 }
-
+validar_treino<- function(data,id_conj_treino,N_classes,min_exem_por_classe){
+  #cat("entrou if da segunda itera??o", '\n')
+  N_instancias_por_classe2 <- ddply(data[id_conj_treino,],~class,summarise,number_of_distinct_orders=length(class))
+  
+  treino_valido <<- FALSE
+  if (NROW(N_instancias_por_classe2)  == N_classes){#TAVA nrow
+    # teste <<- N_c
+    for (x in 1:NROW(N_instancias_por_classe2)){ #TAVA nrow
+      
+      if (N_instancias_por_classe2$number_of_distinct_orders[x]>= min_exem_por_classe) #N_classes*5)
+        treino_valido <<- TRUE
+      else treino_valido <<- FALSE
+    }  
+    
+  }
+} 
+validar_classificacao<-function(treino_valido,data,id_conj_treino,base_rotulados_ini){
+  #data[sup,] corresponde os que possuem rotulos (INICIALMENTE ROTULADOS OU N?fO)
+  if (treino_valido){
+    #o conjunto de treinamento serao as instancias inclu????das (rotuladas)
+    conj_treino <- data[id_conj_treino,]
+    id_conj_treino_antigo <- c()
+    classificar <<- TRUE
+    
+  }else if (length(conj_treino)>=1) {
+    #o conjunto de treinamento será o anterior + as instancias incluidas (rotuladas)
+    conj_treino <- rbind(data[id_conj_treino,],data[id_conj_treino_antigo,])
+    classificar <<- TRUE
+    cat("juntou", NROW(conj_treino), "\n") #TAVA nrow
+  }else classificar <<- FALSE #a confian?a permanece a mesma ao inves de parar
+  
+  if (classificar){
+    if(c==1){
+      classificador <- naiveBayes(as.factor(class) ~ .,conj_treino)
+      matriz <- table(predict(classificador,base_rotulados_ini),base_rotulados_ini$class)
+    }
+    else if (c==2){
+      #IMPLEMENTAR ARVORE DE DECIS?O
+      classificador <- rpartXse(as.factor(class) ~ .,conj_treino)
+      matriz <- table(predict(classificador,base_rotulados_ini, type="class"),base_rotulados_ini$class)        
+    } else if (c==3){
+      #IMPLEMENTAR ripper
+      classificador <- JRip(as.factor(class) ~ .,conj_treino)
+      matriz <- table(predict(classificador,base_rotulados_ini),base_rotulados_ini$class)        
+    } else if (c==4){
+      #IMPLEMENTAR IBk
+      classificador <- IBk(as.factor(class) ~ .,conj_treino)
+      matriz <- table(predict(classificador,base_rotulados_ini),base_rotulados_ini$class)
+    }
+    
+    
+    
+    acc_local <<- ((sum(diag(matriz)) / length(base_rotulados_ini$class)) * 100)
+  }
+}
+calculo_confianca(acc_local,limiar,thrConf){
+  if((acc_local>(limiar + 1)) && (thrConf-0.05>0.0)){
+    #if(acc_local>=limiar){
+    thrConf<<-thrConf-0.05
+    
+  }else if((acc_local<(limiar - 1)) && (thrConf+0.05 < 1)){
+    #}else{
+    thrConf<<-thrConf+0.05
+  } #caso contrario a confian?a permanecer? a mesma
+  
+}
 funcSelfTrainModificado2 <- function(form,data,
                           learner,
                           predFunc,
@@ -449,69 +512,9 @@ funcSelfTrainModificado2 <- function(form,data,
     it <- it+1
     
     if ((it>1)&&(qtd_Exemplos_Rot>0)){
-#      cat("entrou if da segunda itera??o", '\n')
-      N_instancias_por_classe2 <- ddply(data[id_conj_treino,],~class,summarise,number_of_distinct_orders=length(class))
-
-      treino_valido <- FALSE
-      if (NROW(N_instancias_por_classe2)  == N_classes){#TAVA nrow
-        # teste <<- N_c
-        for (x in 1:NROW(N_instancias_por_classe2)){ #TAVA nrow
-          
-          if (N_instancias_por_classe2$number_of_distinct_orders[x]>= min_exem_por_classe) #N_classes*5)
-            treino_valido <- TRUE
-          else treino_valido <- FALSE
-        }  
-        
-      }
-
-      
-      #data[sup,] corresponde os que possuem rotulos (INICIALMENTE ROTULADOS OU N?fO)
-      if (treino_valido){
-        #o conjunto de treinamento serao as instancias inclu????das (rotuladas)
-        conj_treino <- data[id_conj_treino,]
-        id_conj_treino_antigo <- c()
-        classificar <- TRUE
-        
-      }else if (length(conj_treino)>=1) {
-        #o conjunto de treinamento será o anterior + as instancias incluidas (rotuladas)
-        conj_treino <- rbind(data[id_conj_treino,],data[id_conj_treino_antigo,])
-        classificar <- TRUE
-        cat("juntou", NROW(conj_treino), "\n") #TAVA nrow
-      }else classificar <- FALSE #a confian?a permanece a mesma ao inves de parar
-      
-      if (classificar){
-        if(c==1){
-          classificador <- naiveBayes(as.factor(class) ~ .,conj_treino)
-          matriz <- table(predict(classificador,base_rotulados_ini),base_rotulados_ini$class)
-        }
-        else if (c==2){
-          #IMPLEMENTAR ARVORE DE DECIS?O
-          classificador <- rpartXse(as.factor(class) ~ .,conj_treino)
-          matriz <- table(predict(classificador,base_rotulados_ini, type="class"),base_rotulados_ini$class)        
-        } else if (c==3){
-          #IMPLEMENTAR ripper
-          classificador <- JRip(as.factor(class) ~ .,conj_treino)
-          matriz <- table(predict(classificador,base_rotulados_ini),base_rotulados_ini$class)        
-        } else if (c==4){
-          #IMPLEMENTAR IBk
-          classificador <- IBk(as.factor(class) ~ .,conj_treino)
-          matriz <- table(predict(classificador,base_rotulados_ini),base_rotulados_ini$class)
-        }
-          
-        
-        
-        acc_local <- ((sum(diag(matriz)) / length(base_rotulados_ini$class)) * 100)
-         if((acc_local>(limiar + 1)) && (thrConf-0.05>0.0)){
-        #if(acc_local>=limiar){
-            thrConf<-thrConf-0.05
-          
-        }else if((acc_local<(limiar - 1)) && (thrConf+0.05 < 1)){
-        #}else{
-          thrConf<-thrConf+0.05
-        } #caso contrario a confian?a permanecer? a mesma
-        
-      }  
-    }
+      validar_treino(data,id_conj_treino,N_classes,min_exem_por_classe);
+      validar_classificacao(treino_valido,data,id_conj_treino,base_rotulados_ini);
+      calculo_confianca(acc_local,limiar,thrConf);
     
     soma_Conf <- 0
     qtd_Exemplos_Rot <- 0
@@ -599,62 +602,9 @@ funcSelfTrainModificado3 <- function(form,data,
     it <- it+1
     
     if ((it>1)&&(qtd_Exemplos_Rot>0)){
-      #      cat("entrou if da segunda itera??o", '\n')
-      # conj_treino <- rbind(data[id_conj_treino,],data[id_conj_treino_antigo,])
-      N_instancias_por_classe2 <- ddply(conj_treino,~class,summarise,number_of_distinct_orders=length(class))
-      # N_instancias_por_classe2 <- ddply(data[id_conj_treino,],~class,summarise,number_of_distinct_orders=length(class))
-      
-      treino_valido <- FALSE
-      if (NROW(N_instancias_por_classe2) == N_classes){#TAVA nrow
-        # teste <<- N_c
-        for (x in 1:NROW(N_instancias_por_classe2)){ #TAVA nrow
-
-          if (N_instancias_por_classe2$number_of_distinct_orders[x]>= min_exem_por_classe) #N_classes*5)
-            treino_valido <- TRUE
-          else treino_valido <- FALSE
-        }
-
-      }
-      
-      
-      
-      if (treino_valido){
-        #o conjunto de treinamento será o anterior + as instancias incluidas (rotuladas)
-        classificar <- TRUE
-        # cat("juntou", NROW(conj_treino), "\n") #TAVA nrow
-      }else classificar <- FALSE #a confian?a permanece a mesma ao inves de parar
-      
-      if (classificar){
-        if(c==1){
-          classificador <- naiveBayes(as.factor(class) ~ .,conj_treino)
-          matriz <- table(predict(classificador,base_rotulados_ini),base_rotulados_ini$class)
-        }else if (c==2){
-          #IMPLEMENTAR ARVORE DE DECIS?O
-          classificador <- rpartXse(as.factor(class) ~ .,conj_treino)
-          matriz <- table(predict(classificador,base_rotulados_ini, type="class"),base_rotulados_ini$class)        
-        } else if (c==3){
-          #IMPLEMENTAR ripper
-          classificador <- JRip(as.factor(class) ~ .,conj_treino)
-          matriz <- table(predict(classificador,base_rotulados_ini),base_rotulados_ini$class)        
-        } else if (c==4){
-          #IMPLEMENTAR IBk
-          classificador <- IBk(as.factor(class) ~ .,conj_treino, control = Weka_control(K=5, X=TRUE))
-          matriz <- table(predict(classificador,base_rotulados_ini),base_rotulados_ini$class)
-        }
-        
-        
-        
-        acc_local <- ((sum(diag(matriz)) / length(base_rotulados_ini$class)) * 100)
-        if((acc_local>(limiar + 1)) && (thrConf-0.05>0.0)){
-          #if(acc_local>=limiar){
-          thrConf<-thrConf-0.05
-          
-        }else if((acc_local<(limiar - 1)) && (thrConf+0.05 < 1)){
-          #}else{
-          thrConf<-thrConf+0.05
-        } #caso contrario a confian?a permanecer? a mesma
-        
-      }  
+      validar_treino(data,id_conj_treino,N_classes,min_exem_por_classe);
+      validar_classificacao(treino_valido,data,id_conj_treino,base_rotulados_ini);
+      calculo_confianca(acc_local,limiar,thrConf);
     }
     
     soma_Conf <- 0
