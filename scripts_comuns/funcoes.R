@@ -159,8 +159,6 @@ funcSelfTrain <- function(form,data,
   repeat {
     acertou <- 0
     it <- it+1
-    new <- c()
-    rotulados <- c()
     #O c?lculo da taxa de confianca (thrConf) ser? realizado a partir da segunda iteracao e se houver exemplos rotulados
     if ((it>1)&&(qtd_Exemplos_Rot>0)){
       thrConf <- (thrConf + conf_media + (qtd_Exemplos_Rot/N_nao_rot))/3
@@ -174,14 +172,16 @@ funcSelfTrain <- function(form,data,
     model <- runLearner(learner,form,data[sup,])
     #a predicao e gerada de acordo com predFunc (func ou f1 ou f2 que foi passado como par?metro)
     probPreds <- do.call(predFunc,list(model,data[-sup,])) #data[-sup,] s?o os dados n?o rotulados
-    
     probPreds$cl <- as.character(probPreds$cl)
     
     if(it == 1){
       probPreds_1_it <<- probPreds
       moda <<- matrix(data = rep(0,length(data$class)),ncol = length(unique(base_original$class)), nrow = N, byrow = TRUE, 
                       dimnames = list(row.names(data),unique(base_original$class)))# matrix
-      #new <- which(probPreds[,2] >= thrConf)
+      
+      new <- which(probPreds[,2] >= thrConf)
+      rotulados <- data.frame(id = new,cl = probPreds[new,1]) 
+      
     }else{
       dist_classes <- unique(probPreds[,1]) #pega as classes distintas
       indices <- row.names(probPreds)   # pega o id de cada exemplo 
