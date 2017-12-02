@@ -75,7 +75,7 @@ for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
     tx <- c()
     
     #loop para definir a base de dados a ser utilizada (no script carrega dados tem os nomes das bases)
-    for(i in 13:13){  # bases de dados - testar bases 2 (2000), 3(20000), 4(300), 8 (900), 13(5000)
+    for(i in 2:2){  # bases de dados - testar bases 2 (2000), 3(20000), 4(300), 8 (900), 13(5000)
       #loop para definir o percentual de exemplos que ficar?o rotulados inicialmente
       for(j in 1:5){ # taxas  #base 1 - IRIS 5% NB N?O FUNCIONA - da erro
         taxa <- j*5

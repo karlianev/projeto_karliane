@@ -64,9 +64,6 @@ checa_classe <- function(data_1_it, data_x_it, indices, thrConf){
       if ((data_1_it[i, 2] >= thrConf) && (data_x_it[i, 2] >= thrConf)){
         pos <- pos + 1
         xid[pos] <- i
-        # print(format(data.frame("thrConf" = thrConf,
-        #                         "Iteração x" = data_x_it[i,],"Iteração 1" = data_1_it[i,],
-        #                         check.names = FALSE)))
       }
     }
   }
@@ -85,9 +82,6 @@ checa_confianca <- function(data_1_it, data_x_it, indices, thrConf){
       if((data_1_it[i, 2] >= thrConf) || (data_x_it[i, 2] >= thrConf)){
         pos <- pos + 1
         xid[pos] <- i
-        # print(format(data.frame("thrConf" = thrConf,
-        #                         "Iteração x" = data_x_it[i,],"Iteração 1" = data_1_it[i,],
-        #                         check.names = FALSE)))
       }
     }
   }
@@ -103,7 +97,8 @@ checa_classe_diferentes <- function(data_1_it, data_x_it, indices, thrConf, moda
   ycl <- c()
   for (i in indices){
     maior <- 0
-    if ((data_1_it[i, 2] >= thrConf) && (data_x_it[i, 2] >= thrConf)){
+    #  Este '!is.na(data_1_it[i, 2])' precisa ser verificado, pois ha ocorrencias em que o probPreds gera indices que não contem na primeira iteracao
+    if (!is.na(data_1_it[i, 2]) && (data_1_it[i, 2] >= thrConf) && (data_x_it[i, 2] >= thrConf)){
       if (data_1_it[i, 1] != data_x_it[i, 1]){
         pos <- pos + 1
         # votacao (pesquisa a classe que mais foi atribuida a um exemplo)
@@ -124,6 +119,20 @@ checa_classe_diferentes <- function(data_1_it, data_x_it, indices, thrConf, moda
   examples <- data.frame(id = xid,cl = ycl)
   return (examples)
 }
+
+guarda_moda <- function(indices,probPreds){
+  dist_classes <- unique(probPreds[,1]) #pega as classes distintas
+  for (x in indices){
+    for(y in 1:length(dist_classes)){
+      if(probPreds[x,1] == dist_classes[y]){
+        moda[x,dist_classes[y]] <- moda[x,dist_classes[y]] + 1
+        break
+      }
+    }
+  }
+  return (moda)
+}
+
 ################################
 #                              #
 #            FIM               #
@@ -176,40 +185,24 @@ funcSelfTrain <- function(form,data,
     
     if(it == 1){
       probPreds_1_it <<- probPreds
-      moda <<- matrix(data = rep(0,length(data$class)),ncol = length(unique(base_original$class)), nrow = N, byrow = TRUE, 
-                      dimnames = list(row.names(data),unique(base_original$class)))# matrix
-      
+      moda <<- matrix(data = rep(0,length(base_original$class)),ncol = length(unique(base_original$class)), nrow = NROW(base_original), byrow = TRUE, 
+                      dimnames = list(row.names(base_original),unique(base_original$class)))
       new <- which(probPreds[,2] >= thrConf)
       rotulados <- data.frame(id = new,cl = probPreds[new,1]) 
       
     }else{
-      dist_classes <- unique(probPreds[,1]) #pega as classes distintas
       indices <- row.names(probPreds)   # pega o id de cada exemplo 
-      
-      ## Em teste ##
-      
-      # for (x in indices){
-      #   for(y in 1:length(dist_classes)){
-      #     if(probPreds[x,1] == dist_classes[y]){
-      #       moda[x,y] <<- moda[x,y] + 1
-      #       break
-      #     }
-      #   }
-      # }
+      moda <<- guarda_moda(indices,probPreds) # Armazena a moda das classes
       
       rotulados <- checa_classe(probPreds_1_it, probPreds, indices, thrConf)
       if (length(rotulados$id) == 0){
         rotulados <- checa_confianca(probPreds_1_it, probPreds, indices, thrConf)
-        # if (length(rotulados$id) == 0){
-        #   rotulados <- checa_classe_diferentes(probPreds_1_it, probPreds, indices, thrConf, moda)
-        #  
-        # }
+        if (length(rotulados$id) == 0){
+          rotulados <- checa_classe_diferentes(probPreds_1_it, probPreds, indices, thrConf, moda)
+        }
       }
       new <- rotulados$id
     }
-    
-    ## teste ##
-    
     
     if (verbose) {
       #imprime na tela o % de exemplos rotulados inicialmente, a iteracao, a base de dados, a taxa de confianca e a quantidade de exemplos rotulados
