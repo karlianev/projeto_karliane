@@ -1,3 +1,7 @@
+
+
+#loop - modificado3 - ?...15%... - bd4 - NB
+
 #variaveis globais para guardar no arquivo de resultados
 treinamento <- c()
 it_g <-c() 
@@ -22,6 +26,9 @@ grad_g <- c()
 
 bd <- c()
 tx <- c()
+
+#fazendo teste com classificador supervisionado
+acc_g_sup <- c() #acuracia (percentual de acerto) do metodo supervisionado
 
 source('C:/local_R/projeto_karliane/scripts_comuns/configuracoes.R')
 # source('~/R/karliane/projeto_karliane/nayves_bayes/configuracoes.R')
@@ -49,8 +56,11 @@ for (t in 2:2) { #1 = taxa 0,9 2 = taxa 0,95
     
     bd <- c()
     tx <- c()
-    for(i in 2:2){  # bases de dados
-      for(j in 2:2){ # taxas  #base 1 - IRIS 5% NB N?O FUNCIONA - da erro
+    #fazendo teste com classificador supervisionado
+    acc_g_sup <- c()
+    
+    for(i in 4:4){  # bases de dados
+      for(j in 1:5){ # taxas  #base 1 - IRIS 5% NB N?O FUNCIONA - da erro
         taxa <- j*5
         source('C:/local_R/projeto_karliane/scripts_comuns/carrega_dados.R')
         source('C:/local_R/projeto_karliane/scripts_comuns/organiza_dados.R')
@@ -62,6 +72,11 @@ for (t in 2:2) { #1 = taxa 0,9 2 = taxa 0,95
       }    #FIM DO J
     }  #FIM DO I
     print("gerando data frame para arquivos")
+  
+    #fazendo teste com classificador supervisionado
+    data_arquivo_acc_sup <- data.frame(tx, bd, acc_g_sup)
+    data_arquivo_acc_por_taxa_sup <- c(data_arquivo_acc_sup[data_arquivo_acc_sup$tx<10,],data_arquivo_acc_sup[data_arquivo_acc_sup$tx<15 & data_arquivo_acc_sup$tx>5,], data_arquivo_acc_sup[data_arquivo_acc_sup$tx<20 & data_arquivo_acc_sup$tx>10,], data_arquivo_acc_sup[data_arquivo_acc_sup$tx<25 & data_arquivo_acc_sup$tx>15,], data_arquivo_acc_sup[data_arquivo_acc_sup$tx<30 & data_arquivo_acc_sup$tx>20,])
+    
     #data frame que sera guardado no arquivo
     data_arquivo_modif2 <- data.frame(bd_g,tx_g,it_g,thrConf_g,nr_added_exs_g, acertou_g)
     data_arquivo_modif3 <- data.frame(bd_g_3,tx_g_3,it_g_3,thrConf_g_3,nr_added_exs_g_3, acertou_g_3)
@@ -76,6 +91,9 @@ for (t in 2:2) { #1 = taxa 0,9 2 = taxa 0,95
     print("Gravando arquivos")    
     if (t == 1){ #TAXA 0.9
       if (c==1){ #NB
+        #fazendo teste com classificador supervisionado
+        write.csv(data_arquivo_acc_sup, "resultado_modif2_NB_sup_09.csv", row.names = FALSE)
+        
         #escrever no arquivo NB
         write.csv(data_arquivo_modif2, "resultado_modif2_nb_09.csv", row.names = FALSE)
         write.csv(data_arquivo_acc_por_taxa_modif2, "resultado_acc_modif2_nb_09.csv", row.names = FALSE)
@@ -84,6 +102,9 @@ for (t in 2:2) { #1 = taxa 0,9 2 = taxa 0,95
         write.csv(data_arquivo_acc_por_taxa_modif3, "resultado_acc_modif3_nb_09.csv", row.names = FALSE)
         
       }else if (c==2){ #AD
+        #fazendo teste com classificador supervisionado
+        write.csv(data_arquivo_acc_sup, "resultado_modif2_ad_sup_09.csv", row.names = FALSE)
+        
         #escrever no arquivo AD
         write.csv(data_arquivo_modif2, "resultado_modif2_ad_09.csv", row.names = FALSE)
         write.csv(data_arquivo_acc_por_taxa_modif2, "resultado_acc_modif2_ad_09.csv", row.names = FALSE)
@@ -93,6 +114,9 @@ for (t in 2:2) { #1 = taxa 0,9 2 = taxa 0,95
         
         
       }else if (c==3){
+        #fazendo teste com classificador supervisionado
+        write.csv(data_arquivo_acc_sup, "resultado_modif2_rip_sup_09.csv", row.names = FALSE)
+        
         #escrever no arquivo rip
         write.csv(data_arquivo_modif2, "resultado_modif2_rip_09.csv", row.names = FALSE)
         write.csv(data_arquivo_acc_por_taxa_modif2, "resultado_acc_modif2_rip_09.csv", row.names = FALSE)
@@ -101,6 +125,9 @@ for (t in 2:2) { #1 = taxa 0,9 2 = taxa 0,95
         write.csv(data_arquivo_acc_por_taxa_modif3, "resultado_acc_modif3_rip_09.csv", row.names = FALSE)
         
       }else if (c==4){ #IBK
+        #fazendo teste com classificador supervisionado
+        write.csv(data_arquivo_acc_sup, "resultado_modif2_ibk_sup_09.csv", row.names = FALSE)
+        
         #escrever no arquivo rip
         write.csv(data_arquivo_modif2, "resultado_modif2_ibk_09.csv", row.names = FALSE)
         write.csv(data_arquivo_acc_por_taxa_modif2, "resultado_acc_modif2_ibk_09.csv", row.names = FALSE)

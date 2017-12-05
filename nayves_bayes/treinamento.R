@@ -77,7 +77,7 @@ if(c==3){ #RIPPER
 }
 if(c==4){ #IBK
   stdIBK <- IBk(as.formula(paste(classe,'~', '.')),base_rotulados_ini, control = Weka_control(K=15, X=TRUE))
-  #chamada da arvore de decisão usando todos os exemplos de treinamento rotulados
+  #chamada da arvore de decisão usando todos os exemplos de treinamento rotulados (BASE COMPLETA, NÃO REFLETE A REALIDADE DOS PROBLEMAS DO MUNDO REAL)
   stdIBK_tot <- IBk(as.formula(paste(classe,'~', '.')),base_rotulada_treino, control = Weka_control(K=15, X=TRUE))
   
   if (t==1){

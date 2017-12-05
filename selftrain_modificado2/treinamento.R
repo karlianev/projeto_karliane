@@ -78,15 +78,20 @@ n <- length(base_teste$class)
 acc <- ((sum(diag(matriz_confusao1)) / n) * 100)
 acc_3 <- ((sum(diag(matriz_confusao3)) / n) * 100)
 
+
 acc_g <- c(acc_g, acc)
 acc_g_3 <- c(acc_g_3, acc_3)
 
+
+#fazendo teste com classificador supervisionado
+acc_g_sup <- c(acc_g_sup, acc_sup_3)
 
 
 bd <- c(bd, bd_nome)
 tx <- c(tx, taxa)
 cat("\n Acerto global modif_2 (%) =", acc)
 cat("\n Acerto global modif_3 (%) =", acc_3)
+cat("\n Acerto global supervisionado (%) =", acc_sup_3)
 
 
 cat('FIM') #, '\t base de dados ', i, '\n', 'total rotulados: ', total_rotulados, '\n')

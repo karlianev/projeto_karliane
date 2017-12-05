@@ -20,8 +20,8 @@ if (i==1) {
   base_original <- read.arff("segment.arff")
   bd_nome <- "segment"
 }else if(i==6){
-  base_original <- read.arff("haberman.arff")
-  bd_nome <- "haberman"
+  base_original <- read.arff("waveform-5000.arff")
+  bd_nome <- "waveform"
 }else if(i==7){
   base_original <-read.arff("pima.arff")
   bd_nome <- "pima"
@@ -41,8 +41,8 @@ if (i==1) {
   base_original <-read.arff("kr-vs-kp.arff")
   bd_nome <- "kr-vs-kp"
 }else if(i==13){  
-  base_original <-read.arff("waveform-5000.arff")
-  bd_nome <- "waveform"
+  base_original <-read.arff("haberman.arff")
+  bd_nome <- "haberman"
 }else if(i==14){
   base_original <-read.arff("mushroom.arff")
   bd_nome <- "mushroom"

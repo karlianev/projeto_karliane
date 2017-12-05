@@ -34,9 +34,9 @@ source('C:/local_R/projeto_karliane/scripts_comuns/funcoes.R')
 # source('~/R/karliane/projeto_karliane/scripts_comuns/funcoes.R')
 
 #loop para definir a taxa de confian?a da primeira iteracao
-for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
+for (t in 2:2) { #1 = taxa 0,9 2 = taxa 0,95
   #loop para definir qual classificador sera usado
-  for(c in 4:4){  # 1 = NB, 2 = AD, 3 = JRip ,4 = IBK
+  for(c in 2:2){  # 1 = NB, 2 = AD, 3 = JRip ,4 = IBK
     cat('iniciando o treinamento do algoritmo', c, '\n')
     #inicializa??o das vari?veis
     it_g <-c() 
@@ -78,8 +78,8 @@ for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
     #loop para definir a base de dados a ser utilizada (no script carrega dados tem os nomes das bases)
     for(i in 2:2){  # bases de dados - testar bases 2 (2000), 3(20000), 4(300), 8 (900), 13(5000)
       #loop para definir o percentual de exemplos que ficar?o rotulados inicialmente
-      for(j in 1:1){ # taxas  #base 1 - IRIS 5% NB N?O FUNCIONA - da erro
-        cat('iniciando o treinamento com ', as.character(j), '% rotulados','\n')
+      for(j in 1:5){ # taxas  #base 1 - IRIS 5% NB N?O FUNCIONA - da erro
+        cat('iniciando o treinamento com ', as.character(j*5), '% rotulados','\n')
         taxa <- j*5
         # #chamada do script que ler o .arff
         source('C:/local_R/projeto_karliane/scripts_comuns/carrega_dados.R')
@@ -115,6 +115,8 @@ for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
     print("Gravando arquivos")    
     if (t == 1){ #TAXA 0.9
       if (c==1){
+        #fazendo teste com classificador supervisionado
+        write.csv(data_arquivo_acc_sup, "resultado_NB_sup_09.csv", row.names = FALSE)
         
         #escrever no arquivo NB
         write.csv(data_arquivo, "resultado_nb_09.csv", row.names = FALSE)
@@ -138,6 +140,9 @@ for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
         write.csv(data_arquivo_acc_por_taxa_gra, "resultado_acc_ad_gra_09.csv", row.names = FALSE)
             
       }else if (c==3){
+        #fazendo teste com classificador supervisionado
+        write.csv(data_arquivo_acc_sup, "resultado_JRIP_sup_09.csv", row.names = FALSE)
+        
         #escrever no arquivo ripper
         write.csv(data_arquivo, "resultado_JRip_09.csv", row.names = FALSE)
         write.csv(data_arquivo_o, "resultado_JRip_o_09.csv", row.names = FALSE)
@@ -146,6 +151,9 @@ for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
         write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_JRip_o_09.csv", row.names = FALSE)
         write.csv(data_arquivo_acc_por_taxa_gra, "resultado_acc_JRip_gra_09.csv", row.names = FALSE)
       }else if (c==4){
+        #fazendo teste com classificador supervisionado
+        write.csv(data_arquivo_acc_sup, "resultado_IBK_sup_09.csv", row.names = FALSE)
+        
         #escrever no arquivo IBk
         write.csv(data_arquivo, "resultado_IBk_09.csv", row.names = FALSE)
         write.csv(data_arquivo_o, "resultado_IBk_o_09.csv", row.names = FALSE)
@@ -167,6 +175,7 @@ for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
         write.csv(data_arquivo_acc_por_taxa_gra, "resultado_acc_nb_gra_095.csv", row.names = FALSE)
         
       }else if (c==2){
+        
         #escrever no arquivo AD
         write.csv(data_arquivo, "resultado_ad_095.csv", row.names = FALSE)
         write.csv(data_arquivo_o, "resultado_ad_o_095.csv", row.names = FALSE)
@@ -195,6 +204,6 @@ for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
     
     }
   }
-  cat('FIM')
+  cat('FIM', '\n')
 }    
   

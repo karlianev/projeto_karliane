@@ -120,6 +120,7 @@ checa_classe_diferentes <- function(data_1_it, data_x_it, indices, thrConf, moda
   return (examples)
 }
 
+#armazena o voto do classificador para cada rótulo
 guarda_moda <- function(indices,probPreds){
   dist_classes <- unique(probPreds[,1]) #pega as classes distintas
   for (x in indices){
@@ -139,7 +140,11 @@ guarda_moda <- function(indices,probPreds){
 #                              #
 ################################
 
-#funcao self-training modificado
+#funcao self-training modificado, usa uma fórmula para calcular a nova taxa de confiança.
+#inclui no conjunto dos rotulados os exemplos que possuem mesmo rotulo e taxa de conf. >= thrconf
+#caso não exista nenhum exemplo com essa característica, serao incluidos os exemplos que possuem o mesmo
+#rotulo e uma das duas confiancas >= thrConf. Se ainda assim não existir nenhum exemplo, serao
+#incluidos os exemplos cujos rotulos sao diferentes, mas uma das duas confiancas seja >= que thrConf
 funcSelfTrain <- function(form,data,
                           learner,
                           predFunc,
@@ -393,6 +398,7 @@ funcSelfTrainGradativo <- function(form,data,
   
   return(model)  
 }
+#funcao, chamada em modificado2 e 3, que valida se o conjunto de treinamento pode ser utilizado para calcular a nova taxa de confianca
 validar_treino<- function(data,id_conj_treino,N_classes,min_exem_por_classe){
   #cat("entrou if da segunda itera??o", '\n')
   N_instancias_por_classe2 <- ddply(data[id_conj_treino,],~class,summarise,number_of_distinct_orders=length(class))
@@ -409,6 +415,8 @@ validar_treino<- function(data,id_conj_treino,N_classes,min_exem_por_classe){
     
   }
 } 
+
+#funcao, chamada em modificado2 e 3, que define o conjunto de treinamento a ser classificado e indica se a classificacao e possivel
 validar_classificacao<-function(treino_valido_i,id_conj_treino,id_conj_treino_antigo,data,conj_treino_i){
   #data[sup,] corresponde os que possuem rotulos (INICIALMENTE ROTULADOS OU N?fO)
   if (treino_valido_i){
@@ -426,6 +434,9 @@ validar_classificacao<-function(treino_valido_i,id_conj_treino,id_conj_treino_an
   return(classificar)  
 }
 
+#funcao que faz o treinamento usando o conjunto de treinamento definido na funcao validar_classificacao e
+#calcula a acuracia para ser usada na definicao da nova taxa de confianca. Essa acuracia comparada com o 
+#limiar indica se a nova taxa sobe ou desce.
 calcular_acc_local <- function(){
   
   if(c==1){
@@ -449,6 +460,7 @@ calcular_acc_local <- function(){
   return(acc_local)
 }
 
+#funcao que calcula a nova confianca de acordo com a acuracia local e o limiar
 calcular_confianca<-function(acc_local,limiar,txConf){
   if((acc_local>(limiar + 1)) && (txConf-0.05>0.0)){
     txConf<-txConf-0.05
@@ -461,6 +473,8 @@ calcular_confianca<-function(acc_local,limiar,txConf){
 }
 
 #calcula a confianca de acordo com o treinamento do classificador
+#so acumula o conjunto de treinamento com o conjunto anterior caso o conjunto de treinamento nao seja valido
+#usa votacao para definir o rotulo nos casos em que os classificadores divergem
 funcSelfTrainModificado2 <- function(form,data,
                           learner,
                           predFunc,
@@ -576,8 +590,9 @@ funcSelfTrainModificado2 <- function(form,data,
   return(model)  
   
 }
-
-#CASO OS RÓTULOS SEJAM DIFERENTES, ELE ADICIONA O ROTULO DO SUPERVISIONADO.
+#calcula a confianca de acordo com o treinamento do classificador
+# o conjunto de treinamento e cumulativo
+#usa O ROTULO DO CLASSIFICADOR SUPERVISIONADO nos casos em que os classificadores divergem
 funcSelfTrainModificado3 <- function(form,data,
                                      learner,
                                      predFunc,
@@ -637,13 +652,14 @@ funcSelfTrainModificado3 <- function(form,data,
     new <- which((probPreds[,2] >= thrConf) & (probPreds_model_superv[,2] >= thrConf) & (probPreds[,1]==probPreds_model_superv[,1]))
     if (length(new)==0){
       #adiciona exemplos cuja confian?a de um dos classificadores seja maior que thrconf e cuja predicao de probpreds e probpreds_model_superv seja a mesma
-      new <- which(((probPreds[,2] >= thrConf) | (probPreds_model_superv[,2] >= thrConf)) & (probPreds[,1]==probPreds_model_superv[,1]))  
+      new <- which((probPreds[,2] >= thrConf) | (probPreds_model_superv[,2] >= thrConf) & (probPreds[,1]==probPreds_model_superv[,1]))  
       
       if (length(new)==0){
-#IMPLEMENTAR O COMITE com a soma
         #adiciona exemplos cuja confian?a dos dois classificadores seja maior que thrconf e cuja predicao de probpreds e probpreds_model_superv nao seja a mesma
         new <- which((probPreds[,2] >= thrConf) & (probPreds_model_superv[,2] >= thrConf) & (probPreds[,1] != probPreds_model_superv[,1]))  
-        add_rot_superv <- TRUE
+        if (length(new)){
+          add_rot_superv <- TRUE
+        }
       }
     }
 
@@ -677,11 +693,10 @@ funcSelfTrainModificado3 <- function(form,data,
       
       id_conj_treino_antigo <- c(id_conj_treino_antigo,id_conj_treino)
       id_conj_treino <- (1:N)[-sup][new]
-      conj_treino <- rbind(data[id_conj_treino,],data[id_conj_treino_antigo,])
-      
-      
-      
-      
+
+#esse comando pode ser usado para tornar o conj_treino cumulativo
+# conj_treino <- rbind(data[id_conj_treino,],data[id_conj_treino_antigo,])
+
       sup <- c(sup,(1:N)[-sup][new])
     }
     
@@ -700,3 +715,4 @@ funcSelfTrainModificado3 <- function(form,data,
   return(model)  
 }
 
+#IMPLEMENTAR MODIFICADO 1 (COM O CALCULO DA NOVA TAXA IGUAL AO MODIFICADO) E MODIFICADO4 (COM O CALCULO DA NOVA TAXA IGUAL AO MODIFICADO2) COM O COMITE USANDO soma
