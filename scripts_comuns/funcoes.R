@@ -97,9 +97,9 @@ checa_classe_diferentes <- function(data_1_it, data_x_it, indices, thrConf, moda
   ycl <- c()
   for (i in indices){
     maior <- 0
-    #  Este '!is.na(data_1_it[i, 2])' precisa ser verificado, pois ha ocorrencias em que o probPreds gera indices que não contem na primeira iteracao
-    if (!is.na(data_1_it[i, 2]) && ((data_1_it[i, 2] >= thrConf) || (data_x_it[i, 2] >= thrConf))){
-      if (data_1_it[i, 1] != data_x_it[i, 1]){
+    if (!is.na(data_1_it[i, 1]) && (data_1_it[i, 1] != data_x_it[i, 1])){
+      # Este '!is.na(data_1_it[i, 2])' precisa ser verificado, pois ha ocorrencias em que o probPreds gera indices que não contem na primeira iteracao
+      if ((data_1_it[i, 2] >= thrConf) || (data_x_it[i, 2] >= thrConf)){
         pos <- pos + 1
         # votacao (pesquisa a classe que mais foi atribuida a um exemplo)
         for (j in 1:length(moda[i,])){
@@ -577,6 +577,7 @@ funcSelfTrainModificado2 <- function(form,data,
   
 }
 
+#CASO OS R�TULOS SEJAM DIFERENTES, ELE ADICIONA O ROTULO DO SUPERVISIONADO.
 funcSelfTrainModificado3 <- function(form,data,
                                      learner,
                                      predFunc,
