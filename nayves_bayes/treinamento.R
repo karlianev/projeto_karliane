@@ -76,6 +76,10 @@ if(c==3){ #RIPPER
   matriz_confusao_gra=table(predict(ST_gra,base_teste,type='class'),base_teste$class)
 }
 if(c==4){ #IBK
+  stdIBK <- IBk(as.formula(paste(classe,'~', '.')),base_rotulados_ini, control = Weka_control(K=15, X=TRUE))
+  #chamada da arvore de decisão usando todos os exemplos de treinamento rotulados
+  stdIBK_tot <- IBk(as.formula(paste(classe,'~', '.')),base_rotulada_treino, control = Weka_control(K=15, X=TRUE))
+  
   if (t==1){
     ST <- funcSelfTrain(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('IBk',list(control = Weka_control(K=15, X=TRUE))),'f2',0.9,100,1,TRUE)
     ST_O <- SelfTrainOriginal(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('IBk',list(control = Weka_control(K=15, X=TRUE))),'f2',0.9,100,1,TRUE)
@@ -85,13 +89,16 @@ if(c==4){ #IBK
     ST_O <- SelfTrainOriginal(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('IBk',list(control = Weka_control(K=15, X=TRUE))),'f2',0.95,100,1,TRUE)
     ST_gra <- funcSelfTrainGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('IBk',list(control = Weka_control(K=15, X=TRUE))),'f2',0.95,100,1,TRUE)
   }  
-  matriz_confusao_supervisionado <- c()
-  matriz_confusao_tot_supervisionado <- c()
+  #criando a matriz de confusão para o modelo gerado pelo IBK usando os exemplos inicialmente rotulados
+  matriz_confusao_supervisionado <- table(predict(stdIBK,base_teste,type='class'),base_teste$class)
+  #criando a matriz de confusão para o modelo gerado pela árvore de decisão usando todos os exemplos de treinamento rotulados
+  matriz_confusao_tot_supervisionado <- table(predict(stdIBK_tot,base_teste,type='class'),base_teste$class)
   
   matriz_confusao_o=table(predict(ST_O,base_teste,type='class'),base_teste$class)
   matriz_confusao1 = table(predict(ST,base_teste,type='class'),base_teste$class)
   matriz_confusao_gra=table(predict(ST_gra,base_teste,type='class'),base_teste$class)
 }
+
 
 
 

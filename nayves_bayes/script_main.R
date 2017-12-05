@@ -34,9 +34,9 @@ source('C:/local_R/projeto_karliane/scripts_comuns/funcoes.R')
 # source('~/R/karliane/projeto_karliane/scripts_comuns/funcoes.R')
 
 #loop para definir a taxa de confian?a da primeira iteracao
-for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
+for (t in 1:1) { #1 = taxa 0,9 2 = taxa 0,95
   #loop para definir qual classificador sera usado
-  for(c in 1:4){  # 1 = NB, 2 = AD, 3 = JRip ,4 = IBK
+  for(c in 4:4){  # 1 = NB, 2 = AD, 3 = JRip ,4 = IBK
     cat('iniciando o treinamento do algoritmo', c, '\n')
     #inicializa??o das vari?veis
     it_g <-c() 
@@ -76,9 +76,9 @@ for (t in 1:2) { #1 = taxa 0,9 2 = taxa 0,95
     tx <- c()
     
     #loop para definir a base de dados a ser utilizada (no script carrega dados tem os nomes das bases)
-    for(i in 2:15){  # bases de dados - testar bases 2 (2000), 3(20000), 4(300), 8 (900), 13(5000)
+    for(i in 2:2){  # bases de dados - testar bases 2 (2000), 3(20000), 4(300), 8 (900), 13(5000)
       #loop para definir o percentual de exemplos que ficar?o rotulados inicialmente
-      for(j in 1:5){ # taxas  #base 1 - IRIS 5% NB N?O FUNCIONA - da erro
+      for(j in 1:1){ # taxas  #base 1 - IRIS 5% NB N?O FUNCIONA - da erro
         cat('iniciando o treinamento com ', as.character(j), '% rotulados','\n')
         taxa <- j*5
         # #chamada do script que ler o .arff
