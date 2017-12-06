@@ -36,7 +36,7 @@ source('C:/local_R/projeto_karliane/scripts_comuns/funcoes.R')
 #loop para definir a taxa de confian?a da primeira iteracao
 for (t in 2:2) { #1 = taxa 0,9 2 = taxa 0,95
   #loop para definir qual classificador sera usado
-  for(c in 2:2){  # 1 = NB, 2 = AD, 3 = JRip ,4 = IBK
+  for(c in 3:3){  # 1 = NB, 2 = AD, 3 = JRip ,4 = IBK
     cat('iniciando o treinamento do algoritmo', c, '\n')
     #inicializa??o das vari?veis
     it_g <-c() 
@@ -81,7 +81,7 @@ for (t in 2:2) { #1 = taxa 0,9 2 = taxa 0,95
       for(j in 1:5){ # taxas  #base 1 - IRIS 5% NB N?O FUNCIONA - da erro
         cat('iniciando o treinamento com ', as.character(j*5), '% rotulados','\n')
         taxa <- j*5
-        # #chamada do script que ler o .arff
+        #chamada do script que ler o .arff
         source('C:/local_R/projeto_karliane/scripts_comuns/carrega_dados.R')
         #chamada do script que divide a base em conjunto de treinamento e teste, sorteia os exemplos inicialmente rotulados e tira o r?tulo dos demais exemplos
         source('C:/local_R/projeto_karliane/scripts_comuns/organiza_dados.R')
