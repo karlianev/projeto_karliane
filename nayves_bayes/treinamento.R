@@ -3,6 +3,8 @@ print("Iniciando Treinamento")
 
 if(c==1){ #NAIVE BAYES
   if (t==1){ #TAXA INICIAL 0.9
+    stdNaive <- naiveBayes(as.formula(paste(classe,'~', '.')), base_rotulados_ini)
+    stdNaive_tot <- naiveBayes(as.formula(paste(classe,'~', '.')), base_rotulados_treino)
     #chamada da funcao que implementa o metodo modificado usando naive
     nbST<- funcSelfTrain(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.9,100,1,TRUE, votacao = TRUE)
     #chamada da funcao que implementa o metodo original usando naive
@@ -15,9 +17,8 @@ if(c==1){ #NAIVE BAYES
     nbST_gra<- funcSelfTrainGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.95,100,1,TRUE)
   }
   #n?o testei o supervisionado com naive, as 2 linhas abaixo s?o apenas para n?o dar erro na execu??o do c?digo
-  matriz_confusao_supervisionado <- c()
-  matriz_confusao_tot_supervisionado <- c()
-  
+  matriz_confusao_supervisionado <- table(predict(stdNaive, base_teste, type = "class"), base_teste$class)
+  matriz_confusao_tot_supervisionado <- table(predict(stdNaive_tot, base_teste, type = "class"), base_teste$class)
   #criando a matriz de confus?o para o m?todo modificado
   matriz_confusao1<-table(predict(nbST, base_teste, type = 'class'), base_teste$class) #antes estava sem o type='class', karliane acrescentou apenas para ficar tudo igual
   #criando a matriz de confus?o para o m?todo original
