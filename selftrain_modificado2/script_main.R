@@ -31,12 +31,12 @@ tx <- c()
 acc_g_sup <- c() #acuracia (percentual de acerto) do metodo supervisionado
 
 source('C:/local_R/projeto_karliane/scripts_comuns/configuracoes.R')
-# source('~/R/karliane/projeto_karliane/nayves_bayes/configuracoes.R')
+# source('~/R/karliane/projeto_karliane/scripts_comuns/configuracoes.R')
 
 source('C:/local_R/projeto_karliane/scripts_comuns/funcoes.R')
-# source('~/R/karliane/projeto_karliane/nayves_bayes/funcoes.R')
+# source('~/R/karliane/projeto_karliane/scripts_comuns/funcoes.R')
 for (t in 2:2) { #1 = taxa 0,9 2 = taxa 0,95
-  for(c in 1:1){  # 1 = NB, 2 = AD 3 = ripper 4 = IBK
+  for(c in 2:2){  # 1 = NB, 2 = AD 3 = ripper 4 = IBK
     it_g <-c() 
     bd_g <-c()
     thrConf_g<-c()
@@ -50,7 +50,6 @@ for (t in 2:2) { #1 = taxa 0,9 2 = taxa 0,95
     thrConf_g_3 <-c()
     nr_added_exs_g_3 <-c()
     tx_g_3 <- c()
-    acc_g_3 <- c()
     acc_g_3 <- c()
     acertou_g_3 <- c()
     
@@ -66,9 +65,9 @@ for (t in 2:2) { #1 = taxa 0,9 2 = taxa 0,95
         source('C:/local_R/projeto_karliane/scripts_comuns/organiza_dados.R')
         source('C:/local_R/projeto_karliane/selftrain_modificado2/treinamento.R')
 
-        # source('~/R/karliane/projeto_karliane/nayves_bayes/carrega_dados.R')
-        # source('~/R/karliane/projeto_karliane/nayves_bayes/organiza_dados.R')
-        # source('~/R/karliane/projeto_karliane/nayves_bayes/treinamento.R')
+        # source('~/R/karliane/projeto_karliane/scripts_comuns/carrega_dados.R')
+        # source('~/R/karliane/projeto_karliane/scripts_comuns/organiza_dados.R')
+        # source('~/R/karliane/projeto_karliane/selftrain_modificado2/treinamento.R')
       }    #FIM DO J
     }  #FIM DO I
     print("gerando data frame para arquivos")
@@ -175,7 +174,7 @@ for (t in 2:2) { #1 = taxa 0,9 2 = taxa 0,95
 }    #FIM DO T
 
 
-# caso seja necessario trazer a funÁ„o para o main esses s„o os parametros.
+# caso seja necessario trazer a fun??o para o main esses s?o os parametros.
 # form = as.formula(paste(classe,'~', '.'))
 # data = base_treino_self_training
 # learner = learner("naiveBayes", list())
@@ -188,7 +187,7 @@ for (t in 2:2) { #1 = taxa 0,9 2 = taxa 0,95
 # 
 # N <- NROW(data)
 # N_instancias_por_classe <- ddply(data,~class,summarise,number_of_distinct_orders=length(class))
-# N_classes <- NROW(N_instancias_por_classe)-1 # uso do -1 pq N_instancias_por_classe tem uma linha com a quantidade de exemplos n„o rotulados
+# N_classes <- NROW(N_instancias_por_classe)-1 # uso do -1 pq N_instancias_por_classe tem uma linha com a quantidade de exemplos n?o rotulados
 # it <- 0
 # soma_Conf <- 0
 # qtd_Exemplos_Rot <- 0
@@ -220,7 +219,7 @@ for (t in 2:2) { #1 = taxa 0,9 2 = taxa 0,95
 #     #data[sup,] corresponde os que possuem rotulos (INICIALMENTE ROTULADOS OU N√ÉO)
 #     if (treino_valido){
 #       # if (nrow(data[new,])>=N_classes*5){
-#       #o conjunto de treinamento serao as instancias inclu√???das (rotuladas)
+#       #o conjunto de treinamento serao as instancias inclu????das (rotuladas)
 #       conj_treino <- data[id_conj_treino,]
 #       id_conj_treino_antigo <- c()
 #       #conj_treino <- data[new,]
@@ -237,7 +236,7 @@ for (t in 2:2) { #1 = taxa 0,9 2 = taxa 0,95
 #       matriz <- table(predict(classificador,base_rotulados_ini),base_rotulados_ini$class)
 #     }
 #     else{
-#       #IMPLEMENTAR ARVORE DE DECIS√O
+#       #IMPLEMENTAR ARVORE DE DECIS?O
 #       classificador <- rpartXse(as.factor(class) ~ .,conj_treino)
 #       matriz <- table(predict(classificador,base_rotulados_ini, type="vector"),base_rotulados_ini$class)
 #     }
