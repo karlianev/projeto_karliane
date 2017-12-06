@@ -120,7 +120,7 @@ checa_classe_diferentes <- function(data_1_it, data_x_it, indices, thrConf, moda
   return (examples)
 }
 
-#armazena o voto do classificador para cada rótulo
+#armazena o voto do classificador para cada r?tulo
 guarda_moda <- function(indices,probPreds){
   dist_classes <- unique(probPreds[,1]) #pega as classes distintas
   for (x in indices){
@@ -140,17 +140,18 @@ guarda_moda <- function(indices,probPreds){
 #                              #
 ################################
 
-#funcao self-training modificado, usa uma fórmula para calcular a nova taxa de confiança.
+#funcao self-training modificado, usa uma f?rmula para calcular a nova taxa de confian?a.
 #inclui no conjunto dos rotulados os exemplos que possuem mesmo rotulo e taxa de conf. >= thrconf
-#caso não exista nenhum exemplo com essa característica, serao incluidos os exemplos que possuem o mesmo
-#rotulo e uma das duas confiancas >= thrConf. Se ainda assim não existir nenhum exemplo, serao
+#caso n?o exista nenhum exemplo com essa caracter?stica, serao incluidos os exemplos que possuem o mesmo
+#rotulo e uma das duas confiancas >= thrConf. Se ainda assim n?o existir nenhum exemplo, serao
 #incluidos os exemplos cujos rotulos sao diferentes, mas uma das duas confiancas seja >= que thrConf
 funcSelfTrain <- function(form,data,
                           learner,
                           predFunc,
                           thrConf=0.9,
                           maxIts=10,percFull=1,
-                          verbose=F){
+                          verbose=F,
+                          votacao = TRUE){
   
   
   
@@ -203,7 +204,10 @@ funcSelfTrain <- function(form,data,
       if (length(rotulados$id) == 0){
         rotulados <- checa_confianca(probPreds_1_it, probPreds, indices, thrConf)
         if (length(rotulados$id) == 0){
-          rotulados <- checa_classe_diferentes(probPreds_1_it, probPreds, indices, thrConf, moda)
+          if(votacao)
+            rotulados <- checa_classe_diferentes(probPreds_1_it, probPreds, indices, thrConf, moda)
+          else
+            cat("Implementar soma")
         }
       }
       new <- rotulados$id
@@ -482,7 +486,8 @@ funcSelfTrainModificado2 <- function(form,data,
                           maxIts=10,percFull=1,
                           verbose=F,
                           min_exem_por_classe,
-                          limiar=70){
+                          limiar=70,
+                          votacao = TRUE){
   
   N <- NROW(data)
   N_instancias_por_classe <- ddply(data,~class,summarise,number_of_distinct_orders=length(class))
@@ -537,7 +542,10 @@ funcSelfTrainModificado2 <- function(form,data,
       if (length(rotulados$id) == 0){
         rotulados <- checa_confianca(probPreds_1_it, probPreds, indices, thrConf)
         if (length(rotulados$id) == 0){
-          rotulados <- checa_classe_diferentes(probPreds_1_it, probPreds, indices, thrConf, moda)
+          if(votacao)
+            rotulados <- checa_classe_diferentes(probPreds_1_it, probPreds, indices, thrConf, moda)
+          else
+            cat("Implementar soma")
         }
       }
       new <- rotulados$id
