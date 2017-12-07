@@ -14,14 +14,20 @@ if (i==1) {
   base_original <- read.arff("letter.arff")
   bd_nome <- "letter"
 }else if(i==4){
-  base_original <- read.arff("bupa.arff");
-  bd_nome <- "bupa"
+  # base_original <- read.arff("bupa.arff");
+  # bd_nome <- "bupa"
+  base_original <-read.arff("haberman.arff")
+  bd_nome <- "haberman"
 }else if(i==5){
-  base_original <- read.arff("segment.arff")
-  bd_nome <- "segment"
+  # base_original <- read.arff("segment.arff")
+  # bd_nome <- "segment"
+  base_original <-read.arff("mushroom.arff")
+  bd_nome <- "mushroom"
 }else if(i==6){
-  base_original <- read.arff("waveform-5000.arff")
-  bd_nome <- "waveform"
+  # base_original <- read.arff("waveform-5000.arff")
+  # bd_nome <- "waveform"
+  base_original <-read.arff("sick.arff")
+  bd_nome <- "sick"
 }else if(i==7){
   base_original <-read.arff("pima.arff")
   bd_nome <- "pima"

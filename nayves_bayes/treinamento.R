@@ -2,9 +2,11 @@
 print("Iniciando Treinamento")
 
 if(c==1){ #NAIVE BAYES
+  #classificador supervisionado
+  stdNaive <- naiveBayes(as.formula(paste(classe,'~', '.')), base_rotulados_ini)
+  stdNaive_tot <- naiveBayes(as.formula(paste(classe,'~', '.')), base_rotulados_treino)
+  
   if (t==1){ #TAXA INICIAL 0.9
-    stdNaive <- naiveBayes(as.formula(paste(classe,'~', '.')), base_rotulados_ini)
-    stdNaive_tot <- naiveBayes(as.formula(paste(classe,'~', '.')), base_rotulados_treino)
     #chamada da funcao que implementa o metodo modificado usando naive
     nbST<- funcSelfTrain(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.9,100,1,TRUE, votacao = TRUE)
     #chamada da funcao que implementa o metodo original usando naive
