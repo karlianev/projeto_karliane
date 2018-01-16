@@ -14,20 +14,17 @@ if (i==1) {
   base_original <- read.arff("letter.arff")
   bd_nome <- "letter"
 }else if(i==4){
-  # base_original <- read.arff("bupa.arff");
-  # bd_nome <- "bupa"
-  base_original <-read.arff("haberman.arff")
-  bd_nome <- "haberman"
+  base_original <- read.arff("bupa.arff");
+  bd_nome <- "bupa"
+
 }else if(i==5){
-  # base_original <- read.arff("segment.arff")
-  # bd_nome <- "segment"
-  base_original <-read.arff("mushroom.arff")
-  bd_nome <- "mushroom"
+  base_original <- read.arff("segment.arff")
+  bd_nome <- "segment"
+
 }else if(i==6){
-  # base_original <- read.arff("waveform-5000.arff")
-  # bd_nome <- "waveform"
-  base_original <-read.arff("sick.arff")
-  bd_nome <- "sick"
+  base_original <- read.arff("waveform-5000.arff")
+  bd_nome <- "waveform"
+  
 }else if(i==7){
   base_original <-read.arff("pima.arff")
   bd_nome <- "pima"
@@ -52,6 +49,8 @@ if (i==1) {
 }else if(i==14){
   base_original <-read.arff("mushroom.arff")
   bd_nome <- "mushroom"
+
+    #a partir daqui todas estão dando problemas
 }else if(i==15){
   base_original <-read.arff("sick.arff")
   bd_nome <- "sick"

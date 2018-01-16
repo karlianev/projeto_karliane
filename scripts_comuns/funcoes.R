@@ -1,7 +1,5 @@
 guardar_predicao <- function(predic,iterac){
   if (iterac==1){
-    voto = matrix(nrow=NROW(predic),ncol = NCOL(predic))
-    voto <<- predic
     soma <<- predic
     cat("criar vetor com o voto e a soma")  
   }else{
@@ -26,6 +24,7 @@ func <- function(m, d){ #NB
 
 f <- function(m,d) { #AD
   p <- predict(m,d,type='prob') #predicao dos dados (d) de acordo com o modelo (m)
+  predicao <<- data.frame(p)
   col1 <- colnames(p)[apply(p,1,which.max)] #nome da coluna com a maior predicao, ou seja, a classe
   col2 <- apply(p,1,max) # valor da maior predicao
   data.frame(cl=col1,p=col2)
@@ -38,6 +37,7 @@ f <- function(m,d) { #AD
 
 f2 <- function(m,d) { #JRip e KNN
     p <- predict(m,d,type='probability') # l ? uma matriz com a confian?a da predi??o de cada exemplo
+    predicao <<- data.frame(p)
     col1 <- colnames(p)[apply(p,1,which.max)] #nome da coluna com a maior predicao, ou seja, a classe
     col2 <- apply(p,1,max) # valor da maior predicao
     data.frame(cl=col1,p=col2) #um data frame com 2 colunas: 1) a predi??o de cada exemplo; 2) a classe predita para cada exemplo
@@ -134,6 +134,57 @@ guarda_moda <- function(indices,probPreds){
   return (moda)
 }
 
+guarda_soma <- function(indices,p){ # p = predicao
+  dist_classes <- unique(base_original$class) #pega as classes distintas
+  
+  # if(c==1){
+  #   p <- predict(m, d, type = "raw") 
+  # }
+  # else if(c==2){
+  #   p <- predict(m,d,type='prob') 
+  # }else{
+  #   p <- predict(m,d,type='probability')
+  # }
+  for (x in indices){
+    # x<-as.factor(x)
+    for(y in 1:ncol(p)){
+      moda[x,dist_classes[y]] <- moda[x,dist_classes[y]] + p[x,dist_classes[y]]
+      
+    }
+  }
+  return(moda)
+}
+
+# compara se as classes s√£o diferentes e as confian√ßas s√£o maiores que a confian√ßa atual
+# checa_classe_diferentes_modif4 <- function(data_1_it, data_x_it, indices, thrConf, moda){
+#   pos <- 0
+#   classes <- colnames(moda)
+#   xid <- c()
+#   ycl <- c()
+#   for (i in indices){
+#     maior <- 0
+#     # Este '!is.na(data_1_it[i, 2])' precisa ser verificado, pois ha ocorrencias em que o probPreds gera indices que n√£o contem na primeira iteracao
+#     if ((data_1_it[i, 2] >= thrConf) || (data_x_it[i, 2] >= thrConf)){
+#       pos <- pos + 1
+#       # votacao (pesquisa a classe que mais foi atribuida a um exemplo)
+#       for (j in 1:length(moda[i,])){
+#         if(moda[i,j] >= maior){
+#           maior <- moda[i,j] 
+#           cl <- classes[j] 
+#         }
+#       }
+#       xid[pos] <- i
+#       ycl[pos] <- cl
+#     }
+#   }
+#   if (length(ycl) > 1){
+#     runif(n = 1, min = 1, max = length(ycl))
+#   }
+#   examples <- data.frame(id = xid,cl = ycl)
+#   return (examples)
+# }
+# 
+
 ################################
 #                              #
 #            FIM               #
@@ -196,18 +247,27 @@ funcSelfTrain <- function(form,data,
       new <- which(probPreds[,2] >= thrConf)
       rotulados <- data.frame(id = new,cl = probPreds[new,1]) 
       
+      indices <- row.names(probPreds)   # pega o id de cada exemplo 
+      if (votacao){
+        moda <<- guarda_moda(indices,probPreds) # Armazena a moda das classes
+      }else{
+        moda <<- guarda_soma(indices,predicao) # Armazena a soma das classes
+      }
+      
     }else{
       indices <- row.names(probPreds)   # pega o id de cada exemplo 
-      moda <<- guarda_moda(indices,probPreds) # Armazena a moda das classes
+      if (votacao){
+        moda <<- guarda_moda(indices,probPreds) # Armazena a moda das classes
+      }else{
+        moda <<- guarda_soma(indices,predicao) # Armazena a soma das classes
+      }
+        
       
       rotulados <- checa_classe(probPreds_1_it, probPreds, indices, thrConf)
       if (length(rotulados$id) == 0){
         rotulados <- checa_confianca(probPreds_1_it, probPreds, indices, thrConf)
         if (length(rotulados$id) == 0){
-          if(votacao)
             rotulados <- checa_classe_diferentes(probPreds_1_it, probPreds, indices, thrConf, moda)
-          else
-            cat("Implementar soma")
         }
       }
       new <- rotulados$id
@@ -421,7 +481,7 @@ validar_treino<- function(data,id_conj_treino,N_classes,min_exem_por_classe){
 } 
 
 #funcao, chamada em modificado2 e 3, que define o conjunto de treinamento a ser classificado e indica se a classificacao e possivel
-validar_classificacao<-function(treino_valido_i,id_conj_treino,id_conj_treino_antigo,data,conj_treino_i){
+validar_classificacao<-function(treino_valido_i,id_conj_treino,id_conj_treino_antigo,data){
   #data[sup,] corresponde os que possuem rotulos (INICIALMENTE ROTULADOS OU N?fO)
   if (treino_valido_i){
     #o conjunto de treinamento serao as instancias inclu????das (rotuladas)
@@ -429,7 +489,7 @@ validar_classificacao<-function(treino_valido_i,id_conj_treino,id_conj_treino_an
     id_conj_treino_antigo <<- c()
     classificar <- TRUE
     
-  }else if (length(conj_treino_i)>=1) {
+  }else if (length(id_conj_treino)>=1) {
     #o conjunto de treinamento ser√° o anterior + as instancias incluidas (rotuladas)
     conj_treino <<- rbind(data[id_conj_treino,],data[id_conj_treino_antigo,])
     classificar <- TRUE
@@ -468,13 +528,34 @@ calcular_acc_local <- function(){
 calcular_confianca<-function(acc_local,limiar,txConf){
   if((acc_local>(limiar + 1)) && (txConf-0.05>0.0)){
     txConf<-txConf-0.05
-    
+
   }else if((acc_local<(limiar - 1)) && (txConf+0.05 <= 1)){
- 
+
     txConf<-txConf+0.05
   } #caso contrario a confianca permanecera a mesma
   return(txConf)
 }
+
+# #funcao que calcula a nova confianca de acordo com a acuracia local e o limiar
+# #REFIZ PARA TENTAR MUDAR A CONFIAN«A NOS CASOS EM QUE A SOMA PASSA DE 1 OU A SUBTRACAO … MENOR QUE 0
+# #ESTA ALTERA«√O SE DEU PQ PERCEBI QUE ESTAVA MANTENDO A CONFIAN«A E A QTDE DE EXEMPLOS INCLUIDOS TAVA 0 OU 1
+# calcular_confianca<-function(acc_local,limiar,txConf){
+#   if (acc_local>(limiar + 1)){
+#     txConf<-txConf-0.05
+#     if (txConf< 0){
+#       txConf <- 0.1
+#     }
+#   }else if(acc_local<(limiar - 1)){
+#     
+#     txConf<-txConf+0.05
+#     
+#     if (txConf > 1){
+#       txConf <- 1
+#     }
+#       
+#   } #caso contrario a confianca permanecera a mesma
+#   return(txConf)
+# }
 
 #calcula a confianca de acordo com o treinamento do classificador
 #so acumula o conjunto de treinamento com o conjunto anterior caso o conjunto de treinamento nao seja valido
@@ -497,7 +578,7 @@ funcSelfTrainModificado2 <- function(form,data,
   soma_Conf <- 0
   qtd_Exemplos_Rot <- 0
   totalrot <- 0
-  conj_treino <- c()
+  conj_treino <<- c()
   classificar <- TRUE
   
   
@@ -511,7 +592,7 @@ funcSelfTrainModificado2 <- function(form,data,
     
     if ((it>1)&&(qtd_Exemplos_Rot>0)){
       validar_treino(data,id_conj_treino,N_classes,min_exem_por_classe);
-      classificar <- validar_classificacao(treino_valido,id_conj_treino,id_conj_treino_antigo,data,conj_treino)
+      classificar <- validar_classificacao(treino_valido,id_conj_treino,id_conj_treino_antigo,data)
       
       if (classificar){
         acc_local <- calcular_acc_local()
@@ -533,24 +614,33 @@ funcSelfTrainModificado2 <- function(form,data,
                       dimnames = list(row.names(base_original),unique(base_original$class)))
       new <- which(probPreds[,2] >= thrConf)
       rotulados <- data.frame(id = new,cl = probPreds[new,1]) 
+
+      indices <- row.names(probPreds)   # pega o id de cada exemplo 
+      if (votacao){
+        moda <<- guarda_moda(indices,probPreds) # Armazena a moda das classes
+      }else{
+        moda <<- guarda_soma(indices,predicao) # Armazena a soma das classes
+      }
       
     }else{
       indices <- row.names(probPreds)   # pega o id de cada exemplo 
-      moda <<- guarda_moda(indices,probPreds) # Armazena a moda das classes
+      if (votacao){
+        moda <<- guarda_moda(indices,probPreds) # Armazena a moda das classes
+      }else{
+        moda <<- guarda_soma(indices,predicao) # Armazena a soma das classes
+      }
       
       rotulados <- checa_classe(probPreds_1_it, probPreds, indices, thrConf)
       if (length(rotulados$id) == 0){
         rotulados <- checa_confianca(probPreds_1_it, probPreds, indices, thrConf)
         if (length(rotulados$id) == 0){
-          if(votacao)
-            rotulados <- checa_classe_diferentes(probPreds_1_it, probPreds, indices, thrConf, moda)
-          else
-            cat("Implementar soma")
+          rotulados <- checa_classe_diferentes(probPreds_1_it, probPreds, indices, thrConf, moda)
         }
       }
       new <- rotulados$id
     }
     
+
     
     if (verbose) {
       cat('tx_incl',taxa,'IT.',it,'BD',i,thrConf,'\t nr. added exs. =',length(new),'\n') 
@@ -582,8 +672,6 @@ funcSelfTrainModificado2 <- function(form,data,
       id_conj_treino_antigo <- c(id_conj_treino_antigo,id_conj_treino)
       id_conj_treino <- (1:N)[-sup][new]
       sup <- c(sup,(1:N)[-sup][new])
-      
-
     }
     
     acertou_g <<- c(acertou_g, acertou)    
@@ -634,7 +722,7 @@ funcSelfTrainModificado3 <- function(form,data,
     
     if ((it>1)&&(qtd_Exemplos_Rot>0)){
       validar_treino(data,id_conj_treino,N_classes,min_exem_por_classe);
-      classificar <- validar_classificacao(treino_valido,id_conj_treino,id_conj_treino_antigo,data,conj_treino)
+      classificar <- validar_classificacao(treino_valido,id_conj_treino,id_conj_treino_antigo,data)
       
       if (classificar){
         acc_local <- calcular_acc_local()

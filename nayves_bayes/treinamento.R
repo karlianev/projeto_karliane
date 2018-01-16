@@ -6,15 +6,16 @@ if(c==1){ #NAIVE BAYES
   stdNaive <- naiveBayes(as.formula(paste(classe,'~', '.')), base_rotulados_ini)
   stdNaive_tot <- naiveBayes(as.formula(paste(classe,'~', '.')), base_rotulada_treino)
   
+  
   if (t==1){ #TAXA INICIAL 0.9
     #chamada da funcao que implementa o metodo modificado usando naive
-    nbST<- funcSelfTrain(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.9,100,1,TRUE, votacao = TRUE)
+    nbST<- funcSelfTrain(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.9,100,1,TRUE, votacao = FALSE)
     #chamada da funcao que implementa o metodo original usando naive
     nbST_o<- SelfTrainOriginal(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.9,100,1,TRUE)
     #chamada da funcao que implementa o metodo gradativo usando naive
     nbST_gra<- funcSelfTrainGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.9,100,1,TRUE)
   }else if (t==2){ #TAXA INICIAL 0.95
-    nbST<- funcSelfTrain(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.95,100,1,TRUE, votacao = TRUE)
+    nbST<- funcSelfTrain(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.95,100,1,TRUE, votacao = FALSE)
     nbST_o<- SelfTrainOriginal(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.95,100,1,TRUE)
     nbST_gra<- funcSelfTrainGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.95,100,1,TRUE)
   }
@@ -32,20 +33,20 @@ if(c==2){ #ARVORE DE DECISAO
   #fazendo teste com classificador supervisionado
   #chamada da arvore de decis?o usando os exemplos inicialmente rotulados
   stdTree <- rpartXse(as.formula(paste(classe,'~', '.')),base_rotulados_ini,se=0.5)
-  #chamada da arvore de decis?o usando todos os exemplos de treinamento rotulados
+  # #chamada da arvore de decis?o usando todos os exemplos de treinamento rotulados
   stdTree_tot <- rpartXse(as.formula(paste(classe,'~', '.')),base_rotulada_treino,se=0.5)
   
   if (t==1){ #TAXA INICIAL 0.9
     #chamada da funcao que implementa o metodo modificado usando arvore de decis?o
-    ST <- funcSelfTrain(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.9,100,1,TRUE, votacao = TRUE)
+    ST <- funcSelfTrain(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.9,100,1,TRUE, votacao = FALSE)
     #chamada da funcao que implementa o metodo original usando arvore de decis?o
-    ST_O <- SelfTrainOriginal(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.9,100,1,TRUE)
+   ST_O <- SelfTrainOriginal(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.9,100,1,TRUE)
     #chamada da funcao que implementa o metodo gradativo usando arvore de decis?o
-    ST_gra <- funcSelfTrainGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.9,100,1,TRUE)
+   ST_gra <- funcSelfTrainGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.9,100,1,TRUE)
   }else if (t==2){ #TAXA INICIAL 0.95
-    ST <- funcSelfTrain(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.95,100,1,TRUE, votacao = TRUE)
-    ST_O <- SelfTrainOriginal(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.95,100,1,TRUE)
-    ST_gra <- funcSelfTrainGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.95,100,1,TRUE)
+    ST <- funcSelfTrain(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.95,100,1,TRUE, votacao = FALSE)
+   ST_O <- SelfTrainOriginal(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.95,100,1,TRUE)
+   ST_gra <- funcSelfTrainGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.95,100,1,TRUE)
   }  
   
   #fazendo teste com classificador supervisionado
@@ -63,13 +64,13 @@ if(c==2){ #ARVORE DE DECISAO
 if(c==3){ #RIPPER
   stdJRip <- JRip(as.formula(paste(classe,'~', '.')),base_rotulados_ini)
   stdJRip_tot <- JRip(as.formula(paste(classe,'~', '.')),base_rotulada_treino)
-  
+
   if (t==1){
-    ST <- funcSelfTrain(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.9,100,1,TRUE, votacao = TRUE)
+    ST <- funcSelfTrain(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.9,100,1,TRUE, votacao = FALSE)
     ST_O <- SelfTrainOriginal(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.9,100,1,TRUE)
     ST_gra <- funcSelfTrainGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.9,100,1,TRUE)
   }else if (t==2){
-    ST <- funcSelfTrain(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.95,100,1,TRUE, votacao = TRUE)
+    ST <- funcSelfTrain(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.95,100,1,TRUE, votacao = FALSE)
     ST_O <- SelfTrainOriginal(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.95,100,1,TRUE)
     ST_gra <- funcSelfTrainGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.95,100,1,TRUE)
   }  
@@ -86,11 +87,11 @@ if(c==4){ #IBK
   stdIBK_tot <- IBk(as.formula(paste(classe,'~', '.')),base_rotulada_treino, control = Weka_control(K=15, X=TRUE))
   
   if (t==1){
-    ST <- funcSelfTrain(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('IBk',list(control = Weka_control(K=15, X=TRUE))),'f2',0.9,100,1,TRUE, votacao = TRUE)
+    ST <- funcSelfTrain(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('IBk',list(control = Weka_control(K=15, X=TRUE))),'f2',0.9,100,1,TRUE, votacao = FALSE)
     ST_O <- SelfTrainOriginal(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('IBk',list(control = Weka_control(K=15, X=TRUE))),'f2',0.9,100,1,TRUE)
     ST_gra <- funcSelfTrainGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('IBk',list(control = Weka_control(K=15, X=TRUE))),'f2',0.9,100,1,TRUE)
   }else if (t==2){
-    ST <- funcSelfTrain(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('IBk',list(control = Weka_control(K=15, X=TRUE))),'f2',0.95,100,1,TRUE, votacao = TRUE)
+    ST <- funcSelfTrain(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('IBk',list(control = Weka_control(K=15, X=TRUE))),'f2',0.95,100,1,TRUE, votacao = FALSE)
     ST_O <- SelfTrainOriginal(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('IBk',list(control = Weka_control(K=15, X=TRUE))),'f2',0.95,100,1,TRUE)
     ST_gra <- funcSelfTrainGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('IBk',list(control = Weka_control(K=15, X=TRUE))),'f2',0.95,100,1,TRUE)
   }  
@@ -103,18 +104,6 @@ if(c==4){ #IBK
   matriz_confusao1 = table(predict(ST,base_teste,type='class'),base_teste$class)
   matriz_confusao_gra=table(predict(ST_gra,base_teste,type='class'),base_teste$class)
 }
-
-
-
-
-
-#n <- length(base_teste$class)
-
-
-
-# acc <- ((sum(diag(matriz_confusao1)) / n) * 100)
-# acc_o<-((sum(diag(matriz_confusao_o)) / n) * 100)
-# acc_gra<-((sum(diag(matriz_confusao_gra)) / n) * 100)
 
 #CALCULANDO A ACURACIA (AT? LINHA 109)
 #fazendo teste com classificador supervisionado
