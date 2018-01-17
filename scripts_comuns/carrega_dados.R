@@ -49,21 +49,60 @@ if (i==1) {
 }else if(i==14){
   base_original <-read.arff("mushroom.arff")
   bd_nome <- "mushroom"
+  #a partir daqui todas estão dando problemas
 
-    #a partir daqui todas estão dando problemas
+#bases para serem incluidas no WCCI (IJCNN) - selecionadas por Alan
 }else if(i==15){
-  base_original <-read.arff("sick.arff")
-  bd_nome <- "sick"
+  base_original <-read.arff("abalone.arff")
+  bd_nome <- "abalone"
 }else if(i==16){
-  base_original <-read.arff("leaf.arff")
-  bd_nome <- "leaf"
+  base_original <-read.arff("banana.arff")
+  bd_nome <- "banana"
 }else if(i==17){  
-    base_original <-read.arff("cleveland.arff")
-  bd_nome <- "cleveland"
-}else if(i==18){  
-  base_original <-read.arff("splice.arff")
-  bd_nome <- "splice"
+  base_original <-read.arff("blogger.arff")
+  bd_nome <- "blogger"
+}else if(i==19){  
+  base_original <-read.arff("blood-transfusion-service.arff")
+  bd_nome <- "blood-transfusion-service"
+}else if(i==20){  
+  base_original <-read.arff("flare.arff")
+  bd_nome <- "flare"
+}else if(i==21){  
+  base_original <-read.arff("leukemia-haslinger.arff")
+  bd_nome <- "leukemia-haslinger"
+}else if(i==22){  
+  base_original <-read.arff("parkinsons.arff")
+  bd_nome <- "parkinsons"
+}else if(i==23){  
+  base_original <-read.arff("pendigits.arff")
+  bd_nome <- "pendigits"
+}else if(i==24){  
+  base_original <-read.arff("planning-relax.arff")
+  bd_nome <- "planning-relax"
+}else if(i==25){  
+  base_original <-read.arff("twonorm.arff")
+  bd_nome <- "twonorm.arff"
+
+#bases para serem incluidas no WCCI (IJCNN) - selecionadas por Cainan  
+# }else if(i==26){  
+#   base_original <-read.arff("blood-transfusion-service.arff")
+#   bd_nome <- "blood-transfusion-service"
 }
+
+#     #a partir daqui todas estão dando problemas
+# }else if(i==15){
+#   base_original <-read.arff("sick.arff")
+#   bd_nome <- "sick"
+# }else if(i==16){
+#   base_original <-read.arff("leaf.arff")
+#   bd_nome <- "leaf"
+# }else if(i==17){  
+#     base_original <-read.arff("cleveland.arff")
+#   bd_nome <- "cleveland"
+# }else if(i==18){  
+#   base_original <-read.arff("splice.arff")
+#   bd_nome <- "splice"
+# }
 
 classe <- "class"
 
