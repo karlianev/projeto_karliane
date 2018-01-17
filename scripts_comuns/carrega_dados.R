@@ -52,41 +52,44 @@ if (i==1) {
   #a partir daqui todas estão dando problemas
 
 #bases para serem incluidas no WCCI (IJCNN) - selecionadas por Alan
-}else if(i==15){
+}else if(i==16){
   base_original <-read.arff("abalone.arff")
   bd_nome <- "abalone"
-}else if(i==16){
-  base_original <-read.arff("banana.arff")
-  bd_nome <- "banana"
 }else if(i==17){  
   base_original <-read.arff("blogger.arff")
   bd_nome <- "blogger"
-}else if(i==19){  
+}else if(i==18){  
   base_original <-read.arff("blood-transfusion-service.arff")
   bd_nome <- "blood-transfusion-service"
-}else if(i==20){  
+}else if(i==19){  
   base_original <-read.arff("flare.arff")
   bd_nome <- "flare"
-}else if(i==21){  
+}else if(i==20){  
   base_original <-read.arff("leukemia-haslinger.arff")
   bd_nome <- "leukemia-haslinger"
-}else if(i==22){  
+}else if(i==21){  
   base_original <-read.arff("parkinsons.arff")
   bd_nome <- "parkinsons"
-}else if(i==23){  
+}else if(i==22){  
   base_original <-read.arff("pendigits.arff")
   bd_nome <- "pendigits"
-}else if(i==24){  
+}else if(i==23){  
   base_original <-read.arff("planning-relax.arff")
   bd_nome <- "planning-relax"
-}else if(i==25){  
+}else if(i==24){  
   base_original <-read.arff("twonorm.arff")
   bd_nome <- "twonorm.arff"
-
+#erro
+}else if(i==16){
+  base_original <-read.arff("banana.arff")
+  bd_nome <- "banana"
+  
+  
 #bases para serem incluidas no WCCI (IJCNN) - selecionadas por Cainan  
 # }else if(i==26){  
 #   base_original <-read.arff("blood-transfusion-service.arff")
 #   bd_nome <- "blood-transfusion-service"
+  
 }
 
 #     #a partir daqui todas estão dando problemas
