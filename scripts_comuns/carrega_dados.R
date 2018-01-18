@@ -79,6 +79,13 @@ if (i==1) {
 }else if(i==23){  
   base_original <-read.arff("twonorm.arff")
   bd_nome <- "twonorm.arff"
+}else if(i==24){  
+  base_original <-read.arff("indian-liver-patient.arff")
+  bd_nome <- "indian-liver-patient"
+}else if(i==25){  
+  base_original <-read.arff("ozone-onehr.arff")
+  bd_nome <- "ozone-onehr"
+
 #erro
 # }else if(i==16){
 #   base_original <-read.arff("banana.arff")
