@@ -52,12 +52,12 @@ if (i==1) {
   #a partir daqui todas estão dando problemas
 
 #bases para serem incluidas no WCCI (IJCNN) - selecionadas por Alan
-}else if(i==15){
-  base_original <-read.arff("abalone.arff")
-  bd_nome <- "abalone"
-}else if(i==16){  
-  base_original <-read.arff("blogger.arff")
-  bd_nome <- "blogger"
+# }else if(i==15){ #erro com AD
+#   base_original <-read.arff("abalone.arff")
+#   bd_nome <- "abalone"
+# }else if(i==16){  #erro com AD
+#   base_original <-read.arff("blogger.arff")
+#   bd_nome <- "blogger"
 }else if(i==17){  
   base_original <-read.arff("blood-transfusion-service.arff")
   bd_nome <- "blood-transfusion-service"
@@ -67,24 +67,19 @@ if (i==1) {
 }else if(i==19){  
   base_original <-read.arff("leukemia-haslinger.arff")
   bd_nome <- "leukemia-haslinger"
+# }else if(i==20){  #erro com AD
+#   base_original <-read.arff("parkinsons.arff")
+#   bd_nome <- "parkinsons"
 }else if(i==20){  
-  base_original <-read.arff("parkinsons.arff")
-  bd_nome <- "parkinsons"
-}else if(i==21){  
   base_original <-read.arff("pendigits.arff")
   bd_nome <- "pendigits"
-}else if(i==22){  
+}else if(i==21){  
   base_original <-read.arff("planning-relax.arff")
   bd_nome <- "planning-relax"
-}else if(i==23){  
+}else if(i==22){  
   base_original <-read.arff("twonorm.arff")
-  bd_nome <- "twonorm.arff"
-}else if(i==24){  
-  base_original <-read.arff("indian-liver-patient.arff")
-  bd_nome <- "indian-liver-patient"
-}else if(i==25){  
-  base_original <-read.arff("ozone-onehr.arff")
-  bd_nome <- "ozone-onehr"
+  bd_nome <- "twonorm"
+#retiradas duas bases daqui para rodar junto com as de cainan
 
 #erro
 # }else if(i==16){
@@ -93,11 +88,41 @@ if (i==1) {
   
   
 #bases para serem incluidas no WCCI (IJCNN) - selecionadas por Cainan  
-# }else if(i==26){  
-#   base_original <-read.arff("blood-transfusion-service.arff")
-#   bd_nome <- "blood-transfusion-service"
-  
-}
+}else if(i==24){
+  base_original <- read.arff("cnae-9.arff")
+  bd_nome <- "cnae-9"
+}else if(i==25){
+  base_original <- read.arff("connectionist-mines-vs-rocks.arff")
+  bd_nome <- "connectionist-mines-vs-rocks"
+}else if(i==26){
+  base_original <- read.arff("mammographic-mass.arff")
+  bd_nome <- "mammographic-mass"
+}else if(i==27){
+  base_original <- read.arff("mfeat-karhunen.arff")
+  bd_nome <- "mfeat-karhunen"
+}else if(i==28){
+  base_original <- read.arff("musk.arff")
+  bd_nome <- "musk"
+}else if(i==29){
+  base_original <- read.arff("seeds.arff")
+  bd_nome <- "seeds"
+}else if(i==30){
+  base_original <- read.arff("semeion.arff")
+  bd_nome <- "semeion"
+}else if(i==31){
+  base_original <- read.arff("spectf-heart.arff")
+  bd_nome <- "spectf-heart"
+}else if(i==32){
+  base_original <- read.arff("tic-tac-toe.arff")
+  bd_nome <- "tic-tac-toe"
+#bases de alan que serao rodadas junto com as de cainan  
+}else if(i==33){  
+  base_original <-read.arff("indian-liver-patient.arff")
+  bd_nome <- "indian-liver-patient"
+}else if(i==34){  
+  base_original <-read.arff("ozone-onehr.arff")
+  bd_nome <- "ozone-onehr"
+}  
 
 classe <- "class"
 
