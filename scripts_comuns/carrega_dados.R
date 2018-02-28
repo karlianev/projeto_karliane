@@ -49,7 +49,7 @@ if (i==1) {
 }else if(i==14){
   base_original <-read.arff("mushroom.arff")
   bd_nome <- "mushroom"
-  #a partir daqui todas estão dando problemas
+  #a partir daqui todas est?o dando problemas
 
 #bases para serem incluidas no WCCI (IJCNN) - selecionadas por Alan
 # }else if(i==15){ #erro com AD
