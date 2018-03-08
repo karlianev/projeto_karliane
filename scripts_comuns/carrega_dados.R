@@ -1,3 +1,13 @@
+#BASES DESCARTADAS POR RESULTADOS RUINS  
+# letter
+
+#BASES DESCARTADAS PQ ESTAO DANDO PROBLEMA
+# abalon"
+# blogger
+# iris
+# parkinsons
+
+
 print("carregando os dados")
 #setando o diret?rio local para ser a pasta onde est?o as bases
 setwd("C:\\local_R\\projeto_karliane\\bases")
@@ -85,18 +95,15 @@ if (i==1) {
 }else if(i==27){  
   base_original <-read.arff("twonorm.arff")
   bd_nome <- "twonorm"
-  
-#BASES DESCARTADAS POR RESULTADOS RUINS  
-# letter
-# balance-scale
-# caR
-
-#BASES DESCARTADAS PQ ESTAO DANDO PROBLEMA
-# abalon"
-# blogger
-# iris
-# parkinsons
-
+}else if (i==28){
+  base_original <- read.arff("phishingData.arff")
+  bd_nome <- "phishing"
+}else if(i==29){
+  base_original <-read.arff("balance-scale.arff")
+  bd_nome <- "balance-scale"
+}else if(i==30){
+  base_original <-read.arff("car.arff")
+  bd_nome <- "car"
 }  
 
 classe <- "class"
