@@ -524,7 +524,7 @@ validar_classificacao<-function(treino_valido_i,id_conj_treino,id_conj_treino_an
     id_conj_treino_antigo <<- c()
     classificar <- TRUE
     
-  }else if (length(id_conj_treino)>=1) {
+  }else if (length(id_conj_treino_antigo)>=1) {
     #o conjunto de treinamento será o anterior + as instancias incluidas (rotuladas)
     conj_treino <<- rbind(data[id_conj_treino,],data[id_conj_treino_antigo,])
     classificar <- TRUE
@@ -614,6 +614,7 @@ funcSelfTrainModificado2 <- function(form,data,
   qtd_Exemplos_Rot <- 0
   totalrot <- 0
   conj_treino <<- c()
+  treino_valido <<- FALSE
   classificar <- TRUE
   
   
