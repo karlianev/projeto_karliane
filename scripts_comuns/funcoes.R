@@ -504,19 +504,18 @@ validar_treino<- function(data,id_conj_treino,N_classes,min_exem_por_classe){
   
   treino_valido <<- FALSE
   if (NROW(N_instancias_por_classe2)  == N_classes){#TAVA nrow
-    # teste <<- N_c
+    
     for (x in 1:NROW(N_instancias_por_classe2)){ #TAVA nrow
       
       if (N_instancias_por_classe2$number_of_distinct_orders[x]>= min_exem_por_classe) #N_classes*5)
         treino_valido <<- TRUE
       else treino_valido <<- FALSE
     }  
-    
   }
 } 
 
 #funcao, chamada em modificado2 e 3, que define o conjunto de treinamento a ser classificado e indica se a classificacao e possivel
-validar_classificacao<-function(treino_valido_i,id_conj_treino,id_conj_treino_antigo,data){
+validar_classificacao<-function(treino_valido_i,id_conj_treino,id_conj_treino_antigo,data, N_classes, min_exem_por_classe){
   #data[sup,] corresponde os que possuem rotulos (INICIALMENTE ROTULADOS OU N?fO)
   if (treino_valido_i){
     #o conjunto de treinamento serao as instancias inclu????das (rotuladas)
@@ -527,8 +526,16 @@ validar_classificacao<-function(treino_valido_i,id_conj_treino,id_conj_treino_an
   }else if (length(id_conj_treino_antigo)>=1) {
     #o conjunto de treinamento será o anterior + as instancias incluidas (rotuladas)
     conj_treino <<- rbind(data[id_conj_treino,],data[id_conj_treino_antigo,])
-    classificar <- TRUE
-    cat("juntou", NROW(conj_treino), "\n") #TAVA nrow
+    
+    id_conj_treino1 <- c(id_conj_treino, id_conj_treino_antigo)
+    validar_treino(data,id_conj_treino1,N_classes,min_exem_por_classe);
+
+    if (treino_valido){
+      classificar <- TRUE
+    }else{
+      classificar <- FALSE
+    }
+    
   }else classificar <- FALSE #a confian?a permanece a mesma ao inves de parar
   return(classificar)  
 }
@@ -628,7 +635,7 @@ funcSelfTrainModificado2 <- function(form,data,
     
     if ((it>1)&&(qtd_Exemplos_Rot>0)){
       validar_treino(data,id_conj_treino,N_classes,min_exem_por_classe);
-      classificar <- validar_classificacao(treino_valido,id_conj_treino,id_conj_treino_antigo,data)
+      classificar <- validar_classificacao(treino_valido,id_conj_treino,id_conj_treino_antigo,data, N_classes, min_exem_por_classe)
       
       if (classificar){
         acc_local <- calcular_acc_local()
