@@ -881,7 +881,8 @@ funcSelfTrainInclusaoProp <- function(form,data,
   id_conj_treino_antigo <- c()
   
   cat('\nBase de dados - Início')
-  porc_classes(data[which(!is.na(data$class)),"class"])
+  porc_inicial <- porc_classes(data[which(!is.na(data$class)),"class"]) #Guarda a porcentagem inicial por classe na base
+  
   repeat {
     
     acertou <- 0
@@ -939,8 +940,6 @@ funcSelfTrainInclusaoProp <- function(form,data,
       
     }
     
-    cat('\n    -- Rotulados --')
-    porc_classes(probPreds[new,1])
     
     if (verbose) {
       cat('tx_incl',taxa,'IT.',it,'BD',i,thrConf,'\t nr. added exs. =',length(new),'\n') 
@@ -954,27 +953,50 @@ funcSelfTrainInclusaoProp <- function(form,data,
     
     if (length(new)) {
       
-      data[(1:N)[-sup][new],as.character(form[[2]])] <- as.character(probPreds[new,1])
+      ### Em testes - INÍCIO###
+      classes_dist <- unique(base_original$class) # todas as classes distintas da base
+      qtd_total <- length(new) #quantidade total de rotulados
+      indices <- row.names(probPreds[new,]) # Guarda os indices dos rotulados
+      pos <- 1
+      rotulados_classe <- c()
+      for (cl in 1:length(classes_dist)){
+        for(i in indices)
+          if(probPreds[i,1] == classes_dist[cl]){
+            rotulados_classe[pos] <-  i# Guarda no vetor os IDs rotulados por classe
+            pos <- pos + 1
+          }
+        n_classe_porc <- trunc((porc_inicial[cl]/100)*length(rotulados_classe)) # aplica a porcentagem inicial da base referente a essa classe
+        rt <- rep(0,n_classe_porc)
+        for( k in 1:n_classe_porc)
+          rt[k] <- rotulados_classe[k]
+        data[(1:N)[-sup][as.factor(rt)],as.character(form[[2]])] <- as.character(probPreds[rt,1])
+      }
+      ### Em testes #- FIM##
+      
+      cat('\n    -- Rotulados --')
+      porc_classes(probPreds[new,1])
+      # data <- rotular_prop(data,form,N,sup,probPreds,new,porc_inicial)
+      # data[(1:N)[-sup][new],as.character(form[[2]])] <- as.character(probPreds[new,1])
       
       soma_Conf <- sum(soma_Conf, probPreds[new,2])
       qtd_Exemplos_Rot <- length(data[(1:N)[-sup][new],as.character(form[[2]])])
       totalrot <- totalrot + qtd_Exemplos_Rot
-      
+
       acertou <- 0
-      acerto <- treinamento[(1:N)[-sup][new], as.character(form[2])]== data[(1:N)[-sup][new], as.character(form[2])]
+      acerto <- treinamento[(1:N)[-sup][as.factor(rt)], as.character(form[2])]== data[(1:N)[-sup][as.factor(rt)], as.character(form[2])]
       tam_acerto <- NROW(acerto)
-      for (w in 1:tam_acerto){
-        if (acerto[w] == TRUE)
-          acertou <- acertou + 1
-      }
-      
-      
+      # for (w in 1:tam_acerto){
+      #   if (acerto[w] == TRUE)
+      #     acertou <- acertou + 1
+      # }
+
+
       id_conj_treino_antigo <- c(id_conj_treino_antigo,id_conj_treino)
       id_conj_treino <- (1:N)[-sup][new]
       sup <- c(sup,(1:N)[-sup][new])
     }
     
-    acertou_g <<- c(acertou_g, acertou)    
+    # acertou_g <<- c(acertou_g, acertou)    
     if(length(new)==0){
       thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A M?DIA DAS PREDI??ES.
       # thrConf<-mean(probPreds[,2])
@@ -986,29 +1008,54 @@ funcSelfTrainInclusaoProp <- function(form,data,
   
   cat('\nBase de dados - Fim')
   porc_classes(data[which(!is.na(data$class)),"class"])
+  # print(memoria_rot)
   return(model)  
   
 }
 
+#Calcula a porcentagem das classes em relacao ao total
 porc_classes <- function(classes){
   
-  classes_dist <- unique(classes)
-  qtd_total <- sum(length(classes))
-  qtd_por_classe <- c(rep(0,length(classes_dist)))
-  porcentagens <- qtd_por_classe
-  names(qtd_por_classe) <- classes_dist
+  classes_dist <- unique(classes) #Guarda as classes distintas
+  qtd_total <- sum(length(classes)) #Guarda o número total de classes
   
-  for (i in 1:length(classes_dist)){
-    for(j in 1:length(classes)){
-      if(classes_dist[i] == classes[j])
-        qtd_por_classe[i] <- qtd_por_classe[i] + 1
-    }
-    porcentagens[i] <- (qtd_por_classe[i]/qtd_total)*100
+  qtd_por_classe <- c(rep(0,length(classes_dist))) #
+  porcentagens <- qtd_por_classe                   # Cria os vetores de armazenamento e nomeia as colunas com as classes
+  names(qtd_por_classe) <- classes_dist            #
+  
+  for (i in 1:length(classes_dist)){ #Percorre por classe distinta
+    qtd_por_classe[i] <- length(which(classes == classes_dist[i])) #Conta a quantidade por classe e guarda
+    porcentagens[i] <- (qtd_por_classe[i]/qtd_total)*100 #Guarda a porcentagem da classe em relação ao todo
   }
+  
   cat('    Total: ',qtd_total,'\n')
   cat('    ')
   print(qtd_por_classe)
   cat('    Porcentagem: ',porcentagens,'\n')
+  
+  return (porcentagens)
 }
+
+# rotular_prop <- function(data,form,N,sup,probPreds,new,porc_inicial){
+#   classes_dist <- unique(base_original$class) # todas as classes distintas da base
+#   qtd_total <- length(new) #quantidade total de rotulados
+#   indices <- row.names(probPreds[new,]) # Guarda os indices dos rotulados
+#   pos <- 1
+#   rotulados_classe <- c()
+#   for (cl in 1:length(classes_dist)){
+#     for(i in indices)
+#       if(probPreds[i,1] == classes_dist[cl]){
+#         rotulados_classe[pos] <-  i# Guarda no vetor osIDs rotulados por classe
+#         pos <- pos + 1
+#       }
+#     n_classe_porc <- trunc((porc_inicial[cl]/100)*length(rotulados_classe)) # aplica a porcentagem inicial da base referente a essa classe
+#     rt <- rep(0,n_classe_porc)
+#     for( k in 1:n_classe_porc)
+#       rt[k] <- rotulados_classe[k]
+#     if(n_classe_porc >= 2 )
+#       data[(1:N)[-sup][rt],as.character(form[[2]])] <- as.character(probPreds[rt,1])
+#   }
+#   return (data)
+# }
 
 #IMPLEMENTAR MODIFICADO 1 (COM O CALCULO DA NOVA TAXA IGUAL AO MODIFICADO) E MODIFICADO4 (COM O CALCULO DA NOVA TAXA IGUAL AO MODIFICADO2) COM O COMITE USANDO soma
