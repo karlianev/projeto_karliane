@@ -15,7 +15,7 @@ setwd("C:\\local_R\\projeto_karliane\\bases")
 
 
 if (i==1) {
-  base_original <- read.arff("bupa.arff");
+  base_original <- read.arff("bupa.arff");  
   bd_nome <- "bupa"
 }else if(i==2){
   base_original <- read.arff("segment.arff")

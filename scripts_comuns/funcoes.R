@@ -953,29 +953,14 @@ funcSelfTrainInclusaoProp <- function(form,data,
     
     if (length(new)) {
       
-      ### Em testes - INÍCIO###
-      classes_dist <- unique(base_original$class) # todas as classes distintas da base
-      qtd_total <- length(new) #quantidade total de rotulados
-      indices <- row.names(probPreds[new,]) # Guarda os indices dos rotulados
-      pos <- 1
-      rotulados_classe <- c()
-      for (cl in 1:length(classes_dist)){
-        for(i in indices)
-          if(probPreds[i,1] == classes_dist[cl]){
-            rotulados_classe[pos] <-  i# Guarda no vetor os IDs rotulados por classe
-            pos <- pos + 1
-          }
-        n_classe_porc <- trunc((porc_inicial[cl]/100)*length(rotulados_classe)) # aplica a porcentagem inicial da base referente a essa classe
-        rt <- rep(0,n_classe_porc)
-        for( k in 1:n_classe_porc)
-          rt[k] <- rotulados_classe[k]
-        data[(1:N)[-sup][as.factor(rt)],as.character(form[[2]])] <- as.character(probPreds[rt,1])
-      }
+      ###    Em testes - INÍCIO    ###
+      
+      prop_rot <- prop(rotulados)
+      
       ### Em testes #- FIM##
       
       cat('\n    -- Rotulados --')
       porc_classes(probPreds[new,1])
-      # data <- rotular_prop(data,form,N,sup,probPreds,new,porc_inicial)
       # data[(1:N)[-sup][new],as.character(form[[2]])] <- as.character(probPreds[new,1])
       
       soma_Conf <- sum(soma_Conf, probPreds[new,2])
@@ -985,10 +970,10 @@ funcSelfTrainInclusaoProp <- function(form,data,
       acertou <- 0
       acerto <- treinamento[(1:N)[-sup][as.factor(rt)], as.character(form[2])]== data[(1:N)[-sup][as.factor(rt)], as.character(form[2])]
       tam_acerto <- NROW(acerto)
-      # for (w in 1:tam_acerto){
-      #   if (acerto[w] == TRUE)
-      #     acertou <- acertou + 1
-      # }
+      for (w in 1:tam_acerto){
+        if (acerto[w] == TRUE)
+          acertou <- acertou + 1
+      }
 
 
       id_conj_treino_antigo <- c(id_conj_treino_antigo,id_conj_treino)
@@ -1036,26 +1021,43 @@ porc_classes <- function(classes){
   return (porcentagens)
 }
 
-# rotular_prop <- function(data,form,N,sup,probPreds,new,porc_inicial){
-#   classes_dist <- unique(base_original$class) # todas as classes distintas da base
-#   qtd_total <- length(new) #quantidade total de rotulados
-#   indices <- row.names(probPreds[new,]) # Guarda os indices dos rotulados
-#   pos <- 1
-#   rotulados_classe <- c()
-#   for (cl in 1:length(classes_dist)){
-#     for(i in indices)
-#       if(probPreds[i,1] == classes_dist[cl]){
-#         rotulados_classe[pos] <-  i# Guarda no vetor osIDs rotulados por classe
-#         pos <- pos + 1
-#       }
-#     n_classe_porc <- trunc((porc_inicial[cl]/100)*length(rotulados_classe)) # aplica a porcentagem inicial da base referente a essa classe
-#     rt <- rep(0,n_classe_porc)
-#     for( k in 1:n_classe_porc)
-#       rt[k] <- rotulados_classe[k]
-#     if(n_classe_porc >= 2 )
-#       data[(1:N)[-sup][rt],as.character(form[[2]])] <- as.character(probPreds[rt,1])
-#   }
-#   return (data)
+prop <- function(rotulados){
+  
+  classes_dist <- unique(base_rotulados_ini$class)  # Guarda as classes distintas
+  qtd_classes_ini <- c(rep(0,length(classes_dist)))
+  qtd_classes_rot <- c(rep(0,length(classes_dist)))
+  names(qtd_classes_ini) <- classes_dist            # Organiza os titulos de cada 
+  names(qtd_classes_rot) <- classes_dist            # posicao por classe
+  for(cl in 1:length(classes_dist)){                                                    # Guarda a quantidade por classe 
+    qtd_classes_ini[cl] <- length(which(base_rotulados_ini$class == classes_dist[cl]))  # inicialmente rotuladas
+    qtd_classes_rot[cl] <- length(which(rotulados$cl == classes_dist[cl])) # guarda a quantidade por classe rotulada
+  }
+  
+  
+  proporcoes <- c(rep(0,length(classes_dist))) #vetor com as proporcoes calculadas
+  names(proporcoes) <- as.character(classes_dist) # Organiza os titulos de cada posicao por classe
+  
+    for(cl in 1:length(classes_dist)){    
+      proporcoes[cl] <- (qtd_classes_rot[1]*qtd_classes_ini[cl])/qtd_classes_ini[1] # Regra de 3
+      if(proporcoes[cl] > qtd_classes_rot[cl]){
+        proporcoes[cl] <- qtd_classes_rot[cl]
+        proporcoes[cl - 1] <- qtd_classes_rot[cl]/(qtd_classes_ini[cl]/qtd_classes_ini[1])
+        cl <- 1
+      }
+    }
+  return (trunc(proporcoes)) # O trunc passa a parte inteira do número
+}
+
+
+# for(cl in 1:length(classes_dist)){  # Percorre por classe   ######c1#c2#c3#c4##
+#   for(i in indices){                                        # 1 # 1           #
+#     if(conjunto[i,"cl"] == classes_dist[cl]){               # 2 #       1     #
+#       classes_base[i,cl] <- 1                               # 3 #    1        # Guarda a classe correspondente ao indice
+#     }                                                       # 4 # 1           # e em cada iteracao de classe, guarde a quantidade
+#   }                                                         # 5 #       1     # da mesma
+#   qtd_classes[cl] <- length(which(classes_base[,cl] == 1))  # 6 #          1  #
+#                                                             ###################
 # }
+
 
 #IMPLEMENTAR MODIFICADO 1 (COM O CALCULO DA NOVA TAXA IGUAL AO MODIFICADO) E MODIFICADO4 (COM O CALCULO DA NOVA TAXA IGUAL AO MODIFICADO2) COM O COMITE USANDO soma
