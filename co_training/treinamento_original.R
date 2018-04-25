@@ -51,6 +51,7 @@ acc_g_o <- c(acc_g_o, acc_o)
 #ARMAZENANDO EM UMA VARIAVEL O NOME DA BASE E O % DE EXEMPLOS ROTULADOS INICIALMENTE
 bd <- c(bd, bd_nome)
 tx <- c(tx, taxa)
+metodo <- c(metodo, num_metodo)
 
 #imprimindo a acuracia na tela 
 cat("\n Acerto global original (%) =", acc_o)

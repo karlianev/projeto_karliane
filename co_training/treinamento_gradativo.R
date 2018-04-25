@@ -52,9 +52,11 @@ acc_o_v2<-((sum(diag(matriz_confusao_o_v2)) / sum(matriz_confusao_o_v2)) * 100)
 acc_o <- (acc_o_v1 + acc_o_v2)/2
 acc_g_o <- c(acc_g_o, acc_o)
 
+
 #ARMAZENANDO EM UMA VARIAVEL O NOME DA BASE E O % DE EXEMPLOS ROTULADOS INICIALMENTE
 bd <- c(bd, bd_nome)
 tx <- c(tx, taxa)
+metodo <- c(metodo, num_metodo)
 
 #imprimindo a acuracia na tela 
 cat("\n Acerto global original (%) =", acc_o)
