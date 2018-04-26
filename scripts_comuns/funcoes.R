@@ -854,4 +854,251 @@ funcSelfTrainModificado3 <- function(form,data,
   return(model)  
 }
 
+funcSelfTrainInclusaoProp <- function(form,data,
+                                     learner,
+                                     predFunc,
+                                     thrConf=0.9,
+                                     maxIts=10,percFull=1,
+                                     verbose=F,
+                                     min_exem_por_classe,
+                                     limiar=70,
+                                     votacao = TRUE){
+  
+  N <- NROW(data)
+  N_instancias_por_classe <- ddply(data,~class,summarise,number_of_distinct_orders=length(class))
+  #substituido por min_exem_por_classe
+  N_classes <- NROW(N_instancias_por_classe)-1 # uso do -1 pq N_instancias_por_classe tem uma linha com a quantidade de exemplos n?o rotulados
+  it <- 0
+  soma_Conf <- 0
+  qtd_Exemplos_Rot <- 0
+  totalrot <- 0
+  conj_treino <<- c()
+  treino_valido <<- FALSE
+  classificar <- TRUE
+  
+  sup <- which(!is.na(data[,as.character(form[[2]])])) #sup recebe o indice de todos os exemplos rotulados
+  id_conj_treino <- c()
+  id_conj_treino_antigo <- c()
+  
+  cat('\nBase de dados - Início')
+  porc_inicial <- porc_classes(data[which(!is.na(data$class)),"class"]) #Guarda a porcentagem inicial por classe na base
+  
+  repeat {
+    
+    acertou <- 0
+    #cat("conj_treino", conj_treino, "nrow(conj_treino)", nrow(conj_treino))
+    it <- it+1
+    
+    if ((it>1)&&(qtd_Exemplos_Rot>0)){
+      validar_treino(data,id_conj_treino,N_classes,min_exem_por_classe);
+      classificar <- validar_classificacao(treino_valido,id_conj_treino,id_conj_treino_antigo,data, N_classes, min_exem_por_classe)
+      
+      if (classificar){
+        acc_local <- calcular_acc_local()
+        thrConf <- calcular_confianca(acc_local,limiar,thrConf)  
+      }  
+    }
+    soma_Conf <- 0
+    qtd_Exemplos_Rot <- 0
+    
+    model <- runLearner(learner,form,data[sup,])
+    # predicao <<- c()
+    probPreds <- do.call(predFunc,list(model,data[-sup,]))
+    # new <- which(probPreds[,2] >= thrConf)
+    probPreds$cl <- as.character(probPreds$cl)
+    if(it == 1){
+      probPreds_1_it <<- probPreds
+      moda <<- matrix(data = rep(0,length(base_original$class)),ncol = length(unique(base_original$class)), nrow = NROW(base_original), byrow = TRUE, 
+                      dimnames = list(row.names(base_original),unique(base_original$class)))
+      new <- which(probPreds[,2] >= thrConf)
+      rotulados <- data.frame(id = new,cl = probPreds[new,1]) 
+      
+      indices <- row.names(probPreds)   # pega o id de cada exemplo 
+      if (votacao){
+        moda <<- guarda_moda(indices,probPreds) # Armazena a moda das classes
+      }else{
+        moda <<- guarda_soma(indices,predicao) # Armazena a soma das classes
+      }
+      
+    }else{
+      indices <- row.names(probPreds)   # pega o id de cada exemplo 
+      if (votacao){
+        moda <<- guarda_moda(indices,probPreds) # Armazena a moda das classes
+      }else{
+        moda <<- guarda_soma(indices,predicao) # Armazena a soma das classes
+      }
+      
+      rotulados <- checa_classe(probPreds_1_it, probPreds, indices, thrConf, usarModa = TRUE, moda)
+      if (length(rotulados$id) == 0){
+        rotulados <- checa_confianca(probPreds_1_it, probPreds, indices, thrConf, usarModa = TRUE, moda)
+        if (length(rotulados$id) == 0){
+          rotulados <- checa_classe_diferentes(probPreds_1_it, probPreds, indices, thrConf, moda)
+        }
+      }
+      new <- rotulados$id
+      
+      
+    }
+    
+    
+    if (verbose) {
+      cat('tx_incl',taxa,'IT.',it,'BD',i,thrConf,'\t nr. added exs. =',length(new),'\n') 
+      ##guardando nas variaveis 
+      it_g <<-c(it_g,it)
+      bd_g <<-c(bd_g,bd_nome)
+      thrConf_g <<-c(thrConf_g,thrConf)
+      nr_added_exs_g <<-c(nr_added_exs_g,length(new))
+      tx_g <<- c(tx_g, taxa)
+    }
+    
+    if (length(new)) {
+      
+      ###    Em testes - INICIO    ###
+      rotulados <- tratar_dados_faltosos(rotulados,probPreds,probPreds_1_it,indices,thrConf,moda) 
+      prop_rot <- prop(rotulados) # Encontra as proporções para incluir os rotulos
+      new <- estratificar_rot(rotulados$id,probPreds,prop_rot) # Selecionar os rotulos para incluir na base
+      ### Em testes #- FIM##
+      
+      cat('\n    -- Rotulados --')
+      porc_classes(probPreds[new,1])
+      data[(1:N)[-sup][as.factor(new)],as.character(form[[2]])] <- probPreds[new,1]
+      
+      soma_Conf <- sum(soma_Conf, probPreds[new,2])
+      qtd_Exemplos_Rot <- length(data[(1:N)[-sup][new],as.character(form[[2]])])
+      totalrot <- totalrot + qtd_Exemplos_Rot
+
+      acertou <- 0
+      acerto <- treinamento[(1:N)[-sup][as.factor(new)], as.character(form[2])]== data[(1:N)[-sup][as.factor(new)], as.character(form[2])]
+      tam_acerto <- NROW(acerto)
+      # for (w in 1:tam_acerto){
+      #   if (acerto[w] == TRUE)
+      #     acertou <- acertou + 1
+      # }
+
+
+      id_conj_treino_antigo <- c(id_conj_treino_antigo,id_conj_treino)
+      id_conj_treino <- (1:N)[-sup][new]
+      sup <- c(sup,(1:N)[-sup][as.factor(new)])
+    }
+    
+    # acertou_g <<- c(acertou_g, acertou)    
+    if(length(new)==0){
+      thrConf <- max(probPreds[,2]) #FALTOU FAZER USANDO A M?DIA DAS PREDI??ES.
+      # thrConf<-mean(probPreds[,2])
+    }
+    if (it == maxIts || length(sup)/N >= percFull) break
+    
+    #FIM DO REPEAT
+  }
+  
+  cat('\nBase de dados - Fim')
+  porc_classes(data[which(!is.na(data$class)),"class"])
+  # print(memoria_rot)
+  return(model)  
+  
+}
+
+#Calcula a porcentagem das classes em relacao ao total
+porc_classes <- function(classes){
+  
+  classes_dist <- unique(classes) #Guarda as classes distintas
+  qtd_total <- sum(length(classes)) #Guarda o número total de classes
+  
+  qtd_por_classe <- c(rep(0,length(classes_dist))) #
+  porcentagens <- qtd_por_classe                   # Cria os vetores de armazenamento e nomeia as colunas com as classes
+  names(qtd_por_classe) <- classes_dist            #
+  
+  for (i in 1:length(classes_dist)){ #Percorre por classe distinta
+    qtd_por_classe[i] <- length(which(classes == classes_dist[i])) #Conta a quantidade por classe e guarda
+    porcentagens[i] <- (qtd_por_classe[i]/qtd_total)*100 #Guarda a porcentagem da classe em relação ao todo
+  }
+  
+  cat('    Total: ',qtd_total,'\n')
+  cat('    ')
+  print(qtd_por_classe)
+  cat('    Porcentagem: ',porcentagens,'\n')
+  
+  return (porcentagens)
+}
+
+#1
+tratar_dados_faltosos <- function(rotulados,probPreds,probPreds_1_it,indices,thrConf,moda){
+  classes_dist <- unique(base_rotulados_ini$class) # Classes distintas na base inicial
+  classes_dist_pp <- unique(probPreds$cl)          # Classes distintas no probPreds
+  classes_dist_rot <- unique(rotulados$cl)         # Classes distintas no conjunto dos rotulados
+  
+  while((length(classes_dist_rot) < length(classes_dist_pp)) && (thrConf > min(probPreds$p))){ # Se houver mais classes no probPreds do que nos rotulados...
+    cat("Classe faltando no conjunto dos rotulados | Recalculando taxa de confiança... thrConf = ")
+    # thrConf <- min(probPreds$p) # Baixar confianca para a menor
+    thrConf <- thrConf - 0.2
+    if(thrConf < min(probPreds$p))
+      thrConf <- min(probPreds$p)
+    cat(thrConf,"\n")
+    
+    #Rotular novamente
+    rotulados <- checa_classe(probPreds_1_it, probPreds, indices, thrConf, usarModa = TRUE, moda)
+    if (length(rotulados$id) == 0){
+      rotulados <- checa_confianca(probPreds_1_it, probPreds, indices, thrConf, usarModa = TRUE, moda)
+      if (length(rotulados$id) == 0){
+        rotulados <- checa_classe_diferentes(probPreds_1_it, probPreds, indices, thrConf, moda)
+      }
+    }
+    classes_dist_rot <- unique(rotulados$cl)
+  }
+  
+  cat('thrConf ',thrConf,'\t nr. added exs. =',length(rotulados$id),'\n') 
+  return (rotulados)
+}
+
+#2
+prop <- function(rotulados){
+  classes_dist_rot <- unique(rotulados$cl)  # Guarda as classes distintas
+  qtd_classes_ini <- c(rep(0,length(classes_dist_rot)))
+  qtd_classes_rot <- c(rep(0,length(classes_dist_rot)))
+  names(qtd_classes_ini) <- classes_dist_rot            # Organiza os titulos de cada 
+  names(qtd_classes_rot) <- classes_dist_rot            # posicao por classe
+  
+  for(cl in classes_dist_rot){                                            # Guarda a quantidade por classe 
+    qtd_classes_ini[cl] <- length(which(base_rotulados_ini$class == cl))  # inicialmente rotuladas
+    qtd_classes_rot[cl] <- length(which(rotulados$cl == cl)) # guarda a quantidade por classe rotulada
+  }
+  
+  proporcoes <- c(rep(0,length(classes_dist_rot))) # vetor com as proporcoes calculadas
+  names(proporcoes) <- as.character(classes_dist_rot) # Organiza os titulos de cada posicao por classe
+  
+  cl <- 1
+  while (cl <= length(classes_dist_rot)){
+    proporcoes[cl] <- (qtd_classes_rot[1]*qtd_classes_ini[cl])/qtd_classes_ini[1] # Regra de 3
+    if(proporcoes[cl] > qtd_classes_rot[cl]){ #Se o resultado passa do numero disponivel pra rotular, eh pq o anteror 
+      proporcoes[cl] <- qtd_classes_rot[cl]   #possui mais do que devia
+      proporcoes[1] <- qtd_classes_rot[cl]/(qtd_classes_ini[cl]/qtd_classes_ini[1])
+      qtd_classes_rot[1] <- qtd_classes_rot[cl]/(qtd_classes_ini[cl]/qtd_classes_ini[1])
+      cl <- 1
+    }else
+      cl <- cl +1
+  }
+  
+  # Caso a proporcao para uma base fique entre 0 e 1, esta recebera 1, pois nao se pode adicionar classe pela metade
+  for(pos in 1:length(proporcoes))
+    if(proporcoes[pos] < 1)
+      proporcoes[pos] <- 1
+      
+  return (trunc(proporcoes)) # O trunc passa a parte inteira do numero
+}
+
+#3
+estratificar_rot <- function(new,probPreds,proporcoes){
+  add_prop <- c()
+  pos <- 1 # para controlar as posicoes dos ids a serem adicionados
+  for(indice in as.character(new)){
+    if(proporcoes[[probPreds[indice,1]]] > 0){
+      add_prop[pos] <- indice
+      pos <- pos + 1
+      proporcoes[[probPreds[indice,1]]] <- proporcoes[[probPreds[indice,1]]] - 1
+    }
+  }
+  return (add_prop)
+}
+
+
 #IMPLEMENTAR MODIFICADO 1 (COM O CALCULO DA NOVA TAXA IGUAL AO MODIFICADO) E MODIFICADO4 (COM O CALCULO DA NOVA TAXA IGUAL AO MODIFICADO2) COM O COMITE USANDO soma
