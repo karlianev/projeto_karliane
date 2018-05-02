@@ -16,7 +16,7 @@ setwd("C:\\local_R\\projeto_karliane\\bases")
 
 if (i==1) {
   base_original <- read.arff("bupa.arff");  
-  bd_nome <- "iris"
+  bd_nome <- "bupa"
 }else if(i==2){
   base_original <- read.arff("segment.arff")
   bd_nome <- "segment"
@@ -96,8 +96,8 @@ if (i==1) {
   base_original <-read.arff("twonorm.arff")
   bd_nome <- "twonorm"
 }else if (i==28){
-  base_original <- read.arff("phishingData.arff")
-  bd_nome <- "phishing"
+  base_original <- read.arff("hill-valley-with-noise.arff")
+  bd_nome <- "hill"
 }else if(i==29){
   base_original <-read.arff("balance-scale.arff")
   bd_nome <- "balance-scale"

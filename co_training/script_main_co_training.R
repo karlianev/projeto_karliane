@@ -1,5 +1,5 @@
 #NAIVE RODANDO ORIGINAL E GRADATIVO PARA AS 30 BASES
-num_metodo <- 1 # 1=original 2= gradativo 3=flexcon_soma 4=flexcon_voto 5=flexcon-C1_soma 6=flexcon-C1_voto 7=flexcon-C2
+num_metodo <- 2 # 1=original 2= gradativo 3=flexcon_soma 4=flexcon_voto 5=flexcon-C1_soma 6=flexcon-C1_voto 7=flexcon-C2
 conj_treino <- c()
 
 #variaveis globais para guardar no arquivo de resultados
@@ -39,17 +39,20 @@ metodo_g_o <- c()
 bd <- c()
 tx <- c()
 metodo <- c()
+
+corretude_g <- c()
+cobertura_g <- c()
 # 
 # #fazendo teste com classificador supervisionado
 # acc_g_sup <- c() #acuracia (percentual de acerto) do metodo supervisionado
 
-source('C:/local_R/projeto_karliane/co_training/scripts_comuns/configuracoes_co_training.R')
+ #source('C:/local_R/projeto_karliane/co_training/scripts_comuns/configuracoes_co_training.R')
 # source('~/R/karliane/projeto_karliane/scripts_comuns/configuracoes.R')
 
 source('C:/local_R/projeto_karliane/co_training/scripts_comuns/funcoes_co_training.R')
 # source('~/R/karliane/projeto_karliane/scripts_comuns/funcoes.R')
 for (t in 2:2) { #1 = taxa 0,9 2 = taxa 0,95
-  for(c in 1:1){  # 1 = NB, 2 = AD 3 = ripper 4 = IBK
+  for(c in 4:4){  # 1 = NB, 2 = AD 3 = ripper 4 = IBK
     it_g <-c() 
     bd_g <-c()
     thrConf_g<-c()
@@ -71,6 +74,8 @@ for (t in 2:2) { #1 = taxa 0,9 2 = taxa 0,95
     # acc_g_sup <- c()
     
     for(i in 1:1){  # bases de dados
+      # if ((i==2)||(i==6)||(i==8)||(i==29))
+      #   i <- i+1
       for(j in 1:5){ # taxas  #base 1 - IRIS 5% NB N?O FUNCIONA - da erro
         taxa <- j*5
         source('C:/local_R/projeto_karliane/scripts_comuns/carrega_dados.R')
@@ -86,22 +91,10 @@ for (t in 2:2) { #1 = taxa 0,9 2 = taxa 0,95
     
     #cirando data frame que sera guardado no arquivo com os seguintes dados: base, %rotulados inicialmente, iteracao, taxa de confian?a, numero de exemplos adicionados, corretude e cobertura
     data_arquivo_o <- data.frame(bd_g_o,tx_g_o,it_g_o,thrConf_g_o,nr_added_exs_g_o)#, acertou_g_o)
-    # data_arquivo <- data.frame(bd_g,tx_g,it_g,thrConf_g,nr_added_exs_g, acertou_g, corretude_g, cobertura_g )
-    # data_arquivo_gra <- data.frame(bd_g_gra,tx_g_gra,it_g_gra,thrConf_g_gra,nr_added_exs_g_gra, acertou_g_gra)
-    # 
-    # #cirando data frame que sera guardado no arquivo com os seguintes dados: %rotulados inicialmente, base, acuracia
-    # 
-    # #fazendo teste com classificador supervisionado
-    # data_arquivo_acc_sup <- data.frame(tx, bd, acc_g_sup)
-    # data_arquivo_acc_por_taxa_sup <- c(data_arquivo_acc_sup[data_arquivo_acc_sup$tx<10,],data_arquivo_acc_sup[data_arquivo_acc_sup$tx<15 & data_arquivo_acc_sup$tx>5,], data_arquivo_acc_sup[data_arquivo_acc_sup$tx<20 & data_arquivo_acc_sup$tx>10,], data_arquivo_acc_sup[data_arquivo_acc_sup$tx<25 & data_arquivo_acc_sup$tx>15,], data_arquivo_acc_sup[data_arquivo_acc_sup$tx<30 & data_arquivo_acc_sup$tx>20,])
     # #cirando data frame que sera guardado no arquivo com os seguintes dados: %rotulados inicialmente, base, acuracia
     data_arquivo_acc_o <- data.frame(tx, metodo, bd, acc_g_o)
     data_arquivo_acc_por_taxa_o <- c(data_arquivo_acc_o[data_arquivo_acc_o$tx<10,],data_arquivo_acc_o[data_arquivo_acc_o$tx<15 & data_arquivo_acc_o$tx>5,], data_arquivo_acc_o[data_arquivo_acc_o$tx<20 & data_arquivo_acc_o$tx>10,], data_arquivo_acc_o[data_arquivo_acc_o$tx<25 & data_arquivo_acc_o$tx>15,], data_arquivo_acc_o[data_arquivo_acc_o$tx<30 & data_arquivo_acc_o$tx>20,])
-    # data_arquivo_acc <- data.frame(tx, bd, acc_g)
-    # data_arquivo_acc_por_taxa <- c(data_arquivo_acc[data_arquivo_acc$tx<10,],data_arquivo_acc[data_arquivo_acc$tx<15 & data_arquivo_acc$tx>5,], data_arquivo_acc[data_arquivo_acc$tx<20 & data_arquivo_acc$tx>10,], data_arquivo_acc[data_arquivo_acc$tx<25 & data_arquivo_acc$tx>15,], data_arquivo_acc[data_arquivo_acc$tx<30 & data_arquivo_acc$tx>20,])
-    # data_arquivo_acc_gra <- data.frame(tx, bd, acc_g_gra)
-    # data_arquivo_acc_por_taxa_gra <- c(data_arquivo_acc_gra[data_arquivo_acc_gra$tx<10,],data_arquivo_acc_gra[data_arquivo_acc_gra$tx<15 & data_arquivo_acc_gra$tx>5,], data_arquivo_acc_gra[data_arquivo_acc_gra$tx<20 & data_arquivo_acc_gra$tx>10,], data_arquivo_acc_gra[data_arquivo_acc_gra$tx<25 & data_arquivo_acc_gra$tx>15,], data_arquivo_acc_gra[data_arquivo_acc_gra$tx<30 & data_arquivo_acc_gra$tx>20,])
-    
+
     print("Gravando arquivos")    
     if (t == 1){ #TAXA 0.9
       if (c==1){

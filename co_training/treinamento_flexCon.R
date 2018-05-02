@@ -4,31 +4,31 @@ print("Iniciando Treinamento")
 if(c==1){ #NAIVE BAYES
   if (t==1){ #TAXA INICIAL 0.9
     #chamada da funcao que implementa o metodo modificado usando naive
-    CT<- coTrainFlexCon(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.9,100,1,TRUE, votacao = FALSE)
+    CT<- coTrainFlexCon(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.9,100,1,TRUE, votacao = FALSE, combinar=TRUE)
   }else if (t==2){ #TAXA INICIAL 0.95
-    CT<- coTrainFlexCon(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.95,100,1,TRUE, votacao = FALSE)
+    CT<- coTrainFlexCon(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.95,100,1,TRUE, votacao = FALSE, combinar=TRUE)
   }
 }
 if(c==2){ #ARVORE DE DECISAO
   if (t==1){ #TAXA INICIAL 0.9
     #chamada da funcao que implementa o metodo modificado usando arvore de decis?o
-    CT <- coTrainFlexCon(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.9,100,1,TRUE, votacao = FALSE)
+    CT <- coTrainFlexCon(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.9,100,1,TRUE, votacao = FALSE, combinar=TRUE)
   }else if (t==2){ #TAXA INICIAL 0.95
-    CT <- coTrainFlexCon(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.95,100,1,TRUE, votacao = FALSE)
+    CT <- coTrainFlexCon(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.95,100,1,TRUE, votacao = FALSE, combinar=TRUE)
   }  
 }
 if(c==3){ #RIPPER
   if (t==1){
-    CT <- coTrainFlexCon(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.9,100,1,TRUE, votacao = FALSE)
+    CT <- coTrainFlexCon(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.9,100,1,TRUE, votacao = FALSE, combinar=TRUE)
   }else if (t==2){
-    CT <- coTrainFlexCon(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.95,100,1,TRUE, votacao = FALSE)
+    CT <- coTrainFlexCon(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.95,100,1,TRUE, votacao = FALSE, combinar=TRUE)
   }  
 }
 if(c==4){ #IBK
   if (t==1){
-    CT <- coTrainFlexCon(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('IBk',list(control = Weka_control(K=15, X=TRUE))),'f2',0.9,100,1,TRUE, votacao = FALSE)
+    CT <- coTrainFlexCon(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('IBk',list(control = Weka_control(K=15, X=TRUE))),'f2',0.9,100,1,TRUE, votacao = FALSE, combinar=TRUE)
   }else if (t==2){
-    CT <- coTrainFlexCon(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('IBk',list(control = Weka_control(K=15, X=TRUE))),'f2',0.95,100,1,TRUE, votacao = FALSE)
+    CT <- coTrainFlexCon(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('IBk',list(control = Weka_control(K=15, X=TRUE))),'f2',0.95,100,1,TRUE, votacao = FALSE, combinar=TRUE)
   }  
 }
 
