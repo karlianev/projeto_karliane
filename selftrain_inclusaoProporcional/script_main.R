@@ -57,16 +57,16 @@ for (t in 2:2) { #1 = taxa 0,9 2 = taxa 0,95
     #fazendo teste com classificador supervisionado
     acc_g_sup <- c()
     
-    for(i in 4:4){  # bases de dados
-      for(j in 2:5){ # taxas  #base 1 - IRIS 5% NB N?O FUNCIONA - da erro
+    for(i in 5:5){  # bases de dados
+      for(j in 1:5){ # taxas  #base 1 - IRIS 5% NB N?O FUNCIONA - da erro
         taxa <- j*5
-        # source('C:/local_R/projeto_karliane/scripts_comuns/carrega_dados.R')
-        # source('C:/local_R/projeto_karliane/scripts_comuns/organiza_dados.R')
-        # source('C:/local_R/projeto_karliane/selftrain_inclusaoProporcional/treinamento.R')
+        source('C:/local_R/projeto_karliane/scripts_comuns/carrega_dados.R')
+        source('C:/local_R/projeto_karliane/scripts_comuns/organiza_dados.R')
+        source('C:/local_R/projeto_karliane/selftrain_inclusaoProporcional/treinamento.R')
 
-        source('~/R/karliane/projeto_karliane/scripts_comuns/carrega_dados.R')
-        source('~/R/karliane/projeto_karliane/scripts_comuns/organiza_dados.R')
-        source('~/R/karliane/projeto_karliane/selftrain_inclusaoProporcional/treinamento.R')
+        # source('~/R/karliane/projeto_karliane/scripts_comuns/carrega_dados.R')
+        # source('~/R/karliane/projeto_karliane/scripts_comuns/organiza_dados.R')
+        # source('~/R/karliane/projeto_karliane/selftrain_inclusaoProporcional/treinamento.R')
       }    #FIM DO J
     }  #FIM DO I
     print("gerando data frame para arquivos")
