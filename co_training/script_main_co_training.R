@@ -46,7 +46,7 @@ cobertura_g <- c()
 # #fazendo teste com classificador supervisionado
 # acc_g_sup <- c() #acuracia (percentual de acerto) do metodo supervisionado
 
-# source('C:/local_R/projeto_karliane/co_training/scripts_comuns/configuracoes_co_training.R')
+ source('C:/local_R/projeto_karliane/co_training/scripts_comuns/configuracoes_co_training.R')
 # source('~/R/karliane/projeto_karliane/scripts_comuns/configuracoes.R')
 
 source('C:/local_R/projeto_karliane/co_training/scripts_comuns/funcoes_co_training.R')
