@@ -74,18 +74,18 @@ for (t in 2:2) { #1 = taxa 0,9 2 = taxa 0,95
     # acc_g_sup <- c()
     
     for(i in 1:30){  # bases de dados
-       # if ((i==2)||(i==6)||(i==8)||(i==29))
-       #   i <- i+1
-      for(j in 1:5){ # taxas  #base 1 - IRIS 5% NB N?O FUNCIONA - da erro
-        taxa <- j*5
-        source('C:/local_R/projeto_karliane/scripts_comuns/carrega_dados.R')
-        source('C:/local_R/projeto_karliane/scripts_comuns/organiza_dados.R')
-        source('C:/local_R/projeto_karliane/co_training/treinamento_co_training.R')
-        
-        # source('~/R/karliane/projeto_karliane/scripts_comuns/carrega_dados.R')
-        # source('~/R/karliane/projeto_karliane/scripts_comuns/organiza_dados.R')
-        # source('~/R/karliane/projeto_karliane/selftrain_modificado2/treinamento.R')
-      }    #FIM DO J
+       if (!((i==2)||(i==6)||(i==8)||(i==29))){
+          for(j in 1:5){ # taxas  #base 1 - IRIS 5% NB N?O FUNCIONA - da erro
+            taxa <- j*5
+            source('C:/local_R/projeto_karliane/scripts_comuns/carrega_dados.R')
+            source('C:/local_R/projeto_karliane/scripts_comuns/organiza_dados.R')
+            source('C:/local_R/projeto_karliane/co_training/treinamento_co_training.R')
+            
+            # source('~/R/karliane/projeto_karliane/scripts_comuns/carrega_dados.R')
+            # source('~/R/karliane/projeto_karliane/scripts_comuns/organiza_dados.R')
+            # source('~/R/karliane/projeto_karliane/selftrain_modificado2/treinamento.R')
+          }    #FIM DO J
+       } # FIM DO IF
     }  #FIM DO I
     print("gerando data frame para arquivos")
     

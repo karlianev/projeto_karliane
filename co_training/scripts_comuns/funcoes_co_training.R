@@ -450,8 +450,6 @@ coTrainingGradativo <- function(form,data,
 #rotulo e uma das duas confiancas >= thrConf. Se ainda assim nao existir nenhum exemplo, serao
 #incluidos os exemplos cujos rotulos sao diferentes, mas uma das duas confiancas seja >= que thrConf
 
-#!!!!!!!!!!!!!!!!!IMPLEMENTAR!!!!!!!!!!!!!!!!!!!
-  
 coTrainFlexCon <- function(form,data,
                           learner,
                           predFunc,
