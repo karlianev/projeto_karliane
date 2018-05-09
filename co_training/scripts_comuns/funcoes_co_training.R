@@ -512,7 +512,7 @@ coTrainFlexCon <- function(form,data,
       probPreds_1_it_v1 <<- probPreds1
       probPreds_1_it_v2 <<- probPreds2
       moda <<- matrix(data = rep(0,length(base_original$class)),ncol = length(unique(base_original$class)), nrow = NROW(base_original), byrow = TRUE, 
-                      dimnames = list(row.names(base_original),unique(base_original$class)))
+                      dimnames = list(row.names(base_original), sort(unique(base_original$class), decreasing=FALSE)))
     }
     
     indices1 <- row.names(probPreds1)   # pega o id de cada exemplo
@@ -640,6 +640,7 @@ coTrainFlexCon_C1 <- function(form,data,
   classificar <- TRUE
   
   #sup recebe o indice de todos os exemplos rotulados
+  #está sendo sup = sup1 = sup2
   sup <- which(!is.na(data[, as.character(form[[2]])])) #exemplos inicialmente rotulados
   sup1 <- which(!is.na(data1[, as.character(form[[2]])])) #exemplos inicialmente rotulados
   sup2 <- which(!is.na(data2[, as.character(form[[2]])])) #exemplos inicialmente rotulados
@@ -678,10 +679,10 @@ coTrainFlexCon_C1 <- function(form,data,
       probPreds_1_it_v1 <<- probPreds1
       probPreds_1_it_v2 <<- probPreds2
       moda <<- matrix(data = rep(0,length(base_original$class)),ncol = length(unique(base_original$class)), nrow = NROW(base_original), byrow = TRUE, 
-                      dimnames = list(row.names(base_original),unique(base_original$class)))
+                      dimnames = list(row.names(base_original),sort(unique(base_original$class), decreasing = FALSE)))
       
     }  
-    
+    #está sendo indices1 = indices2
     indices1 <- row.names(probPreds1)   # pega o id de cada exemplo
     indices2 <- row.names(probPreds2)   # pega o id de cada exemplo 
     

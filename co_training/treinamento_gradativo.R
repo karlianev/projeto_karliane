@@ -37,9 +37,9 @@ if(c==3){ #RIPPER
 }
 if(c==4){ #IBK
   if (t==1){
-    cT_gra <- coTrainingGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('IBk',list(control = Weka_control(K=15, X=TRUE))),'f2',0.9,100,1,TRUE, combinar = TRUE)
+    CT_gra <- coTrainingGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('IBk',list(control = Weka_control(K=15, X=TRUE))),'f2',0.9,100,1,TRUE, combinar = TRUE)
   }else if (t==2){
-    cT_gra <- coTrainingGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('IBk',list(control = Weka_control(K=15, X=TRUE))),'f2',0.95,100,1,TRUE, combinar = TRUE)
+    CT_gra <- coTrainingGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('IBk',list(control = Weka_control(K=15, X=TRUE))),'f2',0.95,100,1,TRUE, combinar = TRUE)
   }  
   
   # #criando a matriz de confus?o para o modelo gerado pelo IBK usando os exemplos inicialmente rotulados

@@ -14,7 +14,8 @@ if(c==2){ #ARVORE DE DECISAO
     #chamada da funcao que implementa o metodo modificado usando arvore de decis?o
     CT <- coTrainFlexCon(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.9,100,1,TRUE, votacao = FALSE, combinar=TRUE)
   }else if (t==2){ #TAXA INICIAL 0.95
-    CT <- coTrainFlexCon(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.95,100,1,TRUE, votacao = FALSE, combinar=TRUE)
+    CT <- coTrainFlexCon(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('J48', list(control = Weka_control(reducedErrorPruning=FALSE))),'f',0.95,100,1,TRUE, votacao = FALSE, combinar=TRUE)
+    # CT <- coTrainFlexCon(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.95,100,1,TRUE, votacao = FALSE, combinar=TRUE)
   }  
 }
 if(c==3){ #RIPPER
