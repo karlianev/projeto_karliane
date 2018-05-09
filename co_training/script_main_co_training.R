@@ -1,5 +1,5 @@
 #NAIVE RODANDO ORIGINAL E GRADATIVO PARA AS 30 BASES
-num_metodo <- 3 # 1=original 2= gradativo 3=flexcon_soma (treinamento_flexcon setar votacao = false) 4=flexcon_voto (treinamento_flexcon setar votacao = true) 5=flexcon-C1_soma (treinamento_flexcon_c1 setar votacao = false) 6=flexcon-C1_voto (treinamento_flexcon_c1 setar votacao = true) 7=flexcon-C2
+num_metodo <- 1 # 1=original 2= gradativo 3=flexcon_soma (treinamento_flexcon setar votacao = false) 4=flexcon_voto (treinamento_flexcon setar votacao = true) 5=flexcon-C1_soma (treinamento_flexcon_c1 setar votacao = false) 6=flexcon-C1_voto (treinamento_flexcon_c1 setar votacao = true) 7=flexcon-C2
 conj_treino <- c()
 
 #variaveis globais para guardar no arquivo de resultados
@@ -73,7 +73,7 @@ for (t in 2:2) { #1 = taxa 0,9 2 = taxa 0,95
     #fazendo teste com classificador supervisionado
     # acc_g_sup <- c()
     
-    for(i in 18:18){  # bases de dados
+    for(i in 1:1){  # bases de dados
        if (!((i==2)||(i==6)||(i==8)||(i==29))){
           for(j in 1:5){ # taxas  #base 1 - IRIS 5% NB N?O FUNCIONA - da erro
             taxa <- j*5

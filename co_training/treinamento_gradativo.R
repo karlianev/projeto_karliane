@@ -18,9 +18,11 @@ if(c==1){ #NAIVE BAYES
 if(c==2){ #ARVORE DE DECISAO
   if (t==1){ #TAXA INICIAL 0.9
     #chamada da funcao que implementa o metodo gradativo usando arvore de decis?o
-    CT_gra <- coTrainingGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.9,100,1,TRUE, combinar = TRUE)
+    #CT_gra <- coTrainingGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.9,100,1,TRUE, combinar = TRUE)
+    CT_gra <- coTrainingGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('J48',list()),'f',0.9,100,1,TRUE, combinar = TRUE)
   }else if (t==2){ #TAXA INICIAL 0.95
-    CT_gra <- coTrainingGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.95,100,1,TRUE, combinar = TRUE)
+    #CT_gra <- coTrainingGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.95,100,1,TRUE, combinar = TRUE)
+    CT_gra <- coTrainingGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('J48',list()),'f',0.95,100,1,TRUE, combinar = TRUE)
   }  
   #criando a matriz de confus?o para o modelo gerado pelo m?todo original com ?rvore de decis?o
   matriz_confusao_o_v1=table(predict(CT_gra[[1]],base_teste,type='class'),base_teste$class)

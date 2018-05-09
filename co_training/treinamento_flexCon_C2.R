@@ -20,9 +20,11 @@ if(c==2){ #ARVORE DE DECISAO
   
   if (t==1){ #TAXA INICIAL 0.9
     #chamada da funcao que implementa o metodo modificado usando arvore de decis?o
-    CT<- coTrainFlexCon_C2(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.9,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, stdNB)
+    #CT<- coTrainFlexCon_C2(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.9,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, stdNB)
+    CT<- coTrainFlexCon_C2(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('J48',list()),'f',0.9,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, stdNB)
   }else if (t==2){ #TAXA INICIAL 0.95
-    CT<- coTrainFlexCon_C2(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.95,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, stdNB)
+    # CT<- coTrainFlexCon_C2(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.95,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, stdNB)
+    CT<- coTrainFlexCon_C2(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('J48',list()),'f',0.95,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, stdNB)
   }  
 }
 if(c==3){ #RIPPER
