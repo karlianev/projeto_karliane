@@ -14,7 +14,10 @@ setwd("C:\\local_R\\projeto_karliane\\bases")
 # setwd("~/R/karliane/projeto_karliane/bases")
 
 
-if (i==1) {
+if (i==0) {
+  base_original <- read.arff("iris.arff");  
+  bd_nome <- "iris"
+}else if (i==1) {
   base_original <- read.arff("bupa.arff");  
   bd_nome <- "bupa"
 }else if(i==2){
