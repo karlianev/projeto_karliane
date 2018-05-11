@@ -8,8 +8,8 @@
 # install.packages("prodlim")
 # install.packages("purr")
 
-source("https://bioconductor.org/biocLite.R")
-biocLite("graph", suppressUpdates = TRUE)
+# source("https://bioconductor.org/biocLite.R")
+# biocLite("graph", suppressUpdates = TRUE)
 
 # install.packages("SSL")
 
@@ -27,7 +27,7 @@ library("RWeka")
 library("rminer")
 library("datasets")
 library("e1071")
-
+library("graph")
 
 #pacote para usar a funcao partitio.matrix ou partition.vector
 #install.packages("Hmisc")

@@ -177,6 +177,84 @@ guarda_soma <- function(indices,p){ # p = predicao
   return(moda)
 }
 
+#funcao, chamada em modificado2 e 3, que valida se o conjunto de treinamento pode ser utilizado para calcular a nova taxa de confianca
+validar_treino<- function(data,id_conj_treino,N_classes,min_exem_por_classe){
+  #cat("entrou if da segunda itera??o", '\n')
+  N_instancias_por_classe2 <- ddply(data[id_conj_treino,],~class,summarise,number_of_distinct_orders=length(class))
+  
+  treino_valido <<- FALSE
+  if (NROW(N_instancias_por_classe2)  == N_classes){#TAVA nrow
+    
+    for (x in 1:NROW(N_instancias_por_classe2)){ #TAVA nrow
+      
+      if (N_instancias_por_classe2$number_of_distinct_orders[x]>= min_exem_por_classe) #N_classes*5)
+        treino_valido <<- TRUE
+      else treino_valido <<- FALSE
+    }  
+  }
+} 
+
+#funcao, chamada em modificado2 e 3, que define o conjunto de treinamento a ser classificado e indica se a classificacao e possivel
+validar_classificacao<-function(treino_valido_i,id_conj_treino,id_conj_treino_antigo,data, N_classes, min_exem_por_classe){
+  #data[sup,] corresponde os que possuem rotulos (INICIALMENTE ROTULADOS OU N?fO)
+  if (treino_valido_i){
+    #o conjunto de treinamento serao as instancias inclu????das (rotuladas)
+    conj_treino <<- data[id_conj_treino,]
+    id_conj_treino_antigo <<- c()
+    classificar <- TRUE
+    
+  }else if (length(id_conj_treino_antigo)>=1) {
+    #o conjunto de treinamento ser√° o anterior + as instancias incluidas (rotuladas)
+    conj_treino <<- rbind(data[id_conj_treino,],data[id_conj_treino_antigo,])
+    
+    id_conj_treino1 <- c(id_conj_treino, id_conj_treino_antigo)
+    validar_treino(data,id_conj_treino1,N_classes,min_exem_por_classe);
+    
+    if (treino_valido){
+      classificar <- TRUE
+    }else{
+      classificar <- FALSE
+    }
+    
+  }else classificar <- FALSE #a confian?a permanece a mesma ao inves de parar
+  return(classificar)  
+}
+
+calcular_acc_local <- function(){
+  
+  if(c==1){
+    classificador <- naiveBayes(as.factor(class) ~ .,conj_treino)
+    matriz <- table(predict(classificador,base_rotulados_ini),base_rotulados_ini$class)
+  }
+  else if (c==2){
+    #IMPLEMENTAR ARVORE DE DECIS?O
+    classificador <- rpartXse(as.factor(class) ~ .,conj_treino)
+    matriz <- table(predict(classificador,base_rotulados_ini, type="class"),base_rotulados_ini$class)        
+  } else if (c==3){
+    #IMPLEMENTAR ripper
+    classificador <- JRip(as.factor(class) ~ .,conj_treino)
+    matriz <- table(predict(classificador,base_rotulados_ini),base_rotulados_ini$class)        
+  } else if (c==4){
+    #IMPLEMENTAR IBk
+    classificador <- IBk(as.factor(class) ~ .,conj_treino)
+    matriz <- table(predict(classificador,base_rotulados_ini),base_rotulados_ini$class)
+  }
+  acc_local <- ((sum(diag(matriz)) / length(base_rotulados_ini$class)) * 100)
+  return(acc_local)
+}
+
+#funcao que calcula a nova confianca de acordo com a acuracia local e o limiar
+calcular_confianca<-function(acc_local,limiar,txConf){
+  if((acc_local>(limiar + 1)) && (txConf-0.05>0.0)){
+    txConf<-txConf-0.05
+    
+  }else if((acc_local<(limiar - 1)) && (txConf+0.05 <= 1)){
+    
+    txConf<-txConf+0.05
+  } #caso contrario a confianca permanecera a mesma
+  return(txConf)
+}
+
 #Co-Training original
 #funcao criada a partir da funcao selfTrainOriginal
 #implementaÁ„o que usa a variavel COMBINAR para combinar ou n„o a saÌda dos classificadores.
@@ -372,8 +450,6 @@ coTrainingGradativo <- function(form,data,
 #rotulo e uma das duas confiancas >= thrConf. Se ainda assim nao existir nenhum exemplo, serao
 #incluidos os exemplos cujos rotulos sao diferentes, mas uma das duas confiancas seja >= que thrConf
 
-#!!!!!!!!!!!!!!!!!IMPLEMENTAR!!!!!!!!!!!!!!!!!!!
-  
 coTrainFlexCon <- function(form,data,
                           learner,
                           predFunc,
@@ -436,7 +512,7 @@ coTrainFlexCon <- function(form,data,
       probPreds_1_it_v1 <<- probPreds1
       probPreds_1_it_v2 <<- probPreds2
       moda <<- matrix(data = rep(0,length(base_original$class)),ncol = length(unique(base_original$class)), nrow = NROW(base_original), byrow = TRUE, 
-                      dimnames = list(row.names(base_original),unique(base_original$class)))
+                      dimnames = list(row.names(base_original), sort(unique(base_original$class), decreasing=FALSE)))
     }
     
     indices1 <- row.names(probPreds1)   # pega o id de cada exemplo
@@ -445,8 +521,7 @@ coTrainFlexCon <- function(form,data,
       moda <<- guarda_moda(indices1,probPreds1) # Armazena a moda das classes
       moda <<- guarda_moda(indices2,probPreds2) # Armazena a moda das classes
     }else{
-      #!!!!!!!!!!!!!!!!!!!!!!!!!ACHEI ESQUISITA ESSA PREDICAO!!!!!!!!!!!!!!!!!!!!
-      #!!!!!!!!!!!!!!!!!NAO ENCONTREI ESSA VARIAVEL EM NENHUM LUGAR!!!!!!!!!!!!!!
+      #a variavel predicao e gerada pelo predfunc
       moda <<- guarda_soma(indices1,predicao) # Armazena a soma das classes
       moda <<- guarda_soma(indices2,predicao) # Armazena a soma das classes
     }        
@@ -487,11 +562,9 @@ coTrainFlexCon <- function(form,data,
     if (length(new)) {
       #quantidade de exemplos n?o rotulados no conjunto de dados
       N_nao_rot <- NROW(data[-sup1,])
-      #!!!!!!!!!!!!!!!!!!!!PAREI AQUI!!!!!!!!!!!!!!!!!!
-      #PRECISA VERIFICAR SE AS CLASSES DO NEW FORAM DIFERENTES PARA PODER INCLUIR O ROTULO DO COMITE
       data1[(1:N)[-sup1][new],as.character(form[[2]])] <- rotulados[,2]
       data2[(1:N)[-sup2][new],as.character(form[[2]])] <- rotulados[,2]
-      conf_media <- mean(probPreds1[new,2])
+      conf_media <- mean(produto_confianca)
       qtd_Exemplos_Rot <- length(data1[(1:N)[-sup1][new],as.character(form[[2]])])
       totalrot <- totalrot + qtd_Exemplos_Rot
       # 
@@ -533,6 +606,331 @@ coTrainFlexCon <- function(form,data,
   
   model <- list(model1,model2)  
   #retorne o modelo criado pelo classificador  
+  return(model)  
+}
+#calcula a confianca de acordo com o treinamento do classificador
+#so acumula o conjunto de treinamento com o conjunto anterior caso o conjunto de treinamento nao seja valido
+#usa votacao/soma para definir o rotulo nos casos em que os classificadores divergem
+coTrainFlexCon_C1 <- function(form,data,
+                                     learner,
+                                     predFunc,
+                                     thrConf=0.9,
+                                     maxIts=10,percFull=1,
+                                     verbose=F,
+                                     min_exem_por_classe,
+                                     limiar=70,
+                                     votacao = TRUE){
+  
+  N <- NROW(data)
+  N_instancias_por_classe <- ddply(data,~class,summarise,number_of_distinct_orders=length(class))
+  #substituido por min_exem_por_classe
+  N_classes <- NROW(N_instancias_por_classe)-1 # uso do -1 pq N_instancias_por_classe tem uma linha com a quantidade de exemplos n?o rotulados
+  
+  #primeiramente se faz necessario particionar os dados, ou seja, criar duas visoes
+  visao <- criar_visao(data)
+  data1 <- visao[[1]]
+  data2 <- visao[[2]]
+  
+  it <- 0
+  #soma_Conf <- 0
+  qtd_Exemplos_Rot <- 0
+  totalrot <- 0
+  conj_treino <<- c()
+  treino_valido <<- FALSE
+  classificar <- TRUE
+  
+  #sup recebe o indice de todos os exemplos rotulados
+  #est· sendo sup = sup1 = sup2
+  sup <- which(!is.na(data[, as.character(form[[2]])])) #exemplos inicialmente rotulados
+  sup1 <- which(!is.na(data1[, as.character(form[[2]])])) #exemplos inicialmente rotulados
+  sup2 <- which(!is.na(data2[, as.character(form[[2]])])) #exemplos inicialmente rotulados
+
+  id_conj_treino <- c()
+  id_conj_treino_antigo <- c()
+  repeat {
+    acertou <- 0
+    #cat("conj_treino", conj_treino, "nrow(conj_treino)", nrow(conj_treino))
+    it <- it+1
+    
+    if ((it>1)&&(qtd_Exemplos_Rot>0)){
+      validar_treino(data,id_conj_treino,N_classes,min_exem_por_classe);
+      classificar <- validar_classificacao(treino_valido,id_conj_treino,id_conj_treino_antigo,data, N_classes, min_exem_por_classe)
+      
+      if (classificar){
+        acc_local <- calcular_acc_local()
+        thrConf <- calcular_confianca(acc_local,limiar,thrConf)  
+      }  
+    }
+   # soma_Conf <- 0
+    qtd_Exemplos_Rot <- 0
+    
+    #model armazena o modelo gerado utilizando o aprendiz learner (AD, NB, KNN OU RIPPER), a base data[sup,] que s?o os dados rotulados e a classe ? passada no par?metro form
+    model1 <- runLearner(learner, form, data1[sup1, ])
+    model2 <- runLearner(learner, form, data2[sup2, ])
+    #a predicao e gerada de acordo com predFunc (func ou f1 ou f2 que foi passado como par?metro)
+    probPreds1 <- do.call(predFunc, list(model1, data1[-sup1,]))
+    probPreds2 <- do.call(predFunc, list(model2, data2[-sup2,]))
+    #transforma as classes em caracter
+    probPreds1$cl <- as.character(probPreds1$cl)
+    probPreds2$cl <- as.character(probPreds2$cl)
+    produto_confianca <- probPreds1[, 2]*probPreds2[, 2]
+    
+    if(it == 1){
+      probPreds_1_it_v1 <<- probPreds1
+      probPreds_1_it_v2 <<- probPreds2
+      moda <<- matrix(data = rep(0,length(base_original$class)),ncol = length(unique(base_original$class)), nrow = NROW(base_original), byrow = TRUE, 
+                      dimnames = list(row.names(base_original),sort(unique(base_original$class), decreasing = FALSE)))
+      
+    }  
+    #est· sendo indices1 = indices2
+    indices1 <- row.names(probPreds1)   # pega o id de cada exemplo
+    indices2 <- row.names(probPreds2)   # pega o id de cada exemplo 
+    
+    if (votacao){
+      moda <<- guarda_moda(indices1,probPreds1) # Armazena a moda das classes
+      moda <<- guarda_moda(indices2,probPreds2) # Armazena a moda das classes
+    }else{
+      #variavel predicao e gerado no predfunc
+      moda <<- guarda_soma(indices1,predicao) # Armazena a soma das classes
+      moda <<- guarda_soma(indices2,predicao) # Armazena a soma das classes
+    }        
+    #a diferenca da primeira iteracao para as demais e que na primeira nao e possivel usar a moda
+    if (it==1){
+      #RETORNA EXEMPLOS CUJAS CLASSES S√O IGUAIS PARA OS DOIS CLASSIFICADORES E O PRODUTO DA CONFIAN«A … MAIOR DO QUE O THRCONF
+      rotulados <- checa_classe(probPreds1, probPreds2, indices1, thrConf, usarModa = FALSE, moda)
+      
+      if (length(rotulados$id) == 0){
+        # compara se as classes sao diferentes e o produto das confiancas e maior que o limiar
+        rotulados <- checa_classe_diferentes(probPreds1, probPreds2, indices1, thrConf, usarmoda=FALSE, moda)
+      }
+    }else{
+      #exemplos da mesma classe e com o produto das confianÁas maior do que o limiar
+      rotulados <- checa_classe(probPreds1, probPreds2, indices1, thrConf, usarModa = TRUE, moda)
+      if (length(rotulados$id) == 0){
+        # compara se as classes sao diferentes e o produto das confiancas e maior que o limiar
+        rotulados <- checa_classe_diferentes(probPreds1, probPreds2, indices1, thrConf, usarmoda = TRUE, moda)
+      }
+    }
+    new <- rotulados$id
+  
+    if (verbose) {
+      cat('tx_incl',taxa,'IT.',it,'BD',i,thrConf,'\t nr. added exs. =',length(new),'\n') 
+      ##guardando nas variaveis 
+      it_g <<-c(it_g,it)
+      bd_g <<-c(bd_g,bd_nome)
+      thrConf_g <<-c(thrConf_g,thrConf)
+      nr_added_exs_g <<-c(nr_added_exs_g,length(new))
+      tx_g <<- c(tx_g, taxa)
+    }
+    
+    if (length(new)) {
+      #PRECISO ATUALIZAR O DATA POR CAUSA DO CONJ_TREINO
+      data[(1:N)[-sup][new],as.character(form[[2]])] <- rotulados[,2]
+      data1[(1:N)[-sup1][new],as.character(form[[2]])] <- rotulados[,2]
+      data2[(1:N)[-sup2][new],as.character(form[[2]])] <- rotulados[,2]
+      
+    #  soma_Conf <- sum(soma_Conf, probPreds[new,2])
+      qtd_Exemplos_Rot <- length(data[(1:N)[-sup][new],as.character(form[[2]])])
+      totalrot <- totalrot + qtd_Exemplos_Rot
+      
+      # acertou <- 0
+      # acerto <- treinamento[(1:N)[-sup][new], as.character(form[2])]== data[(1:N)[-sup][new], as.character(form[2])]
+      # tam_acerto <- NROW(acerto)
+      # for (w in 1:tam_acerto){
+      #   if (acerto[w] == TRUE)
+      #     acertou <- acertou + 1
+      # }
+      
+      id_conj_treino_antigo <- c(id_conj_treino_antigo,id_conj_treino)
+      id_conj_treino <- (1:N)[-sup][new]
+      
+      sup <- c(sup,(1:N)[-sup][new])
+      sup1 <- c(sup1,(1:N)[-sup1][new])
+      sup2 <- c(sup2,(1:N)[-sup2][new])      
+    }
+    
+#    acertou_g <<- c(acertou_g, acertou)    
+    if(length(new)==0){
+      baixa_conf <- which((as.character(probPreds1[, 1])==as.character(probPreds2[, 1])) & !(produto_confianca > thrConf))
+      if (length(baixa_conf)==0){
+        #Flavius sugeriu que aqui fosse trocado o classificador
+        baixa_conf <- which((as.character(probPreds1[, 1])!=as.character(probPreds2[, 1])) & !(produto_confianca > thrConf))
+      }
+      thrConf<-max(produto_confianca[baixa_conf])  
+    }
+    
+    if (it == maxIts || length(sup)/N >= percFull) break
+    
+    #FIM DO REPEAT
+  }
+  model <- list(model1,model2)  
+  #retorne o modelo criado pelo classificador  
+  return(model)  
+  
+}
+
+#calcula a confianca de acordo com o treinamento do classificador
+# o conjunto de treinamento e cumulativo
+#usa O ROTULO DO CLASSIFICADOR SUPERVISIONADO nos casos em que os classificadores divergem
+coTrainFlexCon_C2 <- function(form,data,
+                               learner,
+                               predFunc,
+                               thrConf=0.9,
+                               maxIts=10,percFull=1,
+                               verbose=F,
+                               min_exem_por_classe,
+                               limiar=70,
+                               model_supervisionado){
+  
+  N <- NROW(data)
+  N_instancias_por_classe <- ddply(data,~class,summarise,number_of_distinct_orders=length(class))
+  #substituido por min_exem_por_classe
+  N_classes <- NROW(N_instancias_por_classe)-1 # uso do -1 pq N_instancias_por_classe tem uma linha com a quantidade de exemplos n?o rotulados
+  
+  #primeiramente se faz necessario particionar os dados, ou seja, criar duas visoes
+  visao <- criar_visao(data)
+  data1 <- visao[[1]]
+  data2 <- visao[[2]]
+  
+  it <- 0
+  soma_Conf <- 0
+  qtd_Exemplos_Rot <- 0
+  totalrot <- 0
+  conj_treino <- c()
+  classificar <- TRUE
+  add_rot_superv <- FALSE
+  
+  #sup recebe o indice de todos os exemplos inicialmente rotulados
+  sup1 <- which(!is.na(data1[, as.character(form[[2]])])) 
+  sup2 <- which(!is.na(data2[, as.character(form[[2]])])) 
+  
+  
+  id_conj_treino <- c()
+  id_conj_treino_antigo <- c()
+  repeat {
+    acertou <- 0
+    #cat("conj_treino", conj_treino, "nrow(conj_treino)", nrow(conj_treino))
+    it <- it+1
+    
+    if ((it>1)&&(qtd_Exemplos_Rot>0)){
+      validar_treino(data,id_conj_treino,N_classes,min_exem_por_classe);
+      classificar <- validar_classificacao(treino_valido,id_conj_treino,id_conj_treino_antigo,data)
+      
+      if (classificar){
+        acc_local <- calcular_acc_local()
+        thrConf <- calcular_confianca(acc_local,limiar,thrConf)  
+      }  
+    }
+    
+    soma_Conf <- 0
+    qtd_Exemplos_Rot <- 0
+
+    #model armazena o modelo gerado utilizando o aprendiz learner (AD, NB, KNN OU RIPPER), a base data[sup,] que sao os dados rotulados e a classe e passada no parametro form
+    model1 <- runLearner(learner, form, data1[sup1, ])
+    model2 <- runLearner(learner, form, data2[sup2, ])
+    
+    #a predicao e gerada de acordo com predFunc (func ou f1 ou f2 que foi passado como parametro)
+    probPreds1 <- do.call(predFunc, list(model1, data1[-sup1,]))
+    probPreds2 <- do.call(predFunc, list(model2, data2[-sup2,]))
+    
+    
+    #guardar_predicao(predicao, it)
+    probPreds_model_superv1 <- do.call(predFunc,list(model_supervisionado,data1[-sup1,]))
+    probPreds_model_superv2 <- do.call(predFunc,list(model_supervisionado,data2[-sup2,]))
+    
+    #transformando os dados dos factors probpreds e probpreds_model_superv em caracter para n?o ter problema quando a quantidade de classes preditas em um factor n?o for a mesma do outro
+    z <- sapply(probPreds1, is.factor)
+    probPreds1[z] <- lapply(probPreds1[z], as.character)
+    z <- sapply(probPreds2, is.factor)
+    probPreds2[z] <- lapply(probPreds2[z], as.character)
+    z <- sapply(probPreds_model_superv1, is.factor)
+    probPreds_model_superv1[z] <- lapply(probPreds_model_superv1[z], as.character)
+    z <- sapply(probPreds_model_superv2, is.factor)
+    probPreds_model_superv2[z] <- lapply(probPreds_model_superv2[z], as.character)
+    
+    #!!!!!!!!!!!!!!!!!!!!PAREI AQUI!!!!!!!!!!!!!!!!!!    
+    #!!!!!!!!!!!!!PENSAR DIREITINHO COMO SER¡ AQUI!!!!!!!!!!!!!!!!!!!!!!
+    
+    produto_confianca <- probPreds1[, 2]*probPreds2[, 2]#*probPreds_model_superv1[, 2]*probPreds_model_superv2[, 2]
+    #adiciona exemplos cuja confian?a dos dois classificadores seja maior que thrconf e cuja predicao de probpreds e probpreds_model_superv seja a mesma
+    new <- which((produto_confianca[,2] >= thrConf) & (probPreds_model_superv[,2] >= thrConf) & (probPreds1[,1]==probPreds2[,1]) & (probPreds2[,1]==probPreds_model_superv2[,1]) & (probPreds1[,1]==probPreds_model_superv1[,1]))
+    if (length(new)==0){
+      #adiciona exemplos cuja confian?a de um dos classificadores seja maior que thrconf e cuja predicao de probpreds e probpreds_model_superv seja a mesma
+      new <- which((probPreds[,2] >= thrConf) | (probPreds_model_superv[,2] >= thrConf) & (probPreds[,1]==probPreds_model_superv[,1]))
+
+      if (length(new)==0){
+        #adiciona exemplos cuja confian?a dos dois classificadores seja maior que thrconf e cuja predicao de probpreds e probpreds_model_superv nao seja a mesma
+        new <- which((probPreds[,2] >= thrConf) & (probPreds_model_superv[,2] >= thrConf) & (probPreds[,1] != probPreds_model_superv[,1]))
+        if (length(new)){
+          add_rot_superv <- TRUE
+        }
+      }
+    }
+    
+    # #adiciona exemplos cuja confian?a dos dois classificadores seja maior que thrconf e cuja predicao de probpreds e probpreds_model_superv seja a mesma
+    # new <- which((probPreds[,2] >= thrConf) & (probPreds_model_superv[,2] >= thrConf) & (probPreds[,1]==probPreds_model_superv[,1]))
+    # if (length(new)==0){
+    #   #adiciona exemplos cuja confian?a de um dos classificadores seja maior que thrconf e cuja predicao de probpreds e probpreds_model_superv seja a mesma
+    #   new <- which((probPreds[,2] >= thrConf) | (probPreds_model_superv[,2] >= thrConf) & (probPreds[,1]==probPreds_model_superv[,1]))  
+    #   
+    #   if (length(new)==0){
+    #     #adiciona exemplos cuja confian?a dos dois classificadores seja maior que thrconf e cuja predicao de probpreds e probpreds_model_superv nao seja a mesma
+    #     new <- which((probPreds[,2] >= thrConf) & (probPreds_model_superv[,2] >= thrConf) & (probPreds[,1] != probPreds_model_superv[,1]))  
+    #     if (length(new)){
+    #       add_rot_superv <- TRUE
+    #     }
+    #   }
+    # }
+    
+    if (verbose) {
+      cat('tx_incl',taxa,'IT.',it,'BD',i,thrConf,'\t nr. added exs. =',length(new),'\n') 
+      ##guardando nas variaveis 
+      it_g_3 <<-c(it_g_3,it)
+      bd_g_3 <<-c(bd_g_3,bd_nome)
+      thrConf_g_3 <<-c(thrConf_g_3,thrConf)
+      nr_added_exs_g_3 <<-c(nr_added_exs_g_3,length(new))
+      tx_g_3 <<- c(tx_g_3, taxa)
+    }
+    
+    if (length(new)) {
+      if (add_rot_superv) {
+        data[(1:N)[-sup][new],as.character(form[[2]])] <- as.character(probPreds_model_superv[new,1])
+      }else{
+        data[(1:N)[-sup][new],as.character(form[[2]])] <- as.character(probPreds[new,1])
+      }
+      soma_Conf <- sum(soma_Conf, probPreds[new,2])
+      qtd_Exemplos_Rot <- length(data[(1:N)[-sup][new],as.character(form[[2]])])
+      totalrot <- totalrot + qtd_Exemplos_Rot
+      
+      acertou <- 0
+      acerto <- treinamento[(1:N)[-sup][new], as.character(form[2])]== data[(1:N)[-sup][new], as.character(form[2])]
+      tam_acerto <- NROW(acerto)
+      for (w in 1:tam_acerto){
+        if (acerto[w] == TRUE)
+          acertou <- acertou + 1
+      }
+      
+      id_conj_treino_antigo <- c(id_conj_treino_antigo,id_conj_treino)
+      id_conj_treino <- (1:N)[-sup][new]
+      
+      #esse comando pode ser usado para tornar o conj_treino cumulativo
+      # conj_treino <- rbind(data[id_conj_treino,],data[id_conj_treino_antigo,])
+      
+      sup <- c(sup,(1:N)[-sup][new])
+    }
+    
+    acertou_g_3 <<- c(acertou_g_3, acertou)
+    
+    cat('acertou',acertou,'\n') 
+    
+    if(length(new)==0){
+      thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A M?DIA DAS PREDI??ES.
+      # thrConf<-mean(probPreds[,2])
+    }
+    if (it == maxIts || length(sup)/N >= percFull) break
+    
+  } #FIM DO REPEAT
+  
   return(model)  
 }
 
