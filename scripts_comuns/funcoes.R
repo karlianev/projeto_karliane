@@ -971,10 +971,10 @@ funcSelfTrainInclusaoProp <- function(form,data,
       acertou <- 0
       acerto <- treinamento[(1:N)[-sup][as.integer(new)], as.character(form[2])]== data[(1:N)[-sup][as.integer(new)], as.character(form[2])]
       tam_acerto <- NROW(acerto)
-      # for (w in 1:tam_acerto){
-      #   if (acerto[w] == TRUE)
-      #     acertou <- acertou + 1
-      # }
+      for (w in 1:tam_acerto){
+        if (acerto[w] == TRUE)
+          acertou <- acertou + 1
+      }
 
 
       id_conj_treino_antigo <- c(id_conj_treino_antigo,id_conj_treino)
@@ -982,7 +982,7 @@ funcSelfTrainInclusaoProp <- function(form,data,
       sup <- c(sup,(1:N)[-sup][as.factor(new)])
     }
     
-    # acertou_g <<- c(acertou_g, acertou)    
+    acertou_g <<- c(acertou_g, acertou)    
     if(length(new)==0){
       thrConf <- max(probPreds[,2]) #FALTOU FAZER USANDO A M?DIA DAS PREDI??ES.
       # thrConf<-mean(probPreds[,2])
@@ -1039,17 +1039,19 @@ tratar_dados_faltosos <- function(rotulados,probPreds,probPreds_1_it,indices,thr
     cat(thrConf,"\n")
     
     #Rotular novamente
-    novos_rotulados <- checa_classe(probPreds_1_it, probPreds, indices, thrConf, usarModa = TRUE, moda)
-    if (length(rotulados$id) == 0){
-      novos_rotulados <- checa_confianca(probPreds_1_it, probPreds, indices, thrConf, usarModa = TRUE, moda)
-      if (length(rotulados$id) == 0){
+    novos_rotulados <- checa_classe(probPreds_1_it, probPreds, indices, thrConf, usarModa = FALSE, moda)
+    if (length(novos_rotulados$id) == 0){
+      novos_rotulados <- checa_confianca(probPreds_1_it, probPreds, indices, thrConf, usarModa = FALSE, moda)
+      if (length(novos_rotulados$id) == 0){
         novos_rotulados <- checa_classe_diferentes(probPreds_1_it, probPreds, indices, thrConf, moda)
       }
     }
     classes_dist_rot <- unique(novos_rotulados$cl)
   }
+  
   cat('thrConf ',thrConf,'\t nr. added exs. =',length(novos_rotulados$id),'\n')
-   
+  # print(novos_rotulados)
+  # print(classes_dist_pp)
   return (novos_rotulados)
 }
 
@@ -1067,31 +1069,24 @@ prop <- function(rotulados){
       qtd_classes_rot[cl] <- length(which(rotulados$cl == cl)) # guarda a quantidade por classe rotulada
     }
     
+    menorCL <- as.character(names(qtd_classes_rot[which(qtd_classes_rot == min(qtd_classes_rot))])) # Classe com menos rotulados
+    if(length(menorCL) > 1)
+      menorCL <- menorCL[1]
+    
     proporcoes <- c(rep(0,length(classes_dist_rot))) # vetor com as proporcoes calculadas
     names(proporcoes) <- as.character(classes_dist_rot) # Organiza os titulos de cada posicao por classe
     
-    # cl <- 1
-    # while (cl <= length(classes_dist_rot)){
-    #   proporcoes[[classes_dist_rot[cl]]] <- (qtd_classes_rot[[classes_dist_rot[1]]]*qtd_classes_ini[[classes_dist_rot[cl]]])/qtd_classes_ini[[classes_dist_rot[1]]] # Regra de 3
-    #   if(proporcoes[[classes_dist_rot[cl]]] > qtd_classes_rot[[classes_dist_rot[cl]]]){ #Se o resultado passa do numero disponivel pra rotular, eh pq o anteror 
-    #     proporcoes[[classes_dist_rot[cl]]] <- qtd_classes_rot[[classes_dist_rot[cl]]]   #possui mais do que devia
-    #     proporcoes[[classes_dist_rot[1]]] <- qtd_classes_rot[[classes_dist_rot[cl]]]/(qtd_classes_ini[[classes_dist_rot[1]]]/qtd_classes_ini[[classes_dist_rot[1]]])
-    #     qtd_classes_rot[[classes_dist_rot[1]]] <- qtd_classes_rot[[classes_dist_rot[cl]]]/(qtd_classes_ini[[classes_dist_rot[cl]]]/qtd_classes_ini[[classes_dist_rot[1]]])
-    #     cl <- 1
-    #   }else
-    #     cl <- cl +1
-    # }
-    
-    cl <- 1
-    while (cl <= length(classes_dist_rot)){
-      proporcoes[cl] <- (qtd_classes_rot[1]*qtd_classes_ini[cl])/qtd_classes_ini[1] # Regra de 3
-      if(proporcoes[cl] > qtd_classes_rot[cl]){ #Se o resultado passa do numero disponivel pra rotular, eh pq o anteror
-        proporcoes[cl] <- qtd_classes_rot[cl]   #possui mais do que devia
-        proporcoes[1] <- qtd_classes_rot[cl]/(qtd_classes_ini[cl]/qtd_classes_ini[1])
-        qtd_classes_rot[1] <- qtd_classes_rot[cl]/(qtd_classes_ini[cl]/qtd_classes_ini[1])
-        cl <- 1
+    pos <- 1
+    while (pos <= length(classes_dist_rot)){
+      cl <- as.character(classes_dist_rot[pos])
+      proporcoes[[cl]] <- as.numeric(format((qtd_classes_rot[[menorCL]]*qtd_classes_ini[[cl]])/qtd_classes_ini[[menorCL]],digits = 4)) # Regra de 3
+      if(trunc(proporcoes[[cl]]) > trunc(qtd_classes_rot[[cl]])){ #Se o resultado passa do numero disponivel pra rotular, eh pq o anteror
+        proporcoes[[cl]] <- as.numeric(format(qtd_classes_rot[[cl]],digits = 4))   #possui mais do que devia
+        proporcoes[[menorCL]] <- as.numeric(format(qtd_classes_rot[[cl]]/(qtd_classes_ini[[cl]]/qtd_classes_ini[[menorCL]]),digits = 4))
+        qtd_classes_rot[[menorCL]] <- as.numeric(format(qtd_classes_rot[[cl]]/(qtd_classes_ini[[cl]]/qtd_classes_ini[[menorCL]]),digits = 4))
+        pos <- 1
       }else
-        cl <- cl +1
+        pos <- pos +1
     }
     
     # Caso a proporcao para uma base fique entre 0 e 1, esta recebera 1, pois nao se pode adicionar classe pela metade
@@ -1110,7 +1105,7 @@ estratificar_rot <- function(new,probPreds,proporcoes){
   if(length(proporcoes)){
     pos <- 1 # para controlar as posicoes dos ids a serem adicionados
     for(indice in new){
-      if(verifica_classe(new,proporcoes,as.character(probPreds[indice,1])) && (proporcoes[[probPreds[indice,1]]] > 0)){
+      if((as.character(probPreds[indice,1]) %in% names(proporcoes))  && (proporcoes[[probPreds[indice,1]]] > 0)){
         add_prop[pos] <- indice
         pos <- pos + 1
         proporcoes[[as.character(probPreds[indice,1])]] <- proporcoes[[as.character(probPreds[indice,1])]] - 1
@@ -1118,14 +1113,6 @@ estratificar_rot <- function(new,probPreds,proporcoes){
     }
   }
   return (add_prop)
-}
-
-# Se houver a classe dentro do probPreds
-verifica_classe <- function(new,proporcoes,cl){
-  aux <- names(proporcoes) == cl
-  if(length(which(aux == TRUE)))
-    return (TRUE)
-  return(FALSE)
 }
 
 # verificar se as classes são iguais
