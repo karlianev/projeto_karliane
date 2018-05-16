@@ -9,7 +9,7 @@ f <- function(m,d) { #AD
   predicao <<- data.frame(p)
   col1 <- colnames(p)[apply(p,1,which.max)] #nome da coluna com a maior predicao, ou seja, a classe
   col2 <- apply(p,1,max) # valor da maior predicao
-  data.frame(cl=col1,p=col2)
+  data.frame(cl=col1,p=col2, id=row.names(d))
 }
 
 f2 <- function(m,d) { #JRip e KNN
@@ -17,7 +17,7 @@ f2 <- function(m,d) { #JRip e KNN
   predicao <<- data.frame(p)
   col1 <- colnames(p)[apply(p,1,which.max)] #nome da coluna com a maior predicao, ou seja, a classe
   col2 <- apply(p,1,max) # valor da maior predicao
-  data.frame(cl=col1,p=col2) #um data frame com 2 colunas: 1) a predi??o de cada exemplo; 2) a classe predita para cada exemplo
+  data.frame(cl=col1,p=col2, id=row.names(d)) #um data frame com 2 colunas: 1) a predi??o de cada exemplo; 2) a classe predita para cada exemplo
 }
 
 #funcao que cria duas visoes para serem usadas no treinamento do co-training
