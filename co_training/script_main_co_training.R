@@ -1,5 +1,5 @@
 #NAIVE RODANDO ORIGINAL E GRADATIVO PARA AS 30 BASES
-num_metodo <- 3 # 1=original 2= gradativo 3=flexcon_soma (treinamento_flexcon setar votacao = false) 4=flexcon_voto (treinamento_flexcon setar votacao = true) 5=flexcon-C1_soma (treinamento_flexcon_c1 setar votacao = false) 6=flexcon-C1_voto (treinamento_flexcon_c1 setar votacao = true) 7=flexcon-C2
+num_metodo <- 6 # 0=original 1 = gradativo_soma 2= gradativo_voto 3=flexcon_soma (treinamento_flexcon setar votacao = false) 4=flexcon_voto (treinamento_flexcon setar votacao = true) 5=flexcon-C1_soma (treinamento_flexcon_c1 setar votacao = false) 6=flexcon-C1_voto (treinamento_flexcon_c1 setar votacao = true) 7=flexcon-C2
 conj_treino <- c()
 
 #variaveis globais para guardar no arquivo de resultados
@@ -52,7 +52,7 @@ cobertura_g <- c()
 source('C:/local_R/projeto_karliane/co_training/scripts_comuns/funcoes_co_training.R')
 # source('~/R/karliane/projeto_karliane/scripts_comuns/funcoes.R')
 for (t in 2:2) { #1 = taxa 0,9 2 = taxa 0,95
-  for(c in 3:3){  # 1 = NB, 2 = AD 3 = ripper 4 = IBK
+  for(c in 1:1){  # 1 = NB, 2 = AD 3 = ripper 4 = IBK
     it_g <-c() 
     bd_g <-c()
     thrConf_g<-c()
@@ -73,7 +73,7 @@ for (t in 2:2) { #1 = taxa 0,9 2 = taxa 0,95
     #fazendo teste com classificador supervisionado
     # acc_g_sup <- c()
     
-    for(i in 1:1){  # bases de dados
+    for(i in 1:10){  # bases de dados
        if (!((i==2)||(i==6)||(i==8)||(i==29))){
           for(j in 1:5){ # taxas  #base 1 - IRIS 5% NB N?O FUNCIONA - da erro
             taxa <- j*5

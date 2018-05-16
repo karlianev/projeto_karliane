@@ -1,6 +1,15 @@
 #chamando a funcao selfTrain adaptada
 print("Iniciando Treinamento")
 
+if (num_metodo == 5){
+  vot <- FALSE
+}else if (num_metodo == 6){
+  vot <- TRUE
+}else{
+  print("ERRO AO SETAR VOTACAO TRUE OU FALSE")
+  break
+}
+
 if(c==1){ #NAIVE BAYES
   stdNB <- naiveBayes(as.formula(paste(classe,'~', '.')),base_rotulados_ini)
   matriz_confusao_supervisionado <- table(predict(stdNB,base_rotulados_ini,type='class'),base_rotulados_ini$class)
@@ -8,9 +17,9 @@ if(c==1){ #NAIVE BAYES
   
   if (t==1){ #TAXA INICIAL 0.9
     #chamada da funcao que implementa o metodo modificado usando naive
-    CT<- coTrainFlexCon_C1(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list(4)),'func',0.9,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, votacao = TRUE)
+    CT<- coTrainFlexCon_C1(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list(4)),'func',0.9,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, votacao = vot)
   }else if (t==2){ #TAXA INICIAL 0.95
-    CT<- coTrainFlexCon_C1(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list(4)),'func',0.95,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, votacao = TRUE)
+    CT<- coTrainFlexCon_C1(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list(4)),'func',0.95,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, votacao = vot)
   }
 }
 if(c==2){ #ARVORE DE DECISAO
@@ -20,11 +29,11 @@ if(c==2){ #ARVORE DE DECISAO
   
   if (t==1){ #TAXA INICIAL 0.9
     #chamada da funcao que implementa o metodo modificado usando arvore de decis?o
-    #CT <- coTrainFlexCon_C1(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.9,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, votacao = TRUE)
-    CT <- coTrainFlexCon_C1(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('J48',list()),'f',0.9,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, votacao = TRUE)
+    #CT <- coTrainFlexCon_C1(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.9,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, votacao = vot)
+    CT <- coTrainFlexCon_C1(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('J48',list()),'f',0.9,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, votacao = vot)
   }else if (t==2){ #TAXA INICIAL 0.95
-    #CT <- coTrainFlexCon_C1(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.95,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, votacao = TRUE)
-    CT <- coTrainFlexCon_C1(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('J48',list()),'f',0.95,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, votacao = TRUE)
+    #CT <- coTrainFlexCon_C1(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.95,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, votacao = vot)
+    CT <- coTrainFlexCon_C1(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('J48',list()),'f',0.95,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, votacao = vot)
   }  
 }
 if(c==3){ #RIPPER
@@ -33,9 +42,9 @@ if(c==3){ #RIPPER
   acc_sup_3 <- ((sum(diag(matriz_confusao_supervisionado)) / sum(matriz_confusao_supervisionado)) * 100)
   
   if (t==1){
-    CT <- coTrainFlexCon_C1(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.9,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, votacao = TRUE)
+    CT <- coTrainFlexCon_C1(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.9,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, votacao = vot)
   }else if (t==2){
-    CT <- coTrainFlexCon_C1(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.95,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, votacao = TRUE)
+    CT <- coTrainFlexCon_C1(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.95,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, votacao = vot)
   }  
 }
 if(c==4){ #IBK
@@ -44,9 +53,9 @@ if(c==4){ #IBK
   acc_sup_3 <- ((sum(diag(matriz_confusao_supervisionado)) / sum(matriz_confusao_supervisionado)) * 100)
   
   if (t==1){
-    CT <- coTrainFlexCon_C1(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('IBk',list(control = Weka_control(K=15, X=TRUE))),'f2',0.9,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, votacao = TRUE)
+    CT <- coTrainFlexCon_C1(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('IBk',list(control = Weka_control(K=15, X=TRUE))),'f2',0.9,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, votacao = vot)
   }else if (t==2){
-    CT <- coTrainFlexCon_C1(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('IBk',list(control = Weka_control(K=15, X=TRUE))),'f2',0.95,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, votacao = TRUE)
+    CT <- coTrainFlexCon_C1(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('IBk',list(control = Weka_control(K=15, X=TRUE))),'f2',0.95,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, votacao = vot)
   }  
 }
 

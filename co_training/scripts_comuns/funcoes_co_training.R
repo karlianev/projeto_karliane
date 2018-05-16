@@ -782,40 +782,25 @@ coTrainFlexCon_C1 <- function(form,data,
     
     
     if(it == 1){
-      probPreds_1_it_v1 <<- probPreds1
-      probPreds_1_it_v2 <<- probPreds2
       moda <<- matrix(data = rep(0,length(base_original$class)),ncol = length(unique(base_original$class)), nrow = NROW(base_original), byrow = TRUE, 
                       dimnames = list(row.names(base_original),sort(unique(base_original$class), decreasing = FALSE)))
       
     }  
     #está sendo indices1 = indices2
-    indices1 <- probPreds1[,3] # row.names(data1[sup1, ])  # pega o id de cada exemplo
-    indices2 <- probPreds2[,3] #row.names(data2[sup2, ])   # pega o id de cada exemplo 
-    
+
     if (votacao){
-      moda <<- guarda_moda(indices1,probPreds1) # Armazena a moda das classes
-      moda <<- guarda_moda(indices2,probPreds2) # Armazena a moda das classes
+      moda <<- guarda_moda(probPreds1) # Armazena a moda das classes
+      moda <<- guarda_moda(probPreds2) # Armazena a moda das classes
     }else{
       #variavel predicao e gerado no predfunc
-      moda <<- guarda_soma(indices1,predicao) # Armazena a soma das classes
-      moda <<- guarda_soma(indices2,predicao) # Armazena a soma das classes
+      moda <<- guarda_soma(predicao) # Armazena a soma das classes
+      moda <<- guarda_soma(predicao) # Armazena a soma das classes
     }        
-    # #a diferenca da primeira iteracao para as demais e que na primeira nao e possivel usar a moda
-    # if (it==1){
-    #   #RETORNA EXEMPLOS CUJAS CLASSES SÃO IGUAIS PARA OS DOIS CLASSIFICADORES E O PRODUTO DA CONFIANÇA É MAIOR DO QUE O THRCONF
-    #   rotulados <- checa_classe(probPreds1, probPreds2, indices1, thrConf, usarModa = FALSE, moda)
-    #   
-    #   if (length(rotulados$id) == 0){
-    #     # compara se as classes sao diferentes e o produto das confiancas e maior que o limiar
-    #     rotulados <- checa_classe_diferentes(probPreds1, probPreds2, indices1, thrConf, usarmoda=FALSE, moda)
-    #   }
-    # }else{
-      #exemplos da mesma classe e com o produto das confianças maior do que o limiar
-      rotulados <- checa_classe(probPreds1, probPreds2, thrConf, usarModa = TRUE, moda)
-      if (length(rotulados$id) == 0){
-        # compara se as classes sao diferentes e o produto das confiancas e maior que o limiar
-        rotulados <- checa_classe_diferentes(probPreds1, probPreds2, thrConf, usarmoda = TRUE, moda)
-#      }
+    #exemplos da mesma classe e com o produto das confianças maior do que o limiar
+    rotulados <- checa_classe(probPreds1, probPreds2, thrConf, usarModa = TRUE, moda)
+    if (length(rotulados$id) == 0){
+      # compara se as classes sao diferentes e o produto das confiancas e maior que o limiar
+      rotulados <- checa_classe_diferentes(probPreds1, probPreds2, thrConf, usarmoda = TRUE, moda)
     }
     new <- rotulados$id
   

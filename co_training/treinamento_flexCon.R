@@ -1,5 +1,13 @@
 #chamando a funcao selfTrain adaptada
 print("Iniciando Treinamento")
+if (num_metodo == 3){
+  vot <- FALSE
+}else if (num_metodo == 4){
+  vot <- TRUE
+}else{
+  print("ERRO!!! AO SETAR VOTACAO TRUE OU FALSE, NUMERO DO METODO NAO CONFERE")
+  break
+}
 
 if(c==1){ #NAIVE BAYES
   if (t==1){ #TAXA INICIAL 0.9
