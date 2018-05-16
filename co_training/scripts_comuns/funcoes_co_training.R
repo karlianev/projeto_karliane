@@ -6,7 +6,7 @@ func <- function(m, d){ #NB
 
 f <- function(m,d) { #AD
   p <- predict(m,d,type='prob') #predicao dos dados (d) de acordo com o modelo (m)
-  predicao <<- data.frame(p)
+  predicao <<- data.frame(p, row.names(d))
   col1 <- colnames(p)[apply(p,1,which.max)] #nome da coluna com a maior predicao, ou seja, a classe
   col2 <- apply(p,1,max) # valor da maior predicao
   data.frame(cl=col1,p=col2, id=row.names(d))
@@ -14,7 +14,7 @@ f <- function(m,d) { #AD
 
 f2 <- function(m,d) { #JRip e KNN
   p <- predict(m,d,type='probability') # l ? uma matriz com a confian?a da predi??o de cada exemplo
-  predicao <<- data.frame(p)
+  predicao <<- data.frame(p, row.names(d))
   col1 <- colnames(p)[apply(p,1,which.max)] #nome da coluna com a maior predicao, ou seja, a classe
   col2 <- apply(p,1,max) # valor da maior predicao
   data.frame(cl=col1,p=col2, id=row.names(d)) #um data frame com 2 colunas: 1) a predi??o de cada exemplo; 2) a classe predita para cada exemplo
@@ -39,7 +39,7 @@ criar_visao <- function(dados){
 ################################
 # compara se as classes estao iguais e se as confiancas sao maiores q a da iteracao atual
 #checa_classe novo - usado no co-training
-checa_classe <- function(data_1_it, data_x_it, thrConf, usarModa, moda){
+checa_classe <- function(data_1_it, data_x_it, thrConf, usarModa=F, moda){
   examples <- c()
   pos <- 0
   xid <- c() # Vetor de id
@@ -388,7 +388,7 @@ coTrainingOriginal <- function (form, data, learner, predFunc, thrConf = 0.9, ma
     if (combinar){
       # produto_confianca <- probPreds1[, 2]*probPreds2[, 2]
       # new <- which((produto_confianca > thrConf) & (as.character(probPreds1[, 1])==as.character(probPreds2[, 1])))
-      rotulados <- checa_classe(probPreds1, probPreds2, thrConf,TRUE, moda)
+      rotulados <- checa_classe(probPreds1, probPreds2, thrConf,FALSE, moda)
       new <- rotulados$id
     }else{  
       #POR ENQUANTO NÃO ESTA SENDO USADO
