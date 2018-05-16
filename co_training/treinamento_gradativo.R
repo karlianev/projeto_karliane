@@ -6,9 +6,9 @@ print("Iniciando Treinamento")
 if(c==1){ #NAIVE BAYES
   if (t==1){ #TAXA INICIAL 0.9
     #chamada da funcao que implementa o metodo gradativo usando naive
-    nbCT_gra<- coTrainingGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.9,100,1,TRUE, combinar = TRUE)
+    nbCT_gra<- coTrainingGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.9,100,1,TRUE, votacao = TRUE)
   }else if (t==2){ #TAXA INICIAL 0.95
-    nbCT_gra<- coTrainingGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.95,100,1,TRUE, combinar = TRUE)
+    nbCT_gra<- coTrainingGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.95,100,1,TRUE, votacao = TRUE)
   }
   #criando a matriz de confus?o para o m?todo original
   matriz_confusao_o_v1<-table(predict(nbCT_gra[[1]], base_teste, type = 'class'), base_teste$class)
@@ -18,11 +18,11 @@ if(c==1){ #NAIVE BAYES
 if(c==2){ #ARVORE DE DECISAO
   if (t==1){ #TAXA INICIAL 0.9
     #chamada da funcao que implementa o metodo gradativo usando arvore de decis?o
-    #CT_gra <- coTrainingGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.9,100,1,TRUE, combinar = TRUE)
-    CT_gra <- coTrainingGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('J48',list()),'f',0.9,100,1,TRUE, combinar = TRUE)
+    #CT_gra <- coTrainingGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.9,100,1,TRUE, votacao = TRUE)
+    CT_gra <- coTrainingGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('J48',list()),'f',0.9,100,1,TRUE, votacao = TRUE)
   }else if (t==2){ #TAXA INICIAL 0.95
-    #CT_gra <- coTrainingGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.95,100,1,TRUE, combinar = TRUE)
-    CT_gra <- coTrainingGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('J48',list()),'f',0.95,100,1,TRUE, combinar = TRUE)
+    #CT_gra <- coTrainingGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.95,100,1,TRUE, votacao = TRUE)
+    CT_gra <- coTrainingGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('J48',list()),'f',0.95,100,1,TRUE, votacao = TRUE)
   }  
   #criando a matriz de confus?o para o modelo gerado pelo m?todo original com ?rvore de decis?o
   matriz_confusao_o_v1=table(predict(CT_gra[[1]],base_teste,type='class'),base_teste$class)
@@ -30,18 +30,18 @@ if(c==2){ #ARVORE DE DECISAO
 }
 if(c==3){ #RIPPER
   if (t==1){
-    CT_gra <- coTrainingGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.9,100,1,TRUE)
+    CT_gra <- coTrainingGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.9,100,1,TRUE, votacao = TRUE)
   }else if (t==2){
-    CT_gra <- coTrainingGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.95,100,1,TRUE, combinar = TRUE)
+    CT_gra <- coTrainingGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.95,100,1,TRUE, votacao = TRUE)
   }  
   matriz_confusao_o_v1=table(predict(CT_gra[[1]],base_teste,type='class'),base_teste$class)
   matriz_confusao_o_v2=table(predict(CT_gra[[2]],base_teste,type='class'),base_teste$class)
 }
 if(c==4){ #IBK
   if (t==1){
-    CT_gra <- coTrainingGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('IBk',list(control = Weka_control(K=15, X=TRUE))),'f2',0.9,100,1,TRUE, combinar = TRUE)
+    CT_gra <- coTrainingGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('IBk',list(control = Weka_control(K=15, X=TRUE))),'f2',0.9,100,1,TRUE, votacao = TRUE)
   }else if (t==2){
-    CT_gra <- coTrainingGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('IBk',list(control = Weka_control(K=15, X=TRUE))),'f2',0.95,100,1,TRUE, combinar = TRUE)
+    CT_gra <- coTrainingGradativo(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('IBk',list(control = Weka_control(K=15, X=TRUE))),'f2',0.95,100,1,TRUE, votacao = TRUE)
   }  
   
   # #criando a matriz de confus?o para o modelo gerado pelo IBK usando os exemplos inicialmente rotulados

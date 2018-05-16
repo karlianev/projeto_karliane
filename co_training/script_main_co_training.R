@@ -1,5 +1,5 @@
 #NAIVE RODANDO ORIGINAL E GRADATIVO PARA AS 30 BASES
-num_metodo <- 6 # 1=original 2= gradativo 3=flexcon_soma (treinamento_flexcon setar votacao = false) 4=flexcon_voto (treinamento_flexcon setar votacao = true) 5=flexcon-C1_soma (treinamento_flexcon_c1 setar votacao = false) 6=flexcon-C1_voto (treinamento_flexcon_c1 setar votacao = true) 7=flexcon-C2
+num_metodo <- 3 # 1=original 2= gradativo 3=flexcon_soma (treinamento_flexcon setar votacao = false) 4=flexcon_voto (treinamento_flexcon setar votacao = true) 5=flexcon-C1_soma (treinamento_flexcon_c1 setar votacao = false) 6=flexcon-C1_voto (treinamento_flexcon_c1 setar votacao = true) 7=flexcon-C2
 conj_treino <- c()
 
 #variaveis globais para guardar no arquivo de resultados
