@@ -549,8 +549,8 @@ coTrainingGradativo <- function(form,data,
           break
       }else{
         maior <- 0
-        for (i in baixa_conf){
-          produto <- (probPreds1[i, 2]*probPreds2[i, 2])
+        for (b in baixa_conf){
+          produto <- (probPreds1[b, 2]*probPreds2[b, 2])
           if (produto > maior){
             maior <- produto
           }
@@ -695,8 +695,8 @@ coTrainFlexCon <- function(form,data,
         baixa_conf <- which((as.character(probPreds1[, 1])!=as.character(probPreds2[, 1])) & !((probPreds1[, 2]*probPreds2[, 2]) > thrConf))
       }
       maior <- 0
-      for (i in baixa_conf){
-        produto <- (probPreds1[i, 2]*probPreds2[i, 2])
+      for (b in baixa_conf){
+        produto <- (probPreds1[b, 2]*probPreds2[b, 2])
         if (produto > maior){
           maior <- produto
         }
@@ -857,8 +857,8 @@ coTrainFlexCon_C1 <- function(form,data,
       }
       #thrConf<-max(produto_confianca[baixa_conf])  
       maior <- 0
-      for (i in baixa_conf){
-        produto <- (probPreds1[i, 2]*probPreds2[i, 2])
+      for (b in baixa_conf){
+        produto <- (probPreds1[b, 2]*probPreds2[b, 2])
         if (produto > maior){
           maior <- produto
         }

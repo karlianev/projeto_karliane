@@ -52,7 +52,7 @@ cobertura_g <- c()
 source('C:/local_R/projeto_karliane/co_training/scripts_comuns/funcoes_co_training.R')
 # source('~/R/karliane/projeto_karliane/scripts_comuns/funcoes.R')
 for (t in 2:2) { #1 = taxa 0,9 2 = taxa 0,95
-  for(c in 1:4){  # 1 = NB, 2 = AD 3 = ripper 4 = IBK
+  for(c in 1:1){  # 1 = NB, 2 = AD 3 = ripper 4 = IBK
     it_g <-c() 
     bd_g <-c()
     thrConf_g<-c()
@@ -98,13 +98,16 @@ for (t in 2:2) { #1 = taxa 0,9 2 = taxa 0,95
     print("Gravando arquivos")    
     if (t == 1){ #TAXA 0.9
       if (c==1){
-        if (metodo==1){ # 1=original 2= gradativo 3=flexcon_soma 4=flexcon_voto 5=flexcon-C1_soma 6=flexcon-C1_voto 7=flexcon-C2
+        if (metodo==0){ # 0=original 1= gradativo_soma 2= gradativo_voto 3=flexcon_soma 4=flexcon_voto 5=flexcon-C1_soma 6=flexcon-C1_voto 7=flexcon-C2
           #escrever no arquivo NB
           write.csv(data_arquivo_o, "resultado_nb_o_09.csv", row.names = FALSE)
           write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_nb_o_09.csv", row.names = FALSE)
+        }else if (metodo==1){
+          write.csv(data_arquivo_o, "resultado_nb_gra_soma_09.csv", row.names = FALSE)
+          write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_nb_gra_soma_09.csv", row.names = FALSE)
         }else if (metodo==2){
-          write.csv(data_arquivo_o, "resultado_nb_gra_09.csv", row.names = FALSE)
-          write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_nb_gra_09.csv", row.names = FALSE)
+          write.csv(data_arquivo_o, "resultado_nb_gra_voto_09.csv", row.names = FALSE)
+          write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_nb_gra_voto_09.csv", row.names = FALSE)
         }else if (metodo==3){
           #escrever no arquivo NB
           write.csv(data_arquivo_o, "resultado_nb_flexcon_soma_09.csv", row.names = FALSE)
@@ -127,13 +130,16 @@ for (t in 2:2) { #1 = taxa 0,9 2 = taxa 0,95
         }
         
       }else if (c==2){
-        if (metodo==1){ # 1=original 2= gradativo 3=flexcon_soma 4=flexcon_voto 5=flexcon-C1_soma 6=flexcon-C1_voto 7=flexcon-C2
+        if (metodo==0){ # 1=original 2= gradativo 3=flexcon_soma 4=flexcon_voto 5=flexcon-C1_soma 6=flexcon-C1_voto 7=flexcon-C2
           #escrever no arquivo NB
           write.csv(data_arquivo_o, "resultado_ad_o_09.csv", row.names = FALSE)
           write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_ad_o_09.csv", row.names = FALSE)
+        }else if (metodo==1){
+          write.csv(data_arquivo_o, "resultado_ad_gra_SOMA_09.csv", row.names = FALSE)
+          write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_ad_gra_soma_09.csv", row.names = FALSE)
         }else if (metodo==2){
-          write.csv(data_arquivo_o, "resultado_ad_gra_09.csv", row.names = FALSE)
-          write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_ad_gra_09.csv", row.names = FALSE)
+          write.csv(data_arquivo_o, "resultado_ad_gra_voto_09.csv", row.names = FALSE)
+          write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_ad_gra_voto_09.csv", row.names = FALSE)
         }else if (metodo==3){
           #escrever no arquivo NB
           write.csv(data_arquivo_o, "resultado_ad_flexcon_soma_09.csv", row.names = FALSE)
@@ -155,13 +161,16 @@ for (t in 2:2) { #1 = taxa 0,9 2 = taxa 0,95
           write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_ad_flexcon_c2_09.csv", row.names = FALSE)
         }
       }else if (c==3){
-        if (metodo==1){ # 1=original 2= gradativo 3=flexcon_soma 4=flexcon_voto 5=flexcon-C1_soma 6=flexcon-C1_voto 7=flexcon-C2
+        if (metodo==0){ # 1=original 2= gradativo 3=flexcon_soma 4=flexcon_voto 5=flexcon-C1_soma 6=flexcon-C1_voto 7=flexcon-C2
           #escrever no arquivo NB
           write.csv(data_arquivo_o, "resultado_JRip_o_09.csv", row.names = FALSE)
           write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_JRip_o_09.csv", row.names = FALSE)
+        }else if (metodo==1){
+          write.csv(data_arquivo_o, "resultado_JRip_gra_soma_09.csv", row.names = FALSE)
+          write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_JRip_gra_soma_09.csv", row.names = FALSE)
         }else if (metodo==2){
-          write.csv(data_arquivo_o, "resultado_JRip_gra_09.csv", row.names = FALSE)
-          write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_JRip_gra_09.csv", row.names = FALSE)
+          write.csv(data_arquivo_o, "resultado_JRip_gra_voto_09.csv", row.names = FALSE)
+          write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_JRip_gra_voto_09.csv", row.names = FALSE)
         }else if (metodo==3){
           #escrever no arquivo NB
           write.csv(data_arquivo_o, "resultado_JRip_flexcon_soma_09.csv", row.names = FALSE)
@@ -183,13 +192,16 @@ for (t in 2:2) { #1 = taxa 0,9 2 = taxa 0,95
           write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_JRip_flexcon_c2_09.csv", row.names = FALSE)
         }
       }else if (c==4){
-        if (metodo==1){ # 1=original 2= gradativo 3=flexcon_soma 4=flexcon_voto 5=flexcon-C1_soma 6=flexcon-C1_voto 7=flexcon-C2
+        if (metodo==0){ # 1=original 2= gradativo 3=flexcon_soma 4=flexcon_voto 5=flexcon-C1_soma 6=flexcon-C1_voto 7=flexcon-C2
           #escrever no arquivo NB
           write.csv(data_arquivo_o, "resultado_IBK_o_09.csv", row.names = FALSE)
           write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_IBK_o_09.csv", row.names = FALSE)
+        }else if (metodo==1){
+          write.csv(data_arquivo_o, "resultado_IBK_gra_soma_09.csv", row.names = FALSE)
+          write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_IBK_gra_soma_09.csv", row.names = FALSE)
         }else if (metodo==2){
-          write.csv(data_arquivo_o, "resultado_IBK_gra_09.csv", row.names = FALSE)
-          write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_IBK_gra_09.csv", row.names = FALSE)
+          write.csv(data_arquivo_o, "resultado_IBK_gra_voto_09.csv", row.names = FALSE)
+          write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_IBK_gra_voto_09.csv", row.names = FALSE)
         }else if (metodo==3){
           #escrever no arquivo NB
           write.csv(data_arquivo_o, "resultado_IBK_flexcon_soma_09.csv", row.names = FALSE)
@@ -215,13 +227,16 @@ for (t in 2:2) { #1 = taxa 0,9 2 = taxa 0,95
     }else if (t == 2){ #TAXA 0.95
       if (c==1){
         #escrever no arquivo NB
-        if (metodo==1){ # 1=original 2= gradativo 3=flexcon_soma 4=flexcon_voto 5=flexcon-C1_soma 6=flexcon-C1_voto 7=flexcon-C2
+        if (metodo==0){ # 1=original 2= gradativo 3=flexcon_soma 4=flexcon_voto 5=flexcon-C1_soma 6=flexcon-C1_voto 7=flexcon-C2
           #escrever no arquivo NB
           write.csv(data_arquivo_o, "resultado_nb_o_095.csv", row.names = FALSE)
           write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_nb_o_095.csv", row.names = FALSE)
+        }else if (metodo==1){
+          write.csv(data_arquivo_o, "resultado_nb_gra_soma_095.csv", row.names = FALSE)
+          write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_nb_gra_soma_095.csv", row.names = FALSE)
         }else if (metodo==2){
-          write.csv(data_arquivo_o, "resultado_nb_gra_095.csv", row.names = FALSE)
-          write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_nb_gra_095.csv", row.names = FALSE)
+          write.csv(data_arquivo_o, "resultado_nb_gra_voto_095.csv", row.names = FALSE)
+          write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_nb_gra_voto_095.csv", row.names = FALSE)
         }else if (metodo==3){
           #escrever no arquivo NB
           write.csv(data_arquivo_o, "resultado_nb_flexcon_soma_095.csv", row.names = FALSE)
@@ -245,13 +260,16 @@ for (t in 2:2) { #1 = taxa 0,9 2 = taxa 0,95
         
       }else if (c==2){
         # #escrever no arquivo AD
-        if (metodo==1){ # 1=original 2= gradativo 3=flexcon_soma 4=flexcon_voto 5=flexcon-C1_soma 6=flexcon-C1_voto 7=flexcon-C2
+        if (metodo==0){ # 1=original 2= gradativo 3=flexcon_soma 4=flexcon_voto 5=flexcon-C1_soma 6=flexcon-C1_voto 7=flexcon-C2
           #escrever no arquivo NB
           write.csv(data_arquivo_o, "resultado_ad_o_095.csv", row.names = FALSE)
           write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_ad_o_095.csv", row.names = FALSE)
+        }else if (metodo==1){
+          write.csv(data_arquivo_o, "resultado_ad_gra_soma_095.csv", row.names = FALSE)
+          write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_ad_gra_soma_095.csv", row.names = FALSE)
         }else if (metodo==2){
-          write.csv(data_arquivo_o, "resultado_ad_gra_095.csv", row.names = FALSE)
-          write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_ad_gra_095.csv", row.names = FALSE)
+          write.csv(data_arquivo_o, "resultado_ad_gra_voto_095.csv", row.names = FALSE)
+          write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_ad_gra_voto_095.csv", row.names = FALSE)
         }else if (metodo==3){
           #escrever no arquivo NB
           write.csv(data_arquivo_o, "resultado_ad_flexcon_soma_095.csv", row.names = FALSE)
@@ -274,13 +292,16 @@ for (t in 2:2) { #1 = taxa 0,9 2 = taxa 0,95
         }
       }else if (c==3){
         #escrever no arquivo ripper
-        if (metodo==1){ # 1=original 2= gradativo 3=flexcon_soma 4=flexcon_voto 5=flexcon-C1_soma 6=flexcon-C1_voto 7=flexcon-C2
+        if (metodo==0){ # 1=original 2= gradativo 3=flexcon_soma 4=flexcon_voto 5=flexcon-C1_soma 6=flexcon-C1_voto 7=flexcon-C2
           #escrever no arquivo NB
           write.csv(data_arquivo_o, "resultado_JRip_o_095.csv", row.names = FALSE)
           write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_JRip_o_095.csv", row.names = FALSE)
+        }else if (metodo==1){
+          write.csv(data_arquivo_o, "resultado_JRip_gra_soma_095.csv", row.names = FALSE)
+          write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_JRip_gra_soma_095.csv", row.names = FALSE)
         }else if (metodo==2){
-          write.csv(data_arquivo_o, "resultado_JRip_gra_095.csv", row.names = FALSE)
-          write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_JRip_gra_095.csv", row.names = FALSE)
+          write.csv(data_arquivo_o, "resultado_JRip_gra_voto_095.csv", row.names = FALSE)
+          write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_JRip_gra_voto_095.csv", row.names = FALSE)
         }else if (metodo==3){
           #escrever no arquivo NB
           write.csv(data_arquivo_o, "resultado_JRip_flexcon_soma_095.csv", row.names = FALSE)
@@ -303,13 +324,16 @@ for (t in 2:2) { #1 = taxa 0,9 2 = taxa 0,95
         }
       }else if (c==4){
         #escrever no arquivo ibk
-        if (metodo==1){ # 1=original 2= gradativo 3=flexcon_soma 4=flexcon_voto 5=flexcon-C1_soma 6=flexcon-C1_voto 7=flexcon-C2
+        if (metodo==0){ # 1=original 2= gradativo 3=flexcon_soma 4=flexcon_voto 5=flexcon-C1_soma 6=flexcon-C1_voto 7=flexcon-C2
           #escrever no arquivo NB
           write.csv(data_arquivo_o, "resultado_IBK_o_095.csv", row.names = FALSE)
           write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_IBK_o_095.csv", row.names = FALSE)
+        }else if (metodo==1){
+          write.csv(data_arquivo_o, "resultado_IBK_gra_soma_095.csv", row.names = FALSE)
+          write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_IBK_gra_soma_095.csv", row.names = FALSE)
         }else if (metodo==2){
-          write.csv(data_arquivo_o, "resultado_IBK_gra_095.csv", row.names = FALSE)
-          write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_IBK_gra_095.csv", row.names = FALSE)
+          write.csv(data_arquivo_o, "resultado_IBK_gra_voto_095.csv", row.names = FALSE)
+          write.csv(data_arquivo_acc_por_taxa_o, "resultado_acc_IBK_gra_voto_095.csv", row.names = FALSE)
         }else if (metodo==3){
           #escrever no arquivo NB
           write.csv(data_arquivo_o, "resultado_IBK_flexcon_soma_095.csv", row.names = FALSE)
