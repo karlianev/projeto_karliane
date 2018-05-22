@@ -1,23 +1,23 @@
 func <- function(m, d){ #NB
   p <- predict(m, d, type = "raw") #col2 armazena a confian?a em cada classe predita pelo classificador (ex: classe 1 = 0.8, classe2 = 0.1, classe 3= 0.1)
-  predicao <<- data.frame(p)
-  data.frame(cl=colnames(p)[apply(p,1,which.max)], p = apply(p,1,max))
+  predicao <<- data.frame(p, row.names(d))
+  data.frame(cl=colnames(p)[apply(p,1,which.max)], p = apply(p,1,max), id=row.names(d))
 }
 
 f <- function(m,d) { #AD
   p <- predict(m,d,type='prob') #predicao dos dados (d) de acordo com o modelo (m)
-  predicao <<- data.frame(p)
+  predicao <<- data.frame(p, row.names(d))
   col1 <- colnames(p)[apply(p,1,which.max)] #nome da coluna com a maior predicao, ou seja, a classe
   col2 <- apply(p,1,max) # valor da maior predicao
-  data.frame(cl=col1,p=col2)
+  data.frame(cl=col1,p=col2, id=row.names(d))
 }
 
 f2 <- function(m,d) { #JRip e KNN
   p <- predict(m,d,type='probability') # l ? uma matriz com a confian?a da predi??o de cada exemplo
-  predicao <<- data.frame(p)
+  predicao <<- data.frame(p, row.names(d))
   col1 <- colnames(p)[apply(p,1,which.max)] #nome da coluna com a maior predicao, ou seja, a classe
   col2 <- apply(p,1,max) # valor da maior predicao
-  data.frame(cl=col1,p=col2) #um data frame com 2 colunas: 1) a predi??o de cada exemplo; 2) a classe predita para cada exemplo
+  data.frame(cl=col1,p=col2, id=row.names(d)) #um data frame com 2 colunas: 1) a predi??o de cada exemplo; 2) a classe predita para cada exemplo
 }
 
 #funcao que cria duas visoes para serem usadas no treinamento do co-training
@@ -38,41 +38,79 @@ criar_visao <- function(dados){
 #                              #
 ################################
 # compara se as classes estao iguais e se as confiancas sao maiores q a da iteracao atual
-checa_classe <- function(data_1_it, data_x_it, indices, thrConf, usarModa, moda){
+#checa_classe novo - usado no co-training
+checa_classe <- function(data_1_it, data_x_it, thrConf, usarModa=F, moda){
   examples <- c()
   pos <- 0
   xid <- c() # Vetor de id
   ycl <- c()
   if(usarModa){
-    for (i in indices){
-      if (!is.na(data_1_it[i, 1]) && (data_x_it[i, 1] == data_1_it[i, 1])){
+    for (i in 1:NROW(data_1_it)){
+      id1 <- as.character(data_1_it[i,3])
+      if (!is.na(data_1_it[i, 1]) && (as.character(data_x_it[i, 1]) == as.character(data_1_it[i, 1]))){
         if ((data_1_it[i, 2]* data_x_it[i, 2]) >= thrConf){
-        #estava assim no selftraining
-        #if ((data_1_it[i, 2] >= thrConf) && (data_x_it[i, 2] >= thrConf)){
           pos <- pos + 1
           xid[pos] <- i
-          ycl[pos] <- pesquisa_classe(i, moda)
-        }
-      }
-    }
-    #cria o data frame com colunas ID e CLASSE
-    examples <- data.frame(id = xid,cl = ycl)
+          ycl[pos] <- pesquisa_classe(id1, moda)
+        }#fim if
+      }#fim if
+    } #fim do for
   }else{
-    for (i in indices){
-      if (!is.na(data_1_it[i, 1]) && (data_x_it[i, 1] == data_1_it[i, 1])){
-        if ((data_1_it[i, 2]*data_x_it[i, 2]) >= thrConf){  
-        #estava assim no self-training
-        #if ((data_1_it[i, 2] >= thrConf) && (data_x_it[i, 2] >= thrConf)){  
+    for (i in 1:NROW(data_1_it)){
+      # id1 <- as.character(data_1_it[i,3])
+      cl1 <- as.character(data_1_it[i,1])
+      if (!is.na(data_1_it[i, 1]) && (as.character(data_x_it[i, 1]) == as.character(data_1_it[i, 1]))){
+        if ((data_1_it[i, 2]*data_x_it[i, 2]) >= thrConf){
           pos <- pos + 1
           xid[pos] <- i
+          ycl[pos] <- cl1
         }
       }
     }
-    #cria o data frame com colunas ID e CLASSE
-    examples <- data.frame(id = xid,cl = data_x_it[xid, 1])
+
+   
   }
+  #cria o data frame com colunas ID (posicao no probpreds) e CLASSE
+  examples <- data.frame(id = xid,cl = ycl)
   return (examples)
-}
+} #fim da funcao
+
+#checa_classe antigo - usado no self-training
+# checa_classe <- function(data_1_it, data_x_it, indices, thrConf, usarModa, moda){
+#   examples <- c()
+#   pos <- 0
+#   xid <- c() # Vetor de id
+#   ycl <- c()
+#   if(usarModa){
+#     for (i in indices){
+#       if (!is.na(data_1_it[i, 1]) && (data_x_it[i, 1] == data_1_it[i, 1])){
+#         if ((data_1_it[i, 2]* data_x_it[i, 2]) >= thrConf){
+#         #estava assim no selftraining
+#         #if ((data_1_it[i, 2] >= thrConf) && (data_x_it[i, 2] >= thrConf)){
+#           pos <- pos + 1
+#           xid[pos] <- i
+#           ycl[pos] <- pesquisa_classe(i, moda)
+#         }
+#       }
+#     }
+#     #cria o data frame com colunas ID e CLASSE
+#     examples <- data.frame(id = xid,cl = ycl)
+#   }else{
+#     for (i in indices){
+#       if (!is.na(data_1_it[i, 1]) && (data_x_it[i, 1] == data_1_it[i, 1])){
+#         if ((data_1_it[i, 2]*data_x_it[i, 2]) >= thrConf){  
+#         #estava assim no self-training
+#         #if ((data_1_it[i, 2] >= thrConf) && (data_x_it[i, 2] >= thrConf)){  
+#           pos <- pos + 1
+#           xid[pos] <- i
+#         }
+#       }
+#     }
+#     #cria o data frame com colunas ID e CLASSE
+#     examples <- data.frame(id = xid,cl = data_x_it[xid, 1])
+#   }
+#   return (examples)
+# }
 
 # compara se as classes sao iguais e uma das confiacas Ã© maior qua a confianca da iteracao atual
 checa_confianca <- function(data_1_it, data_x_it, indices, thrConf, usarModa, moda){
@@ -107,27 +145,48 @@ checa_confianca <- function(data_1_it, data_x_it, indices, thrConf, usarModa, mo
 
 
 # compara se as classes sao diferentes e o produto das confiancas e maior que a confianca atual
-checa_classe_diferentes <- function(data_1_it, data_x_it, indices, thrConf, usarmoda, moda){
+#checa_classe_diferentes novo - usado no co-training
+checa_classe_diferentes <- function(data_1_it, data_x_it, thrConf, usarmoda, moda){
   pos <- 0
   xid <- c()
   ycl <- c()
-  for (i in indices){
-    if (!is.na(data_1_it[i, 1]) && (data_1_it[i, 1] != data_x_it[i, 1])){
+  for (i in 1:nrow(data_1_it)){
+    id <- data_1_it[i,3]
+    if (!is.na(data_1_it[i, 1]) && (as.character(data_1_it[i, 1]) != as.character(data_x_it[i, 1]))){
       if ((data_1_it[i, 2]*data_x_it[i, 2]) >= thrConf){
         pos <- pos + 1
         # votacao (pesquisa a classe que mais foi atribuida a um exemplo)
         xid[pos] <- i
-        if (usarmoda) {
-          ycl[pos] <- pesquisa_classe(i, moda)  
-        }else{
-          ycl[pos] <- mais_confiavel(data_1_it, data_x_it, i)  
-        }
-      }
-    }
-  }
+        ycl[pos] <- pesquisa_classe(id, moda)  
+        }#fim if
+      }#fim if
+    }#fim for
   examples <- data.frame(id = xid,cl = ycl)
   return (examples)
 }
+
+# #checa_classe_diferentes antigo - usado no self-training
+# checa_classe_diferentes <- function(data_1_it, data_x_it, indices, thrConf, usarmoda, moda){
+#   pos <- 0
+#   xid <- c()
+#   ycl <- c()
+#   for (i in indices){
+#     if (!is.na(data_1_it[i, 1]) && (data_1_it[i, 1] != data_x_it[i, 1])){
+#       if ((data_1_it[i, 2]*data_x_it[i, 2]) >= thrConf){
+#         pos <- pos + 1
+#         # votacao (pesquisa a classe que mais foi atribuida a um exemplo)
+#         xid[pos] <- i
+#         if (usarmoda) {
+#           ycl[pos] <- pesquisa_classe(i, moda)  
+#         }else{
+#           ycl[pos] <- mais_confiavel(data_1_it, data_x_it, i)  
+#         }
+#       }
+#     }
+#   }
+#   examples <- data.frame(id = xid,cl = ycl)
+#   return (examples)
+# }
 
 #retorna a classe do classificador mais confiavel
 mais_confiavel <- function(pred1, pred2, i){
@@ -151,12 +210,14 @@ pesquisa_classe <- function(i, moda){
 }
 
 #armazena o voto do classificador para cada r?tulo
-guarda_moda <- function(indices,probPreds){
-  dist_classes <- unique(probPreds[,1]) #pega as classes distintas
-  for (x in indices){
-    for(y in 1:length(dist_classes)){
+#guarda_moda novo - usado no co-training
+guarda_moda <- function(probPreds){
+  dist_classes <- unique(base_original$class) #pega as classes distintas
+  for (x in 1:NROW(probPreds)){
+    id <- as.character(probPreds[x,ncol(probPreds)])
+    for(y in 1:(length(dist_classes))){
       if(probPreds[x,1] == dist_classes[y]){
-        moda[x,dist_classes[y]] <- moda[x,dist_classes[y]] + 1
+        moda[id,dist_classes[y]] <- moda[id,dist_classes[y]] + 1
         break
       }
     }
@@ -164,18 +225,45 @@ guarda_moda <- function(indices,probPreds){
   return (moda)
 }
 
-guarda_soma <- function(indices,p){ # p = predicao
+#guarda_moda antigo - usado no self-training
+# guarda_moda <- function(indices,probPreds){
+#   dist_classes <- unique(probPreds[,1]) #pega as classes distintas
+#   for (x in indices){
+#     for(y in 1:length(dist_classes)){
+#       if(probPreds[x,1] == dist_classes[y]){
+#         moda[x,dist_classes[y]] <- moda[x,dist_classes[y]] + 1
+#         break
+#       }
+#     }
+#   }
+#   return (moda)
+# }
+
+#guarda_soma novo - usado no co-training
+guarda_soma <- function(p){ # p = predicao
   dist_classes <- unique(base_original$class) #pega as classes distintas
-  
-  for (x in indices){
-    # x<-as.factor(x)
-    for(y in 1:ncol(p)){
-      moda[x,dist_classes[y]] <- moda[x,dist_classes[y]] + p[x,dist_classes[y]]
-      
+  for (x in 1:nrow(p)){
+    id <- as.character(p[x,ncol(p)]) #pega o id que é a ultima coluna de p
+    for(y in 1:length(dist_classes)){ 
+      moda[id,dist_classes[y]] <- moda[id,dist_classes[y]] + p[x,dist_classes[y]]
+
     }
   }
   return(moda)
 }
+
+# guarda_soma antigo - usado no self-training
+# guarda_soma <- function(indices,p){ # p = predicao
+#   dist_classes <- unique(base_original$class) #pega as classes distintas
+#   for (x in indices){
+#     # x<-as.factor(x)
+#     for(y in 1:(ncol(p)-1)){ # SUBTRAI 1 PQ A ULTIMA COLUNA É O ID DO EXEMPLO
+#       moda[x,dist_classes[y]] <- moda[x,dist_classes[y]] + p[x,dist_classes[y]]
+#       
+#     }
+#   }
+#   return(moda)
+# }
 
 #funcao, chamada em modificado2 e 3, que valida se o conjunto de treinamento pode ser utilizado para calcular a nova taxa de confianca
 validar_treino<- function(data,id_conj_treino,N_classes,min_exem_por_classe){
@@ -298,9 +386,12 @@ coTrainingOriginal <- function (form, data, learner, predFunc, thrConf = 0.9, ma
     probPreds1 <- do.call(predFunc, list(model1, data1[-sup1,]))
     probPreds2 <- do.call(predFunc, list(model2, data2[-sup2,]))
     if (combinar){
-      produto_confianca <- probPreds1[, 2]*probPreds2[, 2]
-      new <- which((produto_confianca > thrConf) & (as.character(probPreds1[, 1])==as.character(probPreds2[, 1])))
+      # produto_confianca <- probPreds1[, 2]*probPreds2[, 2]
+      # new <- which((produto_confianca > thrConf) & (as.character(probPreds1[, 1])==as.character(probPreds2[, 1])))
+      rotulados <- checa_classe(probPreds1, probPreds2, thrConf,FALSE, moda)
+      new <- rotulados$id
     }else{  
+      #POR ENQUANTO NÃO ESTA SENDO USADO
       new <- which((probPreds2[, 2] > thrConf)|| (probPreds1[, 2] > thrConf)) #adiciona ao new os exemplos que as visoes 1 e 2 rotularam
     }  
     
@@ -351,7 +442,8 @@ coTrainingGradativo <- function(form,data,
                                    predFunc,
                                    thrConf=0.9,
                                    maxIts=10,percFull=1,
-                                   verbose=F,gradativo=0.05, combinar=T){
+                                   verbose=F,gradativo=0.05, 
+                                   votacao=F){
   
   
   data
@@ -369,8 +461,7 @@ coTrainingGradativo <- function(form,data,
   repeat {
     acertou <- 0
     it <- it+1
-    
-    
+
     if ((it>1)&&(qtd_Exemplos_Rot>0)){
       thrConf <- (thrConf - gradativo)
       if (thrConf <= 0.0) thrConf <- (thrConf + gradativo)
@@ -382,12 +473,31 @@ coTrainingGradativo <- function(form,data,
     model2 <- runLearner(learner, form, data2[sup2, ])
     probPreds1 <- do.call(predFunc, list(model1, data1[-sup1,]))
     probPreds2 <- do.call(predFunc, list(model2, data2[-sup2,]))
-    if (combinar){
-      produto_confianca <- probPreds1[, 2]*probPreds2[, 2]
-      new <- which((produto_confianca >= thrConf) & (as.character(probPreds1[, 1])==as.character(probPreds2[, 1])))
-    }else{  
-      new <- which((probPreds2[, 2] > thrConf)|| (probPreds1[, 2] > thrConf)) #adiciona ao new os exemplos que as visoes 1 e 2 rotularam
+    #transforma as classes em caracter
+    probPreds1$cl <- as.character(probPreds1$cl)
+    probPreds2$cl <- as.character(probPreds2$cl)
+    
+    if(it == 1){
+      moda <<- matrix(data = rep(0,length(base_original$class)),ncol = length(unique(base_original$class)), nrow = NROW(base_original), byrow = TRUE, 
+                      dimnames = list(row.names(base_original),sort(unique(base_original$class), decreasing = FALSE)))
+      
     }  
+    
+    if (votacao){
+      moda <<- guarda_moda(probPreds1) # Armazena a moda das classes
+      moda <<- guarda_moda(probPreds2) # Armazena a moda das classes
+    }else{
+      #variavel predicao e gerado no predfunc
+      moda <<- guarda_soma(predicao) # Armazena a soma das classes
+      moda <<- guarda_soma(predicao) # Armazena a soma das classes
+    }        
+    
+    rotulados <- checa_classe(probPreds1, probPreds2, thrConf, FALSE)
+    if (length(rotulados$id) == 0){
+      # compara se as classes sao diferentes e o produto das confiancas e maior que o limiar
+      rotulados <- checa_classe_diferentes(probPreds1, probPreds2, thrConf, usarmoda = TRUE, moda)
+    }
+    new <- rotulados$id #nao e o id do exemplo e sim a posição no probpreds        
 
     if (verbose) {
       cat('tx_incl',taxa,'IT.',it,'BD',i,thrConf,'\t nr. added exs. =',length(new),'\n')     
@@ -424,21 +534,34 @@ coTrainingGradativo <- function(form,data,
     }
     
     # acertou_g_gra <<- c(acertou_g_gra, acertou)
+    # if(length(new)==0){
+    #   baixa_conf <- which((as.character(probPreds1[, 1])==as.character(probPreds2[, 1])) & !(produto_confianca > thrConf))
+    #   if (length(baixa_conf)==0){
+    #     break
+    #   }else{
+    #     thrConf<-max(produto_confianca[baixa_conf])  
+    #   }
+    # }
+    
     if(length(new)==0){
-      baixa_conf <- which((as.character(probPreds1[, 1])==as.character(probPreds2[, 1])) & !(produto_confianca > thrConf))
+            baixa_conf <- which((as.character(probPreds1[, 1])==as.character(probPreds2[, 1])) & !((probPreds1[, 2]*probPreds2[, 2]) > thrConf))
       if (length(baixa_conf)==0){
-        break
+          break
       }else{
-        thrConf<-max(produto_confianca[baixa_conf])  
+        maior <- 0
+        for (b in baixa_conf){
+          produto <- (probPreds1[b, 2]*probPreds2[b, 2])
+          if (produto > maior){
+            maior <- produto
+          }
+        }
+        thrConf <- maior
       }
     }
     
     if ((it == maxIts) || (length(sup1)/N >= percFull) || (length(sup2)/N >= percFull)){
       break  
     } 
-      
-    
-
   } #fim do repeat
   model <- list(model1,model2)
   return(model)  
@@ -456,8 +579,7 @@ coTrainFlexCon <- function(form,data,
                           thrConf=0.9,
                           maxIts=10,percFull=1,
                           verbose=F,
-                          votacao = TRUE,
-                          combinar=TRUE){
+                          votacao = TRUE){
   
   
   
@@ -490,7 +612,8 @@ coTrainFlexCon <- function(form,data,
     it <- it+1
     #O c?lculo da taxa de confianca (thrConf) ser? realizado a partir da segunda iteracao e se houver exemplos rotulados
     if ((it>1)&&(qtd_Exemplos_Rot>0)){
-      thrConf <- (thrConf + conf_media + (qtd_Exemplos_Rot/N_nao_rot))/3
+      AAA <- c(thrConf, conf_media, (qtd_Exemplos_Rot/N_nao_rot))
+      thrConf <- mean(AAA) #(thrConf + conf_media + (qtd_Exemplos_Rot/N_nao_rot))/3
     }
     
     # soma_Conf <- 0
@@ -507,44 +630,30 @@ coTrainFlexCon <- function(form,data,
     #transforma as classes em caracter
     probPreds1$cl <- as.character(probPreds1$cl)
     probPreds2$cl <- as.character(probPreds2$cl)
-    produto_confianca <- probPreds1[, 2]*probPreds2[, 2]
+    produto_confianca <- probPreds1[, 2]*probPreds2[, 2] #NECESSARIO APENAS PARA CALCULAR A CONFIANCA MEDIA
     if(it == 1){
-      probPreds_1_it_v1 <<- probPreds1
-      probPreds_1_it_v2 <<- probPreds2
       moda <<- matrix(data = rep(0,length(base_original$class)),ncol = length(unique(base_original$class)), nrow = NROW(base_original), byrow = TRUE, 
                       dimnames = list(row.names(base_original), sort(unique(base_original$class), decreasing=FALSE)))
     }
     
-    indices1 <- row.names(probPreds1)   # pega o id de cada exemplo
-    indices2 <- row.names(probPreds2)   # pega o id de cada exemplo 
+    
     if (votacao){
-      moda <<- guarda_moda(indices1,probPreds1) # Armazena a moda das classes
-      moda <<- guarda_moda(indices2,probPreds2) # Armazena a moda das classes
+      moda <<- guarda_moda(probPreds1) # Armazena a moda das classes
+      moda <<- guarda_moda(probPreds2) # Armazena a moda das classes
     }else{
       #a variavel predicao e gerada pelo predfunc
-      moda <<- guarda_soma(indices1,predicao) # Armazena a soma das classes
-      moda <<- guarda_soma(indices2,predicao) # Armazena a soma das classes
+      moda <<- guarda_soma(predicao) # Armazena a soma das classes
+      moda <<- guarda_soma(predicao) # Armazena a soma das classes
     }        
-    if (it==1){
-      #RETORNA EXEMPLOS CUJAS CLASSES SÃO IGUAIS PARA OS DOIS CLASSIFICADORES E O PRODUTO DA CONFIANÇA É MAIOR DO QUE O THRCONF
-      rotulados <- checa_classe(probPreds1, probPreds2, indices1, thrConf, usarModa = FALSE, moda)
-                        
+    
+    #exemplos da mesma classe e com o produto das confianças maior do que o limiar
+    rotulados <- checa_classe(probPreds1, probPreds2, thrConf, usarModa = TRUE, moda)
       if (length(rotulados$id) == 0){
         # compara se as classes sao diferentes e o produto das confiancas e maior que o limiar
-        rotulados <- checa_classe_diferentes(probPreds1, probPreds2, indices1, thrConf, usarmoda=FALSE, moda)
+        rotulados <- checa_classe_diferentes(probPreds1, probPreds2, thrConf, usarmoda = TRUE, moda)
       }
-    }else{
-      #exemplos da mesma classe e com o produto das confianças maior do que o limiar
-      rotulados <- checa_classe(probPreds1, probPreds2, indices1, thrConf, usarModa = TRUE, moda)
-      # if (length(rotulados$id) == 0){
-      #   #exemplos com o produto das confianças maior do que o limiar
-      #   rotulados <- checa_confianca(probPreds1, probPreds2, indices, thrConf, usarModa = TRUE, moda)
-        if (length(rotulados$id) == 0){
-          # compara se as classes sao diferentes e o produto das confiancas e maior que o limiar
-          rotulados <- checa_classe_diferentes(probPreds1, probPreds2, indices1, thrConf, usarmoda = TRUE, moda)
-        }
-      }
-      new <- rotulados$id
+      
+    new <- rotulados$id
     
     
     if (verbose) {
@@ -567,16 +676,6 @@ coTrainFlexCon <- function(form,data,
       conf_media <- mean(produto_confianca)
       qtd_Exemplos_Rot <- length(data1[(1:N)[-sup1][new],as.character(form[[2]])])
       totalrot <- totalrot + qtd_Exemplos_Rot
-      # 
-      # acertou <- 0
-      # acerto <- treinamento[(1:N)[-sup][new], as.character(form[2])]== data[(1:N)[-sup][new], as.character(form[2])]
-      # tam_acerto <- NROW(acerto)
-      # for (w in 1:tam_acerto){
-      #   if (acerto[w] == TRUE)
-      #     acertou <- acertou + 1
-      # }
-      # 
-      # 
       sup1 <- c(sup1,(1:N)[-sup1][new])
       sup2 <- c(sup2,(1:N)[-sup2][new])      
     }
@@ -590,12 +689,19 @@ coTrainFlexCon <- function(form,data,
     
     #se n?o existir nenhum exemplo a ser rotulado, atribua a taxa de confianca (thrConf) a maior confian?a na predicao
     if(length(new)==0){
-      baixa_conf <- which((as.character(probPreds1[, 1])==as.character(probPreds2[, 1])) & !(produto_confianca > thrConf))
+      baixa_conf <- which((as.character(probPreds1[, 1])==as.character(probPreds2[, 1])) & !((probPreds1[, 2]*probPreds2[, 2]) > thrConf))
       if (length(baixa_conf)==0){
         #Flavius sugeriu que aqui fosse trocado o classificador
-        baixa_conf <- which((as.character(probPreds1[, 1])!=as.character(probPreds2[, 1])) & !(produto_confianca > thrConf))
+        baixa_conf <- which((as.character(probPreds1[, 1])!=as.character(probPreds2[, 1])) & !((probPreds1[, 2]*probPreds2[, 2]) > thrConf))
       }
-      thrConf<-max(produto_confianca[baixa_conf])  
+      maior <- 0
+      for (b in baixa_conf){
+        produto <- (probPreds1[b, 2]*probPreds2[b, 2])
+        if (produto > maior){
+          maior <- produto
+        }
+      }
+      thrConf<-maior
     }
     #termine se chegar ao n?mero m?ximo de itera??es ou se atingir o percentual m?ximo de exemplos rotulados
     if ((it == maxIts) || (length(sup1)/N >= percFull) || (length(sup2)/N>= percFull)){
@@ -673,43 +779,28 @@ coTrainFlexCon_C1 <- function(form,data,
     #transforma as classes em caracter
     probPreds1$cl <- as.character(probPreds1$cl)
     probPreds2$cl <- as.character(probPreds2$cl)
-    produto_confianca <- probPreds1[, 2]*probPreds2[, 2]
+    
     
     if(it == 1){
-      probPreds_1_it_v1 <<- probPreds1
-      probPreds_1_it_v2 <<- probPreds2
       moda <<- matrix(data = rep(0,length(base_original$class)),ncol = length(unique(base_original$class)), nrow = NROW(base_original), byrow = TRUE, 
                       dimnames = list(row.names(base_original),sort(unique(base_original$class), decreasing = FALSE)))
       
     }  
     #está sendo indices1 = indices2
-    indices1 <- row.names(probPreds1)   # pega o id de cada exemplo
-    indices2 <- row.names(probPreds2)   # pega o id de cada exemplo 
-    
+
     if (votacao){
-      moda <<- guarda_moda(indices1,probPreds1) # Armazena a moda das classes
-      moda <<- guarda_moda(indices2,probPreds2) # Armazena a moda das classes
+      moda <<- guarda_moda(probPreds1) # Armazena a moda das classes
+      moda <<- guarda_moda(probPreds2) # Armazena a moda das classes
     }else{
       #variavel predicao e gerado no predfunc
-      moda <<- guarda_soma(indices1,predicao) # Armazena a soma das classes
-      moda <<- guarda_soma(indices2,predicao) # Armazena a soma das classes
+      moda <<- guarda_soma(predicao) # Armazena a soma das classes
+      moda <<- guarda_soma(predicao) # Armazena a soma das classes
     }        
-    #a diferenca da primeira iteracao para as demais e que na primeira nao e possivel usar a moda
-    if (it==1){
-      #RETORNA EXEMPLOS CUJAS CLASSES SÃO IGUAIS PARA OS DOIS CLASSIFICADORES E O PRODUTO DA CONFIANÇA É MAIOR DO QUE O THRCONF
-      rotulados <- checa_classe(probPreds1, probPreds2, indices1, thrConf, usarModa = FALSE, moda)
-      
-      if (length(rotulados$id) == 0){
-        # compara se as classes sao diferentes e o produto das confiancas e maior que o limiar
-        rotulados <- checa_classe_diferentes(probPreds1, probPreds2, indices1, thrConf, usarmoda=FALSE, moda)
-      }
-    }else{
-      #exemplos da mesma classe e com o produto das confianças maior do que o limiar
-      rotulados <- checa_classe(probPreds1, probPreds2, indices1, thrConf, usarModa = TRUE, moda)
-      if (length(rotulados$id) == 0){
-        # compara se as classes sao diferentes e o produto das confiancas e maior que o limiar
-        rotulados <- checa_classe_diferentes(probPreds1, probPreds2, indices1, thrConf, usarmoda = TRUE, moda)
-      }
+    #exemplos da mesma classe e com o produto das confianças maior do que o limiar
+    rotulados <- checa_classe(probPreds1, probPreds2, thrConf, usarModa = TRUE, moda)
+    if (length(rotulados$id) == 0){
+      # compara se as classes sao diferentes e o produto das confiancas e maior que o limiar
+      rotulados <- checa_classe_diferentes(probPreds1, probPreds2, thrConf, usarmoda = TRUE, moda)
     }
     new <- rotulados$id
   
@@ -751,12 +842,28 @@ coTrainFlexCon_C1 <- function(form,data,
     
 #    acertou_g <<- c(acertou_g, acertou)    
     if(length(new)==0){
-      baixa_conf <- which((as.character(probPreds1[, 1])==as.character(probPreds2[, 1])) & !(produto_confianca > thrConf))
+      #baixar a confiança para os exemplos que não coincidem na classe, mas o produto da confiança é maior que o limiar
+      baixa_conf <- which((as.character(probPreds1[, 1])!=as.character(probPreds2[, 1])) & ((probPreds1[, 2]*probPreds2[, 2]) > thrConf))
+      #baixa_conf <- which((as.character(probPreds1[, 1])==as.character(probPreds2[, 1])) & !(produto_confianca > thrConf))
       if (length(baixa_conf)==0){
-        #Flavius sugeriu que aqui fosse trocado o classificador
-        baixa_conf <- which((as.character(probPreds1[, 1])!=as.character(probPreds2[, 1])) & !(produto_confianca > thrConf))
+        #baixa a confianca para os exemplos cujas classes coincidem e o produto da conficanca nao e maior do que o limiar
+        baixa_conf <- which((as.character(probPreds1[, 1])==as.character(probPreds2[, 1])) & !((probPreds1[, 2]*probPreds2[, 2]) > thrConf))
+        if (length(baixa_conf)==0){
+          #Flavius sugeriu que aqui fosse trocado o classificador
+          #baixa a confianca para os exemplos cuja classe não coincide e confianca menor que o limiar
+          baixa_conf <- which((as.character(probPreds1[, 1])!=as.character(probPreds2[, 1])) & !((probPreds1[, 2]*probPreds2[, 2]) > thrConf))
+          #baixa_conf <- which((as.character(probPreds1[, 1])!=as.character(probPreds2[, 1])) & !(produto_confianca > thrConf))
+        }
       }
-      thrConf<-max(produto_confianca[baixa_conf])  
+      #thrConf<-max(produto_confianca[baixa_conf])  
+      maior <- 0
+      for (b in baixa_conf){
+        produto <- (probPreds1[b, 2]*probPreds2[b, 2])
+        if (produto > maior){
+          maior <- produto
+        }
+      }
+      thrConf <- maior
     }
     
     if (it == maxIts || length(sup)/N >= percFull) break

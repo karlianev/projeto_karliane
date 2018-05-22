@@ -1,39 +1,36 @@
-#testar base 12 (ks kp) 10% NB segunda it n?o inclui nada a partir da terceira nao muda confian?a
-conj_treino <- c()
 
-#variaveis globais para guardar no arquivo de resultados
+#inicializando variaveis globais para guardar no arquivo de resultados
+predicao <- c()
 treinamento <- c()
-it_g <-c() 
-bd_g <-c()
-thrConf_g<-c()
-nr_added_exs_g<-c()
-tx_g <- c()
-acc_g <- c()
+it_g <-c() #iteracoes
+bd_g <-c() #base de dados
+thrConf_g<-c() #taxa de confianca para inclusao de novos exemplos
+nr_added_exs_g<-c() #numero de exemplos adicionados ao conj dos rotulados na iteracao corrente
+corretude_g <- c() #corretude do metodo modificado
+cobertura_g <- c() #cobertura do metodo modificado
 acertou_g <- c() #quantidade de exemplos rotulados corretamente
+acertou_g_o <- c() #quantidade de exemplos rotulados corretamente
+acertou_g_gra <- c() #quantidade de exemplos rotulados corretamente
 
+tx_g <- c() #percentual de exemplos rotulados inicialmente
+acc_g <- c() #acuracia (percentual de acerto) do metodo modificado
+acc_g_o <- c() #acuracia (percentual de acerto) do metodo original
+acc_g_gra <- c() #acur?cia (percentual de acerto) do metodo gradativo
 
-
-it_g_3 <-c() 
-bd_g_3 <-c()
-thrConf_g_3 <-c()
-nr_added_exs_g_3 <-c()
-tx_g_3 <- c()
-acc_g_3 <- c()
-acertou_g_3 <- c() #quantidade de exemplos rotulados corretamente
-
-grad_g <- c()
-
-bd <- c()
-tx <- c()
 
 #fazendo teste com classificador supervisionado
 acc_g_sup <- c() #acuracia (percentual de acerto) do metodo supervisionado
 
-source('C:/local_R/projeto_karliane/scripts_comuns/configuracoes.R')
-# source('~/R/karliane/projeto_karliane/scripts_comuns/configuracoes.R')
+bd <- c() #base de dados
+tx <- c() #percentual de exemplos rotulados inicialmente
+grad_g <-c()
+grad<-c()
 
-source('C:/local_R/projeto_karliane/scripts_comuns/funcoes.R')
-# source('~/R/karliane/projeto_karliane/scripts_comuns/funcoes.R')
+# source('C:/local_R/projeto_karliane/scripts_comuns/configuracoes.R')
+source('~/R/karliane/projeto_karliane/scripts_comuns/configuracoes.R')
+
+# source('C:/local_R/projeto_karliane/scripts_comuns/funcoes.R')
+source('~/R/karliane/projeto_karliane/scripts_comuns/funcoes.R')
 for (t in 2:2) { #1 = taxa 0,9 2 = taxa 0,95
   for(c in 1:1){  # 1 = NB, 2 = AD 3 = ripper 4 = IBK
     it_g <-c() 
@@ -57,8 +54,8 @@ for (t in 2:2) { #1 = taxa 0,9 2 = taxa 0,95
     #fazendo teste com classificador supervisionado
     acc_g_sup <- c()
     
-    for(i in 4:4){  # bases de dados
-      for(j in 2:5){ # taxas  #base 1 - IRIS 5% NB N?O FUNCIONA - da erro
+    for(i in 1:5){  # bases de dados
+      for(j in 1:5){ # taxas  #base 1 - IRIS 5% NB N?O FUNCIONA - da erro
         taxa <- j*5
         # source('C:/local_R/projeto_karliane/scripts_comuns/carrega_dados.R')
         # source('C:/local_R/projeto_karliane/scripts_comuns/organiza_dados.R')
@@ -72,19 +69,21 @@ for (t in 2:2) { #1 = taxa 0,9 2 = taxa 0,95
     print("gerando data frame para arquivos")
   
     #fazendo teste com classificador supervisionado
-    # data_arquivo_acc_sup <- data.frame(tx, bd, acc_g_sup)
-    # data_arquivo_acc_por_taxa_sup <- c(data_arquivo_acc_sup[data_arquivo_acc_sup$tx<10,],data_arquivo_acc_sup[data_arquivo_acc_sup$tx<15 & data_arquivo_acc_sup$tx>5,], data_arquivo_acc_sup[data_arquivo_acc_sup$tx<20 & data_arquivo_acc_sup$tx>10,], data_arquivo_acc_sup[data_arquivo_acc_sup$tx<25 & data_arquivo_acc_sup$tx>15,], data_arquivo_acc_sup[data_arquivo_acc_sup$tx<30 & data_arquivo_acc_sup$tx>20,])
+    data_arquivo_acc_sup <- data.frame(tx, bd, acc_g_sup)
+    data_arquivo_acc_por_taxa_sup <- c(data_arquivo_acc_sup[data_arquivo_acc_sup$tx<10,],data_arquivo_acc_sup[data_arquivo_acc_sup$tx<15 & data_arquivo_acc_sup$tx>5,], data_arquivo_acc_sup[data_arquivo_acc_sup$tx<20 & data_arquivo_acc_sup$tx>10,], data_arquivo_acc_sup[data_arquivo_acc_sup$tx<25 & data_arquivo_acc_sup$tx>15,], data_arquivo_acc_sup[data_arquivo_acc_sup$tx<30 & data_arquivo_acc_sup$tx>20,])
     # 
     # #data frame que sera guardado no arquivo
     # data_arquivo_modif2 <- data.frame(bd_g,tx_g,it_g,thrConf_g,nr_added_exs_g, acertou_g)
-    # data_arquivo_modif3 <- data.frame(bd_g_3,tx_g_3,it_g_3,thrConf_g_3,nr_added_exs_g_3, acertou_g_3)
+    data_arquivo_inclProp <- data.frame(bd_g,tx_g,it_g,thrConf_g,nr_added_exs_g, acertou_g)
+    data_arquivo_modif1 <- data.frame(bd_g_3,tx_g_3,it_g_3,thrConf_g_3,nr_added_exs_g_3, acertou_g_3)
     # 
     # 
-    # data_arquivo_acc_modif2 <- data.frame(tx, bd, acc_g)
-    # data_arquivo_acc_modif3 <- data.frame(tx, bd, acc_g_3)
+    data_arquivo_acc_inclProp <- data.frame(tx, bd, acc_g)
+    data_arquivo_acc_modif1 <- data.frame(tx, bd, acc_g_3)
     # 
     # data_arquivo_acc_por_taxa_modif2 <- c(data_arquivo_acc_modif2[data_arquivo_acc_modif2$tx<10,],data_arquivo_acc_modif2[data_arquivo_acc_modif2$tx<15 & data_arquivo_acc_modif2$tx>5,], data_arquivo_acc_modif2[data_arquivo_acc_modif2$tx<20 & data_arquivo_acc_modif2$tx>10,], data_arquivo_acc_modif2[data_arquivo_acc_modif2$tx<25 & data_arquivo_acc_modif2$tx>15,], data_arquivo_acc_modif2[data_arquivo_acc_modif2$tx<30 & data_arquivo_acc_modif2$tx>20,])
-    # data_arquivo_acc_por_taxa_modif3 <- c(data_arquivo_acc_modif3[data_arquivo_acc_modif3$tx<10,],data_arquivo_acc_modif3[data_arquivo_acc_modif3$tx<15 & data_arquivo_acc_modif3$tx>5,], data_arquivo_acc_modif3[data_arquivo_acc_modif3$tx<20 & data_arquivo_acc_modif3$tx>10,], data_arquivo_acc_modif3[data_arquivo_acc_modif3$tx<25 & data_arquivo_acc_modif3$tx>15,], data_arquivo_acc_modif3[data_arquivo_acc_modif3$tx<30 & data_arquivo_acc_modif3$tx>20,])
+    data_arquivo_acc_por_taxa_inclProp <- c(data_arquivo_acc_inclProp[data_arquivo_acc_inclProp$tx<10,],data_arquivo_acc_inclProp[data_arquivo_acc_inclProp$tx<15 & data_arquivo_acc_inclProp$tx>5,], data_arquivo_acc_inclProp[data_arquivo_acc_inclProp$tx<20 & data_arquivo_acc_inclProp$tx>10,], data_arquivo_acc_inclProp[data_arquivo_acc_inclProp$tx<25 & data_arquivo_acc_inclProp$tx>15,], data_arquivo_acc_inclProp[data_arquivo_acc_inclProp$tx<30 & data_arquivo_acc_inclProp$tx>20,])
+    data_arquivo_acc_por_taxa_modif1 <- c(data_arquivo_acc_modif1[data_arquivo_acc_modif1$tx<10,],data_arquivo_acc_modif1[data_arquivo_acc_modif1$tx<15 & data_arquivo_acc_modif1$tx>5,], data_arquivo_acc_modif1[data_arquivo_acc_modif1$tx<20 & data_arquivo_acc_modif1$tx>10,], data_arquivo_acc_modif1[data_arquivo_acc_modif1$tx<25 & data_arquivo_acc_modif1$tx>15,], data_arquivo_acc_modif1[data_arquivo_acc_modif1$tx<30 & data_arquivo_acc_modif1$tx>20,])
 
     print("Gravando arquivos")    
     # if (t == 1){ #TAXA 0.9
@@ -137,11 +136,14 @@ for (t in 2:2) { #1 = taxa 0,9 2 = taxa 0,95
     # }else if (t == 2){ #TAXA 0.95
     #   if (c==1){ #NB
     #     #escrever no arquivo NB
-    #     write.csv(data_arquivo_modif2, "resultado_modif2_nb_095.csv", row.names = FALSE)
-    #     write.csv(data_arquivo_acc_por_taxa_modif2, "resultado_acc_modif2_nb_095.csv", row.names = FALSE)
-    #    
-    #     write.csv(data_arquivo_modif3, "resultado_modif3_nb_095.csv", row.names = FALSE)
-    #     write.csv(data_arquivo_acc_por_taxa_modif3, "resultado_acc_modif3_nb_095.csv", row.names = FALSE)
+    # write.csv(data_arquivo_modif2, "resultado_modif2_nb_095.csv", row.names = FALSE)
+    # write.csv(data_arquivo_acc_por_taxa_modif2, "resultado_acc_modif2_nb_095.csv", row.names = FALSE)
+
+        write.csv(data_arquivo_modif1, "resultado_modif1_nb_095.csv", row.names = FALSE)
+        write.csv(data_arquivo_acc_por_taxa_modif1, "resultado_acc_modif1_nb_095.csv", row.names = FALSE)
+        
+        write.csv(data_arquivo_inclProp, "resultado_inclProp_nb_095.csv", row.names = FALSE)
+        write.csv(data_arquivo_acc_por_taxa_inclProp, "resultado_acc_inclProp_nb_095.csv", row.names = FALSE)
     #     
     #   }else if (c==2){ #AD
     #     #escrever no arquivo AD
