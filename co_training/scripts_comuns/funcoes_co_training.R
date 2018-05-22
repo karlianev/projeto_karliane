@@ -832,8 +832,14 @@ coTrainFlexCon_C1 <- function(form,data,
       #     acertou <- acertou + 1
       # }
       
-      id_conj_treino_antigo <- c(id_conj_treino_antigo,id_conj_treino)
-      id_conj_treino <- (1:N)[-sup][new]
+      # id_conj_treino_antigo <- c(id_conj_treino_antigo,id_conj_treino)
+      # id_conj_treino <- (1:N)[-sup][new]
+      # 
+      
+      id_conj_treino_antigo1 <- c(id_conj_treino_antigo1,id_conj_treino1)
+      id_conj_treino_antigo2 <- c(id_conj_treino_antigo2,id_conj_treino2)
+#VER COMO PEGAR O ID      id_conj_treino1 <- data1[(1:N)[-sup1][new],2]
+#VER COMO PEGAR O ID      id_conj_treino2 <- data2[(1:N)[-sup1][new],2]      
       
       sup <- c(sup,(1:N)[-sup][new])
       sup1 <- c(sup1,(1:N)[-sup1][new])
