@@ -8,18 +8,11 @@ guardar_predicao <- function(predic,iterac){
   }
   
 }
-#func, f, e f2 retornam um data frame (matriz) com duas colunas: 1)a classe predita pelo classificador; 2) a confian?a dessa predicao
-#a diferen?a dessas 3 fun??es ? apenas o type = class (AD) ou raw (NB) ou probability (RIPPER E KNN)
-func <- function(m, d){ #NB
 
+func <- function(m, d){ #NB
   p <- predict(m, d, type = "raw") #col2 armazena a confian?a em cada classe predita pelo classificador (ex: classe 1 = 0.8, classe2 = 0.1, classe 3= 0.1)
   predicao <<- data.frame(p)
   data.frame(cl=colnames(p)[apply(p,1,which.max)], p = apply(p,1,max))
-  
-  #estava assim, mas otimizei usando o c?digo acima que chama o predict apenas uma vez
-  # col1<-predict(m,d, type='class') #col1 armazena a classe predita pelo classificador para cada exemplo
-  # col2 <- predict(m, d, type = "raw") #col2 armazena a confian?a em cada classe predita pelo classificador (ex: classe 1 = 0.8, classe2 = 0.1, classe 3= 0.1)
-  # data.frame(c1=col1, p = apply(col2,1,max)) #o comando apply seleciona a maior confian?a de cada exemplo/classe armazenada no col2
 }
 
 f <- function(m,d) { #AD
@@ -28,25 +21,14 @@ f <- function(m,d) { #AD
   col1 <- colnames(p)[apply(p,1,which.max)] #nome da coluna com a maior predicao, ou seja, a classe
   col2 <- apply(p,1,max) # valor da maior predicao
   data.frame(cl=col1,p=col2)
-  
-  #estava assim, mas otimizei usando o c?digo acima que chama o predict apenas uma vez
-  # col1 <- predict(m,d,type='class')
-  # col2 <- apply(predict(m,d),1,max) #predict(m,d) = a matriz com os dados(predicao); 1 = trabalha as linhas; max = fun??o a ser aplicada aos dados
-  # data.frame(cl=col1,p=col2)
 }
 
 f2 <- function(m,d) { #JRip e KNN
-    p <- predict(m,d,type='probability') # l ? uma matriz com a confian?a da predi??o de cada exemplo
-    predicao <<- data.frame(p)
-    col1 <- colnames(p)[apply(p,1,which.max)] #nome da coluna com a maior predicao, ou seja, a classe
-    col2 <- apply(p,1,max) # valor da maior predicao
-    data.frame(cl=col1,p=col2) #um data frame com 2 colunas: 1) a predi??o de cada exemplo; 2) a classe predita para cada exemplo
-
-  #estava assim, mas otimizei usando o c?digo acima que chama o predict apenas uma vez
-  #predict(m,d) = a matriz com os dados(predi??o); 1 = trabalha as linhas; max = fun??o a ser aplicada aos dados
-  # col1 <- predict(m,d,type='class')  # c ? um vetor com a classe a qual cada exemplo pertence
-  # col2 <- apply(predict(m,d,type='probability'),1,max) # l ? uma matriz com a confian?a da predi??o de cada exemplo
-  # data.frame(cl=col1,p=col2) #um data frame com 2 colunas: 1) a predi??o de cada exemplo; 2) a classe predita para cada exemplo
+  p <- predict(m,d,type='probability') # l ? uma matriz com a confian?a da predi??o de cada exemplo
+  predicao <<- data.frame(p)
+  col1 <- colnames(p)[apply(p,1,which.max)] #nome da coluna com a maior predicao, ou seja, a classe
+  col2 <- apply(p,1,max) # valor da maior predicao
+  data.frame(cl=col1,p=col2) #um data frame com 2 colunas: 1) a predi??o de cada exemplo; 2) a classe predita para cada exemplo
 }
 
 ################################
@@ -63,7 +45,9 @@ checa_classe <- function(data_1_it, data_x_it, indices, thrConf, usarModa, moda)
   if(usarModa){
     for (i in indices){
       if (!is.na(data_1_it[i, 1]) && (data_x_it[i, 1] == data_1_it[i, 1])){
-        if ((data_1_it[i, 2] >= thrConf) && (data_x_it[i, 2] >= thrConf)){
+        if ((data_1_it[i, 2]* data_x_it[i, 2]) >= thrConf){
+          #estava assim no selftraining
+          #if ((data_1_it[i, 2] >= thrConf) && (data_x_it[i, 2] >= thrConf)){
           pos <- pos + 1
           xid[pos] <- i
           ycl[pos] <- pesquisa_classe(i, moda)
@@ -75,7 +59,9 @@ checa_classe <- function(data_1_it, data_x_it, indices, thrConf, usarModa, moda)
   }else{
     for (i in indices){
       if (!is.na(data_1_it[i, 1]) && (data_x_it[i, 1] == data_1_it[i, 1])){
-        if ((data_1_it[i, 2] >= thrConf) && (data_x_it[i, 2] >= thrConf)){  
+        if ((data_1_it[i, 2]*data_x_it[i, 2]) >= thrConf){  
+          #estava assim no self-training
+          #if ((data_1_it[i, 2] >= thrConf) && (data_x_it[i, 2] >= thrConf)){  
           pos <- pos + 1
           xid[pos] <- i
         }
@@ -88,7 +74,6 @@ checa_classe <- function(data_1_it, data_x_it, indices, thrConf, usarModa, moda)
 }
 
 # compara se as classes sao iguais e uma das confiacas é maior qua a confianca da iteracao atual
-
 checa_confianca <- function(data_1_it, data_x_it, indices, thrConf, usarModa, moda){
   examples <- c()
   pos <- 0
@@ -98,9 +83,9 @@ checa_confianca <- function(data_1_it, data_x_it, indices, thrConf, usarModa, mo
     for (i in indices){
       if (!is.na(data_1_it[i, 1]) && (data_1_it[i, 1] == data_x_it[i, 1])){
         if((data_1_it[i, 2] >= thrConf) || (data_x_it[i, 2] >= thrConf)){
-           pos <- pos + 1
-           xid[pos] <- i
-           ycl[pos] <- pesquisa_classe(i, moda)
+          pos <- pos + 1
+          xid[pos] <- i
+          ycl[pos] <- pesquisa_classe(i, moda)
         }
       }
     }
@@ -116,29 +101,29 @@ checa_confianca <- function(data_1_it, data_x_it, indices, thrConf, usarModa, mo
     }
     examples <- data.frame(id = xid,cl = data_x_it[xid, 1])
   }
- return (examples)
+  return (examples)
 }
 
 
-# compara se as classes são diferentes e as confianças são maiores que a confiança atual
-checa_classe_diferentes <- function(data_1_it, data_x_it, indices, thrConf, moda){
+# compara se as classes sao diferentes e o produto das confiancas e maior que a confianca atual
+checa_classe_diferentes <- function(data_1_it, data_x_it, indices, thrConf, usarmoda, moda){
   pos <- 0
   xid <- c()
   ycl <- c()
   for (i in indices){
     if (!is.na(data_1_it[i, 1]) && (data_1_it[i, 1] != data_x_it[i, 1])){
-      # Este '!is.na(data_1_it[i, 1])' precisa ser verificado, pois ha ocorrencias em que o probPreds gera indices que não contem na primeira iteracao
-      if ((data_1_it[i, 2] >= thrConf) || (data_x_it[i, 2] >= thrConf)){
+      if ((data_1_it[i, 2]*data_x_it[i, 2]) >= thrConf){
         pos <- pos + 1
         # votacao (pesquisa a classe que mais foi atribuida a um exemplo)
         xid[pos] <- i
-        ycl[pos] <- pesquisa_classe(i, moda)
+        if (usarmoda) {
+          ycl[pos] <- pesquisa_classe(i, moda)  
+        }else{
+          ycl[pos] <- mais_confiavel(data_1_it, data_x_it, i)  
+        }
       }
     }
   }
-  # if (length(ycl) > 1){
-  #   runif(n = 1, min = 1, max = length(ycl))
-  # }
   examples <- data.frame(id = xid,cl = ycl)
   return (examples)
 }
@@ -172,14 +157,6 @@ guarda_moda <- function(indices,probPreds){
 guarda_soma <- function(indices,p){ # p = predicao
   dist_classes <- unique(base_original$class) #pega as classes distintas
   
-  # if(c==1){
-  #   p <- predict(m, d, type = "raw") 
-  # }
-  # else if(c==2){
-  #   p <- predict(m,d,type='prob') 
-  # }else{
-  #   p <- predict(m,d,type='probability')
-  # }
   for (x in indices){
     # x<-as.factor(x)
     for(y in 1:ncol(p)){
@@ -617,7 +594,7 @@ funcSelfTrainModificado2 <- function(form,data,
 #substituido por min_exem_por_classe
   N_classes <- NROW(N_instancias_por_classe)-1 # uso do -1 pq N_instancias_por_classe tem uma linha com a quantidade de exemplos n?o rotulados
   it <- 0
-  soma_Conf <- 0
+  # soma_Conf <- 0
   qtd_Exemplos_Rot <- 0
   totalrot <- 0
   conj_treino <<- c()
@@ -629,7 +606,7 @@ funcSelfTrainModificado2 <- function(form,data,
   id_conj_treino <- c()
   id_conj_treino_antigo <- c()
   repeat {
-    acertou <- 0
+    # acertou <- 0
     #cat("conj_treino", conj_treino, "nrow(conj_treino)", nrow(conj_treino))
     it <- it+1
     
@@ -637,12 +614,13 @@ funcSelfTrainModificado2 <- function(form,data,
       validar_treino(data,id_conj_treino,N_classes,min_exem_por_classe);
       classificar <- validar_classificacao(treino_valido,id_conj_treino,id_conj_treino_antigo,data, N_classes, min_exem_por_classe)
       
+      
       if (classificar){
         acc_local <- calcular_acc_local()
         thrConf <- calcular_confianca(acc_local,limiar,thrConf)  
       }  
     }
-    soma_Conf <- 0
+    # soma_Conf <- 0
     qtd_Exemplos_Rot <- 0
     
     model <- runLearner(learner,form,data[sup,])
@@ -653,10 +631,10 @@ funcSelfTrainModificado2 <- function(form,data,
     
     if(it == 1){
       probPreds_1_it <<- probPreds
-      moda <<- matrix(data = rep(0,length(base_original$class)),ncol = length(unique(base_original$class)), nrow = NROW(base_original), byrow = TRUE, 
-                      dimnames = list(row.names(base_original),unique(base_original$class)))
+      moda <<- matrix(data = rep(0,length(base_original$class)),ncol = length(unique(base_original$class)), nrow = NROW(base_original), byrow = TRUE, dimnames = list(row.names(base_original),sort(unique(base_original$class), decreasing = FALSE)))
+      
       new <- which(probPreds[,2] >= thrConf)
-      rotulados <- data.frame(id = new,cl = probPreds[new,1]) 
+      rotulados <- data.frame(id = new, cl = probPreds[new,1]) 
 
       indices <- row.names(probPreds)   # pega o id de cada exemplo 
       if (votacao){
@@ -683,10 +661,10 @@ funcSelfTrainModificado2 <- function(form,data,
       new <- rotulados$id
     }
     
-
+\
     
     if (verbose) {
-      cat('tx_incl',taxa,'IT.',it,'BD',i,thrConf,'\t nr. added exs. =',length(new),'\n') 
+      # cat('tx_incl',taxa,'IT.',it,'BD',i,thrConf,'\t nr. added exs. =',length(new),'\n') 
       ##guardando nas variaveis 
       it_g <<-c(it_g,it)
       bd_g <<-c(bd_g,bd_nome)
@@ -699,17 +677,17 @@ funcSelfTrainModificado2 <- function(form,data,
       
       data[(1:N)[-sup][new],as.character(form[[2]])] <- as.character(probPreds[new,1])
       
-      soma_Conf <- sum(soma_Conf, probPreds[new,2])
+      # soma_Conf <- sum(soma_Conf, probPreds[new,2])
       qtd_Exemplos_Rot <- length(data[(1:N)[-sup][new],as.character(form[[2]])])
       totalrot <- totalrot + qtd_Exemplos_Rot
       
-      acertou <- 0
-      acerto <- treinamento[(1:N)[-sup][new], as.character(form[2])]== data[(1:N)[-sup][new], as.character(form[2])]
-      tam_acerto <- NROW(acerto)
-      for (w in 1:tam_acerto){
-        if (acerto[w] == TRUE)
-          acertou <- acertou + 1
-      }
+      # acertou <- 0
+      # acerto <- treinamento[(1:N)[-sup][new], as.character(form[2])]== data[(1:N)[-sup][new], as.character(form[2])]
+      # tam_acerto <- NROW(acerto)
+      # for (w in 1:tam_acerto){
+      #   if (acerto[w] == TRUE)
+      #     acertou <- acertou + 1
+      # }
       
       
       id_conj_treino_antigo <- c(id_conj_treino_antigo,id_conj_treino)
@@ -717,7 +695,7 @@ funcSelfTrainModificado2 <- function(form,data,
       sup <- c(sup,(1:N)[-sup][new])
     }
     
-    acertou_g <<- c(acertou_g, acertou)    
+    # acertou_g <<- c(acertou_g, acertou)    
     if(length(new)==0){
       thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A M?DIA DAS PREDI??ES.
       # thrConf<-mean(probPreds[,2])
@@ -759,7 +737,7 @@ funcSelfTrainModificado3 <- function(form,data,
   id_conj_treino <- c()
   id_conj_treino_antigo <- c()
   repeat {
-    acertou <- 0
+    # acertou <- 0
     #cat("conj_treino", conj_treino, "nrow(conj_treino)", nrow(conj_treino))
     it <- it+1
     
@@ -773,7 +751,7 @@ funcSelfTrainModificado3 <- function(form,data,
       }  
     }
     
-    soma_Conf <- 0
+    # soma_Conf <- 0
     qtd_Exemplos_Rot <- 0
     
     model <- runLearner(learner,form,data[sup,])
@@ -803,7 +781,7 @@ funcSelfTrainModificado3 <- function(form,data,
     }
 
     if (verbose) {
-      cat('tx_incl',taxa,'IT.',it,'BD',i,thrConf,'\t nr. added exs. =',length(new),'\n') 
+      # cat('tx_incl',taxa,'IT.',it,'BD',i,thrConf,'\t nr. added exs. =',length(new),'\n') 
       ##guardando nas variaveis 
       it_g_3 <<-c(it_g_3,it)
       bd_g_3 <<-c(bd_g_3,bd_nome)
@@ -818,17 +796,17 @@ funcSelfTrainModificado3 <- function(form,data,
       }else{
         data[(1:N)[-sup][new],as.character(form[[2]])] <- as.character(probPreds[new,1])
       }
-      soma_Conf <- sum(soma_Conf, probPreds[new,2])
+      # soma_Conf <- sum(soma_Conf, probPreds[new,2])
       qtd_Exemplos_Rot <- length(data[(1:N)[-sup][new],as.character(form[[2]])])
       totalrot <- totalrot + qtd_Exemplos_Rot
 
-      acertou <- 0
-      acerto <- treinamento[(1:N)[-sup][new], as.character(form[2])]== data[(1:N)[-sup][new], as.character(form[2])]
-      tam_acerto <- NROW(acerto)
-      for (w in 1:tam_acerto){
-        if (acerto[w] == TRUE)
-          acertou <- acertou + 1
-      }
+      # acertou <- 0
+      # acerto <- treinamento[(1:N)[-sup][new], as.character(form[2])]== data[(1:N)[-sup][new], as.character(form[2])]
+      # tam_acerto <- NROW(acerto)
+      # for (w in 1:tam_acerto){
+      #   if (acerto[w] == TRUE)
+      #     acertou <- acertou + 1
+      # }
       
       id_conj_treino_antigo <- c(id_conj_treino_antigo,id_conj_treino)
       id_conj_treino <- (1:N)[-sup][new]
@@ -839,9 +817,9 @@ funcSelfTrainModificado3 <- function(form,data,
       sup <- c(sup,(1:N)[-sup][new])
     }
     
-    acertou_g_3 <<- c(acertou_g_3, acertou)
+    # acertou_g_3 <<- c(acertou_g_3, acertou)
     
-    cat('acertou',acertou,'\n') 
+    # cat('acertou',acertou,'\n') 
     
     if(length(new)==0){
       thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A M?DIA DAS PREDI??ES.
