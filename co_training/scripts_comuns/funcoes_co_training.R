@@ -579,8 +579,7 @@ coTrainFlexCon <- function(form,data,
                           thrConf=0.9,
                           maxIts=10,percFull=1,
                           verbose=F,
-                          votacao = TRUE,
-                          combinar=TRUE){
+                          votacao = TRUE){
   
   
   
@@ -613,7 +612,8 @@ coTrainFlexCon <- function(form,data,
     it <- it+1
     #O c?lculo da taxa de confianca (thrConf) ser? realizado a partir da segunda iteracao e se houver exemplos rotulados
     if ((it>1)&&(qtd_Exemplos_Rot>0)){
-      thrConf <- (thrConf + conf_media + (qtd_Exemplos_Rot/N_nao_rot))/3
+      AAA <- c(thrConf, conf_media, (qtd_Exemplos_Rot/N_nao_rot))
+      thrConf <- mean(AAA) #(thrConf + conf_media + (qtd_Exemplos_Rot/N_nao_rot))/3
     }
     
     # soma_Conf <- 0
