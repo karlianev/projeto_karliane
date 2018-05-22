@@ -11,24 +11,24 @@ guardar_predicao <- function(predic,iterac){
 
 func <- function(m, d){ #NB
   p <- predict(m, d, type = "raw") #col2 armazena a confian?a em cada classe predita pelo classificador (ex: classe 1 = 0.8, classe2 = 0.1, classe 3= 0.1)
-  predicao <<- data.frame(p)
-  data.frame(cl=colnames(p)[apply(p,1,which.max)], p = apply(p,1,max))
+  predicao <<- data.frame(p, row.names(d))
+  data.frame(cl=colnames(p)[apply(p,1,which.max)], p = apply(p,1,max), id=row.names(d))
 }
 
 f <- function(m,d) { #AD
   p <- predict(m,d,type='prob') #predicao dos dados (d) de acordo com o modelo (m)
-  predicao <<- data.frame(p)
+  predicao <<- data.frame(p, row.names(d))
   col1 <- colnames(p)[apply(p,1,which.max)] #nome da coluna com a maior predicao, ou seja, a classe
   col2 <- apply(p,1,max) # valor da maior predicao
-  data.frame(cl=col1,p=col2)
+  data.frame(cl=col1,p=col2, id=row.names(d))
 }
 
 f2 <- function(m,d) { #JRip e KNN
   p <- predict(m,d,type='probability') # l ? uma matriz com a confian?a da predi??o de cada exemplo
-  predicao <<- data.frame(p)
+  predicao <<- data.frame(p, row.names(d))
   col1 <- colnames(p)[apply(p,1,which.max)] #nome da coluna com a maior predicao, ou seja, a classe
   col2 <- apply(p,1,max) # valor da maior predicao
-  data.frame(cl=col1,p=col2) #um data frame com 2 colunas: 1) a predi??o de cada exemplo; 2) a classe predita para cada exemplo
+  data.frame(cl=col1,p=col2, id=row.names(d)) #um data frame com 2 colunas: 1) a predi??o de cada exemplo; 2) a classe predita para cada exemplo
 }
 
 ################################
@@ -37,41 +37,42 @@ f2 <- function(m,d) { #JRip e KNN
 #                              #
 ################################
 # compara se as classes estao iguais e se as confiancas sao maiores q a da iteracao atual
-checa_classe <- function(data_1_it, data_x_it, indices, thrConf, usarModa, moda){
+checa_classe <- function(data_1_it, data_x_it, thrConf, usarModa=F, moda){
   examples <- c()
   pos <- 0
   xid <- c() # Vetor de id
   ycl <- c()
   if(usarModa){
-    for (i in indices){
-      if (!is.na(data_1_it[i, 1]) && (data_x_it[i, 1] == data_1_it[i, 1])){
+    for (i in 1:NROW(data_1_it)){
+      id1 <- as.character(data_1_it[i,3])
+      if (!is.na(data_1_it[i, 1]) && (as.character(data_x_it[i, 1]) == as.character(data_1_it[i, 1]))){
         if ((data_1_it[i, 2]* data_x_it[i, 2]) >= thrConf){
-          #estava assim no selftraining
-          #if ((data_1_it[i, 2] >= thrConf) && (data_x_it[i, 2] >= thrConf)){
           pos <- pos + 1
           xid[pos] <- i
-          ycl[pos] <- pesquisa_classe(i, moda)
-        }
-      }
-    }
-    #cria o data frame com colunas ID e CLASSE
-    examples <- data.frame(id = xid,cl = ycl)
+          ycl[pos] <- pesquisa_classe(id1, moda)
+        }#fim if
+      }#fim if
+    } #fim do for
   }else{
-    for (i in indices){
-      if (!is.na(data_1_it[i, 1]) && (data_x_it[i, 1] == data_1_it[i, 1])){
-        if ((data_1_it[i, 2]*data_x_it[i, 2]) >= thrConf){  
-          #estava assim no self-training
-          #if ((data_1_it[i, 2] >= thrConf) && (data_x_it[i, 2] >= thrConf)){  
+    for (i in 1:NROW(data_1_it)){
+      # id1 <- as.character(data_1_it[i,3])
+      cl1 <- as.character(data_1_it[i,1])
+      if (!is.na(data_1_it[i, 1]) && (as.character(data_x_it[i, 1]) == as.character(data_1_it[i, 1]))){
+        if ((data_1_it[i, 2]*data_x_it[i, 2]) >= thrConf){
           pos <- pos + 1
           xid[pos] <- i
+          ycl[pos] <- cl1
         }
       }
     }
-    #cria o data frame com colunas ID e CLASSE
-    examples <- data.frame(id = xid,cl = data_x_it[xid, 1])
+    
+    
   }
+  #cria o data frame com colunas ID (posicao no probpreds) e CLASSE
+  examples <- data.frame(id = xid,cl = ycl)
   return (examples)
-}
+} #fim da funcao
+
 
 # compara se as classes sao iguais e uma das confiacas é maior qua a confianca da iteracao atual
 checa_confianca <- function(data_1_it, data_x_it, indices, thrConf, usarModa, moda){
@@ -106,27 +107,26 @@ checa_confianca <- function(data_1_it, data_x_it, indices, thrConf, usarModa, mo
 
 
 # compara se as classes sao diferentes e o produto das confiancas e maior que a confianca atual
-checa_classe_diferentes <- function(data_1_it, data_x_it, indices, thrConf, usarmoda, moda){
+#checa_classe_diferentes novo - usado no co-training
+checa_classe_diferentes <- function(data_1_it, data_x_it, thrConf, usarmoda, moda){
   pos <- 0
   xid <- c()
   ycl <- c()
-  for (i in indices){
-    if (!is.na(data_1_it[i, 1]) && (data_1_it[i, 1] != data_x_it[i, 1])){
+  for (i in 1:nrow(data_1_it)){
+    id <- data_1_it[i,3]
+    if (!is.na(data_1_it[i, 1]) && (as.character(data_1_it[i, 1]) != as.character(data_x_it[i, 1]))){
       if ((data_1_it[i, 2]*data_x_it[i, 2]) >= thrConf){
         pos <- pos + 1
         # votacao (pesquisa a classe que mais foi atribuida a um exemplo)
         xid[pos] <- i
-        if (usarmoda) {
-          ycl[pos] <- pesquisa_classe(i, moda)  
-        }else{
-          ycl[pos] <- mais_confiavel(data_1_it, data_x_it, i)  
-        }
-      }
-    }
-  }
+        ycl[pos] <- pesquisa_classe(id, moda)  
+      }#fim if
+    }#fim if
+  }#fim for
   examples <- data.frame(id = xid,cl = ycl)
   return (examples)
 }
+
 
 pesquisa_classe <- function(i, moda){
   maior <- 0
@@ -141,12 +141,13 @@ pesquisa_classe <- function(i, moda){
 }
 
 #armazena o voto do classificador para cada r?tulo
-guarda_moda <- function(indices,probPreds){
-  dist_classes <- unique(probPreds[,1]) #pega as classes distintas
-  for (x in indices){
-    for(y in 1:length(dist_classes)){
+guarda_moda <- function(probPreds){
+  dist_classes <- unique(base_original$class) #pega as classes distintas
+  for (x in 1:NROW(probPreds)){
+    id <- as.character(probPreds[x,ncol(probPreds)])
+    for(y in 1:(length(dist_classes))){
       if(probPreds[x,1] == dist_classes[y]){
-        moda[x,dist_classes[y]] <- moda[x,dist_classes[y]] + 1
+        moda[id,dist_classes[y]] <- moda[id,dist_classes[y]] + 1
         break
       }
     }
@@ -154,18 +155,18 @@ guarda_moda <- function(indices,probPreds){
   return (moda)
 }
 
-guarda_soma <- function(indices,p){ # p = predicao
+guarda_soma <- function(p){ # p = predicao
   dist_classes <- unique(base_original$class) #pega as classes distintas
-  
-  for (x in indices){
-    # x<-as.factor(x)
-    for(y in 1:ncol(p)){
-      moda[x,dist_classes[y]] <- moda[x,dist_classes[y]] + p[x,dist_classes[y]]
+  for (x in 1:nrow(p)){
+    id <- as.character(p[x,ncol(p)]) #pega o id que ? a ultima coluna de p
+    for(y in 1:length(dist_classes)){ 
+      moda[id,dist_classes[y]] <- moda[id,dist_classes[y]] + p[x,dist_classes[y]]
       
     }
   }
   return(moda)
 }
+
 
 # compara se as classes são diferentes e as confianças são maiores que a confiança atual
 # checa_classe_diferentes_modif4 <- function(data_1_it, data_x_it, indices, thrConf, moda){
