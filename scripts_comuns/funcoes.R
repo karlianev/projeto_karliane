@@ -36,96 +36,178 @@ f2 <- function(m,d) { #JRip e KNN
 # Funcoes para o ST-Modificado #
 #                              #
 ################################
-# compara se as classes estao iguais e se as confiancas sao maiores q a da iteracao atual
 checa_classe <- function(data_1_it, data_x_it, thrConf, usarModa=F, moda){
-  examples <- c()
-  pos <- 0
-  xid <- c() # Vetor de id
-  ycl <- c()
-  if(usarModa){
-    for (i in 1:NROW(data_1_it)){
-      id1 <- as.character(data_1_it[i,3])
-      if (!is.na(data_1_it[i, 1]) && (as.character(data_x_it[i, 1]) == as.character(data_1_it[i, 1]))){
-        if ((data_1_it[i, 2]* data_x_it[i, 2]) >= thrConf){
-          pos <- pos + 1
-          xid[pos] <- i
-          ycl[pos] <- pesquisa_classe(id1, moda)
-        }#fim if
-      }#fim if
-    } #fim do for
-  }else{
-    for (i in 1:NROW(data_1_it)){
-      # id1 <- as.character(data_1_it[i,3])
-      cl1 <- as.character(data_1_it[i,1])
-      if (!is.na(data_1_it[i, 1]) && (as.character(data_x_it[i, 1]) == as.character(data_1_it[i, 1]))){
-        if ((data_1_it[i, 2]*data_x_it[i, 2]) >= thrConf){
-          pos <- pos + 1
-          xid[pos] <- i
-          ycl[pos] <- cl1
+    examples <- c()
+    pos <- 0
+    xid <- c() # Vetor de id
+    ycl <- c()
+    if(usarModa){
+      for (p in data_x_it$id){
+        for (q in data_1_it$id){
+          if ((!is.na(data_1_it[q, 1]) && (!is.na(data_x_it[p, 1])))){
+            if((as.character(data_x_it$id[p]) == as.character(data_1_it$id[q]))){
+              if((as.character(data_x_it[p, 1]) == as.character(data_1_it[q, 1]))){
+                if ((data_1_it[p, 2] >= thrConf) && (data_x_it[q, 2] >= thrConf)){
+                  pos <- pos + 1
+                  xid[pos] <- i
+                  ycl[pos] <- pesquisa_classe(p, moda)
+                }
+              }
+            }
+          }
         }
       }
     }
-    
-    
-  }
-  #cria o data frame com colunas ID (posicao no probpreds) e CLASSE
-  examples <- data.frame(id = xid,cl = ycl)
+  examples <- data.frame(id = xid, cl = ycl)
   return (examples)
-} #fim da funcao
+}
 
-
-# compara se as classes sao iguais e uma das confiacas é maior qua a confianca da iteracao atual
-checa_confianca <- function(data_1_it, data_x_it, indices, thrConf, usarModa, moda){
+checa_confianca <- function(data_1_it, data_x_it, thrConf, usarModa, moda){
   examples <- c()
   pos <- 0
   xid <- c()
   ycl <- c()
   if(usarModa){
-    for (i in indices){
-      if (!is.na(data_1_it[i, 1]) && (data_1_it[i, 1] == data_x_it[i, 1])){
-        if((data_1_it[i, 2] >= thrConf) || (data_x_it[i, 2] >= thrConf)){
-          pos <- pos + 1
-          xid[pos] <- i
-          ycl[pos] <- pesquisa_classe(i, moda)
+    for (p in data_x_it$id){
+      for (q in data_1_it$id){
+        if ((!is.na(data_1_it[q, 1]) && (!is.na(data_x_it[p, 1])))){
+          if((as.character(data_x_it$id[p]) == as.character(data_1_it$id[q]))){
+            if ((data_1_it[q, 1] == data_x_it[p, 1])){
+              if((data_1_it[q, 2] >= thrConf) || (data_x_it[p, 2] >= thrConf)){
+                pos <- pos + 1
+                xid[pos] <- i
+                ycl[pos] <- pesquisa_classe(id1, moda)
+              }
+            }
+          }
         }
       }
     }
-    examples <- data.frame(id = xid,cl = ycl)
-  }else{
-    for (i in indices){
-      if (!is.na(data_1_it[i, 1]) && (data_1_it[i, 1] == data_x_it[i, 1])){
-        if((data_1_it[i, 2] >= thrConf) || (data_x_it[i, 2] >= thrConf)){
-          pos <- pos + 1
-          xid[pos] <- i
-        }
-      }
-    }
-    examples <- data.frame(id = xid,cl = data_x_it[xid, 1])
   }
+  examples <- data.frame(id = xid,cl = ycl)
   return (examples)
 }
 
-
-# compara se as classes sao diferentes e o produto das confiancas e maior que a confianca atual
-#checa_classe_diferentes novo - usado no co-training
 checa_classe_diferentes <- function(data_1_it, data_x_it, thrConf, usarmoda, moda){
   pos <- 0
   xid <- c()
   ycl <- c()
-  for (i in 1:nrow(data_1_it)){
-    id <- data_1_it[i,3]
-    if (!is.na(data_1_it[i, 1]) && (as.character(data_1_it[i, 1]) != as.character(data_x_it[i, 1]))){
-      if ((data_1_it[i, 2]*data_x_it[i, 2]) >= thrConf){
-        pos <- pos + 1
-        # votacao (pesquisa a classe que mais foi atribuida a um exemplo)
-        xid[pos] <- i
-        ycl[pos] <- pesquisa_classe(id, moda)  
-      }#fim if
-    }#fim if
+  if(usarModa){
+    for (p in data_x_it$id){
+      for (q in data_1_it$id){
+        if ((!is.na(data_1_it[q, 1]) && (!is.na(data_x_it[p, 1])))){
+          if ((as.character(data_1_it[q, 1]) != as.character(data_x_it[p, 1]))){
+            if ((data_1_it[q, 2] >= thrConf) && (data_x_it[p, 2] >= thrConf)){
+              pos <- pos + 1
+              # votacao (pesquisa a classe que mais foi atribuida a um exemplo)
+              xid[pos] <- i
+              ycl[pos] <- pesquisa_classe(id, moda)
+            }
+          }#fim if
+        }#fim if
+      }
+    }
   }#fim for
   examples <- data.frame(id = xid,cl = ycl)
   return (examples)
 }
+
+# compara se as classes estao iguais e se as confiancas sao maiores q a da iteracao atual
+# checa_classe <- function(data_1_it, data_x_it, thrConf, usarModa=F, moda){
+#   examples <- c()
+#   pos <- 0
+#   xid <- c() # Vetor de id
+#   ycl <- c()
+#   if(usarModa){
+#     for (i in 1:NROW(data_x_it)){
+#       id1 <- as.character(data_1_it[i,3])
+#       if ((!is.na(data_1_it[i, 1]) && (!is.na(data_x_it[i, 1])))){
+#         if((as.character(data_x_it[i, 1]) == as.character(data_1_it[i, 1]))){
+#           if ((data_1_it[i, 2] >= thrConf) && (data_x_it[i, 2] >= thrConf)){
+#             pos <- pos + 1
+#             xid[pos] <- i
+#             ycl[pos] <- pesquisa_classe(id1, moda)
+#           }#fim if
+#         }#fim if
+#       }#fim if
+#     } #fim do for
+#   }else{
+#     for (i in 1:NROW(data_1_it)){
+#       # id1 <- as.character(data_1_it[i,3])
+#       cl1 <- as.character(data_1_it[i,1])
+#       if ((!is.na(data_1_it[i, 1]) && (!is.na(data_x_it[i, 1]))) && (as.character(data_x_it[i, 1]) == as.character(data_1_it[i, 1]))){
+#         if ((data_1_it[i, 2] >= thrConf) && (data_x_it[i, 2] >= thrConf)){
+#           pos <- pos + 1
+#           xid[pos] <- i
+#           ycl[pos] <- cl1
+#         }
+#       }
+#     }
+#     
+#     
+#   }
+#   #cria o data frame com colunas ID (posicao no probpreds) e CLASSE
+#   examples <- data.frame(id = xid,cl = ycl)
+#   return (examples)
+# } #fim da funcao
+
+
+# compara se as classes sao iguais e uma das confiacas é maior qua a confianca da iteracao atual
+# checa_confianca <- function(data_1_it, data_x_it, thrConf, usarModa, moda){
+#   examples <- c()
+#   pos <- 0
+#   xid <- c()
+#   ycl <- c()
+#   if(usarModa){
+#     for (i in 1:NROW(data_x_it)){
+#       id1 <- as.character(data_1_it[i,3])
+#       if ((!is.na(data_1_it[i, 1]) && (!is.na(data_x_it[i, 1])))){
+#         if ((data_1_it[i, 1] == data_x_it[i, 1])){
+#           if((data_1_it[i, 2] >= thrConf) || (data_x_it[i, 2] >= thrConf)){
+#             pos <- pos + 1
+#             xid[pos] <- i
+#             ycl[pos] <- pesquisa_classe(id1, moda)
+#           }
+#         }
+#       }
+#     }
+#   }else{
+#     for (i in indices){
+#       if (!is.na(data_1_it[i, 1]) && (data_1_it[i, 1] == data_x_it[i, 1])){
+#         if((data_1_it[i, 2] >= thrConf) || (data_x_it[i, 2] >= thrConf)){
+#           pos <- pos + 1
+#           xid[pos] <- i
+#         }
+#       }
+#     }
+#   }
+#   examples <- data.frame(id = xid,cl = ycl)
+#   return (examples)
+# }
+
+
+# compara se as classes sao diferentes e o produto das confiancas e maior que a confianca atual
+#checa_classe_diferentes novo - usado no co-training
+# checa_classe_diferentes <- function(data_1_it, data_x_it, thrConf, usarmoda, moda){
+#   pos <- 0
+#   xid <- c()
+#   ycl <- c()
+#   for (i in 1:NROW(data_x_it)){
+#     id1 <- as.character(data_1_it[i,3])
+#     if ((!is.na(data_1_it[i, 1]) && (!is.na(data_x_it[i, 1])))){
+#       if ((as.character(data_1_it[i, 1]) != as.character(data_x_it[i, 1]))){
+#         if ((data_1_it[i, 2] >= thrConf) && (data_x_it[i, 2] >= thrConf)){
+#           pos <- pos + 1
+#           # votacao (pesquisa a classe que mais foi atribuida a um exemplo)
+#           xid[pos] <- i
+#           ycl[pos] <- pesquisa_classe(id, moda)  
+#         }#fim if
+#       }#fim if
+#     }
+#   }#fim for
+#   examples <- data.frame(id = xid,cl = ycl)
+#   return (examples)
+# }
 
 
 pesquisa_classe <- function(i, moda){
@@ -262,17 +344,17 @@ funcSelfTrain <- function(form,data,
       
       indices <- row.names(probPreds)   # pega o id de cada exemplo 
       if (votacao){
-        moda <<- guarda_moda(indices,probPreds) # Armazena a moda das classes
+        moda <<- guarda_moda(probPreds) # Armazena a moda das classes
       }else{
-        moda <<- guarda_soma(indices,predicao) # Armazena a soma das classes
+        moda <<- guarda_soma(predicao) # Armazena a soma das classes
       }
       
     }else{
       indices <- row.names(probPreds)   # pega o id de cada exemplo 
       if (votacao){
-        moda <<- guarda_moda(indices,probPreds) # Armazena a moda das classes
+        moda <<- guarda_moda(probPreds) # Armazena a moda das classes
       }else{
-        moda <<- guarda_soma(indices,predicao) # Armazena a soma das classes
+        moda <<- guarda_soma(predicao) # Armazena a soma das classes
       }
         
       
@@ -639,24 +721,24 @@ funcSelfTrainModificado2 <- function(form,data,
 
       indices <- row.names(probPreds)   # pega o id de cada exemplo 
       if (votacao){
-        moda <<- guarda_moda(indices,probPreds) # Armazena a moda das classes
+        moda <<- guarda_moda(probPreds) # Armazena a moda das classes
       }else{
-        moda <<- guarda_soma(indices,predicao) # Armazena a soma das classes
+        moda <<- guarda_soma(predicao) # Armazena a soma das classes
       }
       
     }else{
       indices <- row.names(probPreds)   # pega o id de cada exemplo 
       if (votacao){
-        moda <<- guarda_moda(indices,probPreds) # Armazena a moda das classes
+        moda <<- guarda_moda(probPreds) # Armazena a moda das classes
       }else{
-        moda <<- guarda_soma(indices,predicao) # Armazena a soma das classes
+        moda <<- guarda_soma(predicao) # Armazena a soma das classes
       }
       
-      rotulados <- checa_classe(probPreds_1_it, probPreds, indices, thrConf, usarModa = TRUE, moda)
+      rotulados <- checa_classe(probPreds_1_it, probPreds, thrConf, usarModa = TRUE, moda)
       if (length(rotulados$id) == 0){
-       rotulados <- checa_confianca(probPreds_1_it, probPreds, indices, thrConf, usarModa = TRUE, moda)
+       rotulados <- checa_confianca(probPreds_1_it, probPreds, thrConf, usarModa = TRUE, moda)
        if (length(rotulados$id) == 0){
-         rotulados <- checa_classe_diferentes(probPreds_1_it, probPreds, indices, thrConf, moda)
+         rotulados <- checa_classe_diferentes(probPreds_1_it, probPreds, thrConf, moda)
        }
       }
       new <- rotulados$id
@@ -665,7 +747,7 @@ funcSelfTrainModificado2 <- function(form,data,
 
     
     if (verbose) {
-      # cat('tx_incl',taxa,'IT.',it,'BD',i,thrConf,'\t nr. added exs. =',length(new),'\n') 
+      cat('tx_incl',taxa,'IT.',it,'BD',i,thrConf,'\t nr. added exs. =',length(new),'\n')
       ##guardando nas variaveis 
       it_g <<-c(it_g,it)
       bd_g <<-c(bd_g,bd_nome)
