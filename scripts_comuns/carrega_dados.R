@@ -10,8 +10,8 @@
 
 print("carregando os dados")
 #setando o diret?rio local para ser a pasta onde est?o as bases
-setwd("C:\\local_R\\projeto_karliane\\bases")
-# setwd("~/R/karliane/projeto_karliane/bases")
+# setwd("C:\\local_R\\projeto_karliane\\bases")
+setwd("~/R/karliane/projeto_karliane/bases")
 
 
 if (i==0) {
@@ -112,6 +112,6 @@ if (i==0) {
 classe <- "class"
 
 #setando o diret?rio local para ser a pasta onde esta o projeto
-setwd("C:\\local_R\\projeto_karliane")
-# setwd("~/R/karliane/projeto_karliane")
+# setwd("C:\\local_R\\projeto_karliane")
+setwd("~/R/karliane/projeto_karliane")
 

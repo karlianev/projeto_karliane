@@ -2,10 +2,10 @@
 print("Iniciando Treinamento")
 #naive
 
-#COMENTEI  MODIFICADO3 PARA PODER RODAR SÓ O MODIFICADO2 COM SOMA
-#NÃO COMENTEI O SUPERVISIONADO PQ A ACURACIA É USADA COMO LIMIAR
+#COMENTEI  MODIFICADO3 PARA PODER RODAR S? O MODIFICADO2 COM SOMA
+#N?O COMENTEI O SUPERVISIONADO PQ A ACURACIA ? USADA COMO LIMIAR
 #LEMBRAR DE RETIRAR O COMENTARIO
-#ALÉM DISSO COLOQUEI AS  MATRIZES DE CONFUSAO RECEBENDO VAZIO
+#AL?M DISSO COLOQUEI AS  MATRIZES DE CONFUSAO RECEBENDO VAZIO
 
 
 if(c==1){ #NB
@@ -21,7 +21,7 @@ if(c==1){ #NB
     nbST_3<- funcSelfTrainModificado3(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.95,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, stdNB)
   }
   matriz_confusao1<-table(predict(nbST, base_teste), base_teste$class)
-  matriz_confusao3<-c()#table(predict(nbST_3, base_teste), base_teste$class)
+  matriz_confusao3<-table(predict(nbST_3, base_teste), base_teste$class)
 }
 if(c==2){ #AD
   stdTree <- rpartXse(as.formula(paste(classe,'~', '.')),base_rotulados_ini,se=0.5)
@@ -37,7 +37,7 @@ if(c==2){ #AD
     ST_3 <- funcSelfTrainModificado3(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.95,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, stdTree)
   }  
   matriz_confusao1 = table(predict(ST,base_teste,type='class'),base_teste$class)
-  matriz_confusao3 = c()#table(predict(ST_3,base_teste,type='class'),base_teste$class)
+  matriz_confusao3 = table(predict(ST_3,base_teste,type='class'),base_teste$class)
   
 }
 
@@ -55,7 +55,7 @@ if(c==3){ #RIPPER
     ST_3 <- funcSelfTrainModificado3(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.95,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, stdJRip)
   }  
   matriz_confusao1 = table(predict(ST,base_teste),base_teste$class)
-  matriz_confusao3 = c()#table(predict(ST_3,base_teste),base_teste$class)
+  matriz_confusao3 = table(predict(ST_3,base_teste),base_teste$class)
 }
 
 if(c==4){ #IBK
@@ -72,7 +72,7 @@ if(c==4){ #IBK
     ST_3 <- funcSelfTrainModificado3(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('IBk',list(control = Weka_control(K=15, X=TRUE))),'f2',0.95,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, stdIBK)
   }  
   matriz_confusao1 = table(predict(ST,base_teste),base_teste$class)
-  matriz_confusao3 = c()#table(predict(ST_3,base_teste),base_teste$class)
+  matriz_confusao3 = table(predict(ST_3,base_teste),base_teste$class)
 }
 
 
