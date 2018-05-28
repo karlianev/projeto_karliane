@@ -12,3 +12,6 @@ write.csv(data_x_it, "probpreds2", row.names = TRUE)
 write.csv(predicao[new,4], "rotulados", row.names = TRUE)
 write.csv(data1[sup1,], "treinamento1", row.names = TRUE)
 write.csv(data2[sup2,], "treinamento2", row.names = TRUE)
+write.csv(data1, "data1", row.names = TRUE)
+
+write.csv(conj_treinamento, "conj_treinamento", row.names = TRUE)

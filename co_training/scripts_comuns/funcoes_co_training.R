@@ -266,10 +266,10 @@ guarda_soma <- function(p){ # p = predicao
 # }
 
 #funcao, chamada em modificado2 e 3, que valida se o conjunto de treinamento pode ser utilizado para calcular a nova taxa de confianca
-validar_treino<- function(data,id_conj_treino,N_classes,min_exem_por_classe){
+validar_treino<- function(dados,id_conj_treino,N_classes,min_exem_por_classe){
   #cat("entrou if da segunda itera??o", '\n')
-  N_instancias_por_classe2 <- ddply(data[id_conj_treino,],~class,summarise,number_of_distinct_orders=length(class))
-  
+  N_instancias_por_classe2 <- ddply(dados[id_conj_treino,],~class,summarise,number_of_distinct_orders=length(class))
+  #N_instancias_por_classe2 <- ddply(dados,~class,summarise,number_of_distinct_orders=length(class))
   treino_valido <<- FALSE
   if (NROW(N_instancias_por_classe2)  == N_classes){#TAVA nrow
     
@@ -277,10 +277,35 @@ validar_treino<- function(data,id_conj_treino,N_classes,min_exem_por_classe){
       
       if (N_instancias_por_classe2$number_of_distinct_orders[x]>= min_exem_por_classe) #N_classes*5)
         treino_valido <<- TRUE
-      else treino_valido <<- FALSE
+      else{
+        treino_valido <<- FALSE
+        break
+      } 
+        
     }  
   }
 } 
+
+#funcao, chamada em modificado2 e 3, que valida se o conjunto de treinamento pode ser utilizado para calcular a nova taxa de confianca
+validar_treino_1_e_2<- function(dados,N_classes,min_exem_por_classe){
+  #cat("entrou if da segunda itera??o", '\n')
+  N_instancias_por_classe2 <- ddply(dados,~class,summarise,number_of_distinct_orders=length(class))
+  treino_valido <<- FALSE
+  if (NROW(N_instancias_por_classe2)  == N_classes){#TAVA nrow
+    
+    for (x in 1:NROW(N_instancias_por_classe2)){ #TAVA nrow
+      
+      if (N_instancias_por_classe2$number_of_distinct_orders[x]>= min_exem_por_classe) #N_classes*5)
+        treino_valido <<- TRUE
+      else{
+        treino_valido <<- FALSE
+        break
+      } 
+      
+    }  
+  }
+} 
+
 
 #funcao, chamada em modificado2 e 3, que define o conjunto de treinamento a ser classificado e indica se a classificacao e possivel
 validar_classificacao<-function(treino_valido_i,id_conj_treino,id_conj_treino_antigo,data, N_classes, min_exem_por_classe){
@@ -307,6 +332,36 @@ validar_classificacao<-function(treino_valido_i,id_conj_treino,id_conj_treino_an
   }else classificar <- FALSE #a confian?a permanece a mesma ao inves de parar
   return(classificar)  
 }
+
+
+#funcao, chamada em modificado2 e 3, que define o conjunto de treinamento a ser classificado e indica se a classificacao e possivel
+validar_classificacao_1_e_2<-function(treino_valido_i,conj_treinamento,conj_treinamento_antigo,N_classes, min_exem_por_classe){
+  #data[sup,] corresponde os que possuem rotulos (INICIALMENTE ROTULADOS OU N?fO)
+  if (treino_valido_i){
+    #o conjunto de treinamento serao as instancias inclu????das (rotuladas)
+    conj_treino <<- conj_treinamento
+    conj_treinamento_antigo <<- c()
+    
+    id_conj_treino_antigo <<- c()
+    classificar <- TRUE
+    
+  }else if (nrow(conj_treinamento_antigo)>=1) {
+    #o conjunto de treinamento ser√° o anterior + as instancias incluidas (rotuladas)
+    conj_treino <<- rbind(conj_treinamento,conj_treinamento_antigo)
+    
+    validar_treino_1_e_2(conj_treino,N_classes,min_exem_por_classe);
+    
+    
+    if (treino_valido){
+      classificar <- TRUE
+    }else{
+      classificar <- FALSE
+    }
+    
+  }else classificar <- FALSE #a confian?a permanece a mesma ao inves de parar
+  return(classificar)  
+}
+
 
 calcular_acc_local <- function(){
   
@@ -744,7 +799,7 @@ coTrainFlexCon_C1 <- function(form,data,
   conj_treino <<- c()
   treino_valido <<- FALSE
   classificar <- TRUE
-  
+  conj_treinamento <- c()
   #sup recebe o indice de todos os exemplos rotulados
   #est· sendo sup = sup1 = sup2
   sup <- which(!is.na(data[, as.character(form[[2]])])) #exemplos inicialmente rotulados
@@ -758,16 +813,37 @@ coTrainFlexCon_C1 <- function(form,data,
     #cat("conj_treino", conj_treino, "nrow(conj_treino)", nrow(conj_treino))
     it <- it+1
     
+    # if ((it>1)&&(qtd_Exemplos_Rot>0)){
+    #   # validar_treino(data,id_conj_treino,N_classes,min_exem_por_classe);
+    #   validar_treino(data,id_conj_treino,N_classes,min_exem_por_classe);
+    #   classificar <- validar_classificacao(treino_valido,id_conj_treino,id_conj_treino_antigo,data, N_classes, min_exem_por_classe)
+    #   
+    #   if (classificar){
+    #     acc_local <- calcular_acc_local()
+    #     thrConf <- calcular_confianca(acc_local,limiar,thrConf)  
+    #   }  
+    # }
+
     if ((it>1)&&(qtd_Exemplos_Rot>0)){
-      validar_treino(data,id_conj_treino,N_classes,min_exem_por_classe);
-      classificar <- validar_classificacao(treino_valido,id_conj_treino,id_conj_treino_antigo,data, N_classes, min_exem_por_classe)
+      # validar_treino(data,id_conj_treino,N_classes,min_exem_por_classe);
+      validar_treino_1_e_2(data1,N_classes,min_exem_por_classe);
+      classificar1 <- validar_classificacao_1_e_2(treino_valido,conj_treinamento1,conj_treinamento_antigo2,N_classes,min_exem_por_classe)
+      classificar2 <- validar_classificacao_1_e_2(treino_valido,conj_treinamento2,conj_treinamento_antigo2,N_classes,min_exem_por_classe)
       
-      if (classificar){
-        acc_local <- calcular_acc_local()
-        thrConf <- calcular_confianca(acc_local,limiar,thrConf)  
+      if (classificar1){
+        acc_local1 <- calcular_acc_local()
       }  
+      if (classificar2){
+        acc_local2 <- calcular_acc_local()
+        
+      }  
+      if (!as.na(acc_local1)&&!as.na(acc_local2)){
+        acc_local <- (acc_local1+acc_local2)/2
+        thrConf <- calcular_confianca(acc_local,limiar,thrConf)  
+      }
     }
-   # soma_Conf <- 0
+    
+     # soma_Conf <- 0
     qtd_Exemplos_Rot <- 0
     
     #model armazena o modelo gerado utilizando o aprendiz learner (AD, NB, KNN OU RIPPER), a base data[sup,] que s?o os dados rotulados e a classe ? passada no par?metro form
@@ -834,10 +910,13 @@ coTrainFlexCon_C1 <- function(form,data,
       
       # id_conj_treino_antigo <- c(id_conj_treino_antigo,id_conj_treino)
       # id_conj_treino <- (1:N)[-sup][new]
-      # 
       
-      id_conj_treino_antigo1 <- c(id_conj_treino_antigo1,id_conj_treino1)
-      id_conj_treino_antigo2 <- c(id_conj_treino_antigo2,id_conj_treino2)
+      conj_treinamento_antigo <- rbind(conj_treinamento_antigo,conj_treinamento)
+      conj_treinamento <- data1[id_conj_treino,]
+      
+      
+      # id_conj_treino_antigo1 <- c(id_conj_treino_antigo1,id_conj_treino1)
+      # id_conj_treino_antigo2 <- c(id_conj_treino_antigo2,id_conj_treino2)
 #VER COMO PEGAR O ID      id_conj_treino1 <- data1[(1:N)[-sup1][new],2]
 #VER COMO PEGAR O ID      id_conj_treino2 <- data2[(1:N)[-sup1][new],2]      
       
