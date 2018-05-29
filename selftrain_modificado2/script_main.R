@@ -29,11 +29,11 @@ tx <- c()
 #fazendo teste com classificador supervisionado
 acc_g_sup <- c() #acuracia (percentual de acerto) do metodo supervisionado
 
-# source('C:/local_R/projeto_karliane/scripts_comuns/configuracoes.R')
-source('~/R/karliane/projeto_karliane/scripts_comuns/configuracoes.R')
+source('C:/local_R/projeto_karliane/scripts_comuns/configuracoes.R')
+# source('~/R/karliane/projeto_karliane/scripts_comuns/configuracoes.R')
 
-# source('C:/local_R/projeto_karliane/scripts_comuns/funcoes.R')
-source('~/R/karliane/projeto_karliane/scripts_comuns/funcoes.R')
+source('C:/local_R/projeto_karliane/scripts_comuns/funcoes.R')
+# source('~/R/karliane/projeto_karliane/scripts_comuns/funcoes.R')
 for (t in 2:2) { #1 = taxa 0,9 2 = taxa 0,95
   for(c in 1:4){  # 1 = NB, 2 = AD 3 = ripper 4 = IBK
     it_g <-c() 
@@ -57,16 +57,16 @@ for (t in 2:2) { #1 = taxa 0,9 2 = taxa 0,95
     #fazendo teste com classificador supervisionado
     acc_g_sup <- c()
     
-    for(i in 1:30){  # bases de dados
+    for(i in 0:30){  # bases de dados
       for(j in 1:5){ # taxas  #base 1 - IRIS 5% NB N?O FUNCIONA - da erro
         taxa <- j*5
-        # source('C:/local_R/projeto_karliane/scripts_comuns/carrega_dados.R')
-        # source('C:/local_R/projeto_karliane/scripts_comuns/organiza_dados.R')
-        # source('C:/local_R/projeto_karliane/selftrain_modificado2/treinamento.R')
+        source('C:/local_R/projeto_karliane/scripts_comuns/carrega_dados.R')
+        source('C:/local_R/projeto_karliane/scripts_comuns/organiza_dados.R')
+        source('C:/local_R/projeto_karliane/selftrain_modificado2/treinamento.R')
 
-        source('~/R/karliane/projeto_karliane/scripts_comuns/carrega_dados.R')
-        source('~/R/karliane/projeto_karliane/scripts_comuns/organiza_dados.R')
-        source('~/R/karliane/projeto_karliane/selftrain_modificado2/treinamento.R')
+        # source('~/R/karliane/projeto_karliane/scripts_comuns/carrega_dados.R')
+        # source('~/R/karliane/projeto_karliane/scripts_comuns/organiza_dados.R')
+        # source('~/R/karliane/projeto_karliane/selftrain_modificado2/treinamento.R')
       }    #FIM DO J
     }  #FIM DO I
     print("gerando data frame para arquivos")
