@@ -109,10 +109,7 @@ checa_confiancas_diferentes <- function(data_1_it, data_x_it, thrConf){
         pos <- pos + 1
         # votacao (pesquisa a classe que mais foi atribuida a um exemplo)
         xid[pos] <- indice
-        if((data_x_it[indice, 2] > data_1_it[lvls[indice], 2]))
-          ycl[pos] <- data_x_it[indice, 1]
-        else
-          ycl[pos] <- data_1_it[lvls[indice], 1]
+        ycl[pos] <- pesquisa_classe(xid[pos], moda)
       }
     }
   }
