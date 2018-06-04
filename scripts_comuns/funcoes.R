@@ -704,7 +704,8 @@ funcSelfTrainModificado2 <- function(form,data,
   
 }
 #calcula a confianca de acordo com o treinamento do classificador
-# o conjunto de treinamento e cumulativo
+#so acumula o conjunto de treinamento com o conjunto anterior caso o conjunto de treinamento nao seja valido
+# IMPLEMENTAR UMA FUNCAO CUJO conjunto de treinamento SEJA cumulativo
 #usa O ROTULO DO CLASSIFICADOR SUPERVISIONADO nos casos em que os classificadores divergem
 funcSelfTrainModificado3 <- function(form,data,
                                      learner,
@@ -732,6 +733,7 @@ funcSelfTrainModificado3 <- function(form,data,
   sup <- which(!is.na(data[,as.character(form[[2]])])) #sup recebe o indice de todos os exemplos rotulados
   id_conj_treino <- c()
   id_conj_treino_antigo <- c()
+  treino_valido <<- FALSE
   repeat {
     # acertou <- 0
     #cat("conj_treino", conj_treino, "nrow(conj_treino)", nrow(conj_treino))
