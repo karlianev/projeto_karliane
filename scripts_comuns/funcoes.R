@@ -46,7 +46,7 @@ checa_classe <- function(data_1_it, data_x_it, thrConf){
       if((as.character(data_1_it[lvls[indice], 1]) == as.character(data_x_it[indice, 1]))){
         if ((data_1_it[lvls[indice], 2] >= thrConf) && (data_x_it[indice, 2] >= thrConf)){
           pos <- pos + 1
-          xid[pos] <- data_x_it[indice,3]
+          xid[pos] <- indice
           ycl[pos] <- data_x_it[indice,1]
         }
       }
@@ -66,7 +66,7 @@ checa_confianca <- function(data_1_it, data_x_it, thrConf){
     if ((data_1_it[lvls[indice], 1] == data_x_it[indice, 1])){
       if ((data_1_it[lvls[indice], 2] >= thrConf) || (data_x_it[indice, 2] >= thrConf)){
         pos <- pos + 1
-        xid[pos] <- data_x_it[indice, 3]
+        xid[pos] <- indice
         ycl[pos] <- data_x_it[indice, 1]
       }
     }
@@ -88,7 +88,7 @@ checa_classe_diferentes <- function(data_1_it, data_x_it, thrConf, moda){
       if ((data_1_it[lvls[indice], 2] >= thrConf) && (data_x_it[indice, 2] >= thrConf)){
         pos <- pos + 1
         # votacao (pesquisa a classe que mais foi atribuida a um exemplo)
-        xid[pos] <- data_x_it[indice, 3]
+        xid[pos] <- indice
         ycl[pos] <- pesquisa_classe(xid[pos], moda)
       }
     }
@@ -108,11 +108,8 @@ checa_confiancas_diferentes <- function(data_1_it, data_x_it, thrConf){
       if ((data_1_it[lvls[indice], 2] >= thrConf) || (data_x_it[indice, 2] >= thrConf)){
         pos <- pos + 1
         # votacao (pesquisa a classe que mais foi atribuida a um exemplo)
-        xid[pos] <- data_x_it[indice, 3]
-        if((data_x_it[indice, 2] > data_1_it[lvls[indice], 2]))
-          ycl[pos] <- data_x_it[indice, 1]
-        else
-          ycl[pos] <- data_1_it[lvls[indice], 1]
+        xid[pos] <- indice
+        ycl[pos] <- pesquisa_classe(xid[pos], moda)
       }
     }
   }
