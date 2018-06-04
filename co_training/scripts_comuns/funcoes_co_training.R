@@ -800,6 +800,7 @@ coTrainFlexCon_C1 <- function(form,data,
   treino_valido <<- FALSE
   classificar <- TRUE
   conj_treinamento <- c()
+  conj_treinamento_antigo <- c()
   #sup recebe o indice de todos os exemplos rotulados
   #está sendo sup = sup1 = sup2
   sup <- which(!is.na(data[, as.character(form[[2]])])) #exemplos inicialmente rotulados
@@ -813,36 +814,36 @@ coTrainFlexCon_C1 <- function(form,data,
     #cat("conj_treino", conj_treino, "nrow(conj_treino)", nrow(conj_treino))
     it <- it+1
     
-    # if ((it>1)&&(qtd_Exemplos_Rot>0)){
-    #   # validar_treino(data,id_conj_treino,N_classes,min_exem_por_classe);
-    #   validar_treino(data,id_conj_treino,N_classes,min_exem_por_classe);
-    #   classificar <- validar_classificacao(treino_valido,id_conj_treino,id_conj_treino_antigo,data, N_classes, min_exem_por_classe)
-    #   
-    #   if (classificar){
-    #     acc_local <- calcular_acc_local()
-    #     thrConf <- calcular_confianca(acc_local,limiar,thrConf)  
-    #   }  
-    # }
-
     if ((it>1)&&(qtd_Exemplos_Rot>0)){
       # validar_treino(data,id_conj_treino,N_classes,min_exem_por_classe);
-      validar_treino_1_e_2(data1,N_classes,min_exem_por_classe);
-      classificar1 <- validar_classificacao_1_e_2(treino_valido,conj_treinamento1,conj_treinamento_antigo2,N_classes,min_exem_por_classe)
-      classificar2 <- validar_classificacao_1_e_2(treino_valido,conj_treinamento2,conj_treinamento_antigo2,N_classes,min_exem_por_classe)
-      
-      if (classificar1){
-        acc_local1 <- calcular_acc_local()
-      }  
-      if (classificar2){
-        acc_local2 <- calcular_acc_local()
-        
-      }  
-      if (!as.na(acc_local1)&&!as.na(acc_local2)){
-        acc_local <- (acc_local1+acc_local2)/2
-        thrConf <- calcular_confianca(acc_local,limiar,thrConf)  
+      validar_treino(data,id_conj_treino,N_classes,min_exem_por_classe);
+      classificar <- validar_classificacao(treino_valido,id_conj_treino,id_conj_treino_antigo,data, N_classes, min_exem_por_classe)
+
+      if (classificar){
+        acc_local <- calcular_acc_local()
+        thrConf <- calcular_confianca(acc_local,limiar,thrConf)
       }
     }
-    
+
+    # if ((it>1)&&(qtd_Exemplos_Rot>0)){
+    #   # validar_treino(data,id_conj_treino,N_classes,min_exem_por_classe);
+    #   validar_treino_1_e_2(data1,N_classes,min_exem_por_classe);
+    #   classificar1 <- validar_classificacao_1_e_2(treino_valido,conj_treinamento1,conj_treinamento_antigo2,N_classes,min_exem_por_classe)
+    #   classificar2 <- validar_classificacao_1_e_2(treino_valido,conj_treinamento2,conj_treinamento_antigo2,N_classes,min_exem_por_classe)
+    #   
+    #   if (classificar1){
+    #     acc_local1 <- calcular_acc_local()
+    #   }  
+    #   if (classificar2){
+    #     acc_local2 <- calcular_acc_local()
+    #     
+    #   }  
+    #   if (!as.na(acc_local1)&&!as.na(acc_local2)){
+    #     acc_local <- (acc_local1+acc_local2)/2
+    #     thrConf <- calcular_confianca(acc_local,limiar,thrConf)  
+    #   }
+    # }
+    # 
      # soma_Conf <- 0
     qtd_Exemplos_Rot <- 0
     
@@ -908,8 +909,8 @@ coTrainFlexCon_C1 <- function(form,data,
       #     acertou <- acertou + 1
       # }
       
-      # id_conj_treino_antigo <- c(id_conj_treino_antigo,id_conj_treino)
-      # id_conj_treino <- (1:N)[-sup][new]
+      id_conj_treino_antigo <- c(id_conj_treino_antigo,id_conj_treino)
+      id_conj_treino <- (1:N)[-sup][new]
       
       conj_treinamento_antigo <- rbind(conj_treinamento_antigo,conj_treinamento)
       conj_treinamento <- data1[id_conj_treino,]
