@@ -538,12 +538,12 @@ calcular_acc_local <- function(){
 
 #funcao que calcula a nova confianca de acordo com a acuracia local e o limiar
 calcular_confianca<-function(acc_local,limiar,txConf){
-  if((acc_local>(limiar + 1)) && (txConf-0.05>0.0)){
-    txConf<-txConf-0.05
+  if((acc_local>(limiar + 1)) && (txConf-0.03>0.0)){
+    txConf<-txConf-0.03
 
-  }else if((acc_local<(limiar - 1)) && (txConf+0.05 <= 1)){
+  }else if((acc_local<(limiar - 1)) && (txConf+0.03 <= 1)){
 
-    txConf<-txConf+0.05
+    txConf<-txConf+0.03
   } #caso contrario a confianca permanecera a mesma
   return(txConf)
 }
