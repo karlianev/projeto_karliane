@@ -538,12 +538,13 @@ calcular_acc_local <- function(){
 
 #funcao que calcula a nova confianca de acordo com a acuracia local e o limiar
 calcular_confianca<-function(acc_local,limiar,txConf){
-  if((acc_local>(limiar + 1)) && (txConf-0.03>0.0)){
-    txConf<-txConf-0.03
+  cr <- 0.04
+  if((acc_local>(limiar + 1)) && (txConf-cr>0.0)){
+    txConf<-txConf-cr
 
-  }else if((acc_local<(limiar - 1)) && (txConf+0.03 <= 1)){
+  }else if((acc_local<(limiar - 1)) && (txConf+cr <= 1)){
 
-    txConf<-txConf+0.03
+    txConf<-txConf+cr
   } #caso contrario a confianca permanecera a mesma
   return(txConf)
 }
@@ -599,7 +600,7 @@ funcSelfTrainModificado2 <- function(form,data,
   id_conj_treino <- c()
   id_conj_treino_antigo <- c()
   repeat {
-    # acertou <- 0
+    acertou <- 0
     #cat("conj_treino", conj_treino, "nrow(conj_treino)", nrow(conj_treino))
     it <- it+1
     
@@ -660,7 +661,7 @@ funcSelfTrainModificado2 <- function(form,data,
 
     
     if (verbose) {
-      cat('tx_incl',taxa,'IT.',it,'BD',i,thrConf,'\t nr. added exs. =',length(new),'\n')
+      # cat('tx_incl',taxa,'IT.',it,'BD',i,thrConf,'\t nr. added exs. =',length(new),'\n')
       ##guardando nas variaveis 
       it_g <<- c(it_g, it)
       bd_g <<- c(bd_g, bd_nome)
@@ -677,13 +678,13 @@ funcSelfTrainModificado2 <- function(form,data,
       qtd_Exemplos_Rot <- length(data[(1:N)[-sup][new],as.character(form[[2]])])
       totalrot <- totalrot + qtd_Exemplos_Rot
       
-      # acertou <- 0
-      # acerto <- treinamento[(1:N)[-sup][new], as.character(form[2])]== data[(1:N)[-sup][new], as.character(form[2])]
-      # tam_acerto <- NROW(acerto)
-      # for (w in 1:tam_acerto){
-      #   if (acerto[w] == TRUE)
-      #     acertou <- acertou + 1
-      # }
+      acertou <- 0
+      acerto <- treinamento[(1:N)[-sup][new], as.character(form[2])]== data[(1:N)[-sup][new], as.character(form[2])]
+      tam_acerto <- NROW(acerto)
+      for (w in 1:tam_acerto){
+        if (acerto[w] == TRUE)
+          acertou <- acertou + 1
+      }
       
       
       id_conj_treino_antigo <- c(id_conj_treino_antigo,id_conj_treino)
@@ -691,7 +692,7 @@ funcSelfTrainModificado2 <- function(form,data,
       sup <- c(sup,(1:N)[-sup][new])
     }
     
-    # acertou_g <<- c(acertou_g, acertou)    
+    acertou_g <<- c(acertou_g, acertou)
     if(length(new)==0){
       thrConf<-max(probPreds[,2]) #FALTOU FAZER USANDO A M?DIA DAS PREDI??ES.
       # thrConf<-mean(probPreds[,2])
@@ -735,7 +736,7 @@ funcSelfTrainModificado3 <- function(form,data,
   id_conj_treino_antigo <- c()
   treino_valido <<- FALSE
   repeat {
-    # acertou <- 0
+    acertou <- 0
     #cat("conj_treino", conj_treino, "nrow(conj_treino)", nrow(conj_treino))
     it <- it+1
     
@@ -779,7 +780,7 @@ funcSelfTrainModificado3 <- function(form,data,
     }
 
     if (verbose) {
-      cat('tx_incl',taxa,'IT.',it,'BD',i,thrConf,'\t nr. added exs. =',length(new),'\n')
+      # cat('tx_incl',taxa,'IT.',it,'BD',i,thrConf,'\t nr. added exs. =',length(new),'\n')
       ##guardando nas variaveis 
       it_g_3 <<-c(it_g_3,it)
       bd_g_3 <<-c(bd_g_3,bd_nome)
@@ -798,13 +799,13 @@ funcSelfTrainModificado3 <- function(form,data,
       qtd_Exemplos_Rot <- length(data[(1:N)[-sup][new],as.character(form[[2]])])
       totalrot <- totalrot + qtd_Exemplos_Rot
 
-      # acertou <- 0
-      # acerto <- treinamento[(1:N)[-sup][new], as.character(form[2])]== data[(1:N)[-sup][new], as.character(form[2])]
-      # tam_acerto <- NROW(acerto)
-      # for (w in 1:tam_acerto){
-      #   if (acerto[w] == TRUE)
-      #     acertou <- acertou + 1
-      # }
+      acertou <- 0
+      acerto <- treinamento[(1:N)[-sup][new], as.character(form[2])]== data[(1:N)[-sup][new], as.character(form[2])]
+      tam_acerto <- NROW(acerto)
+      for (w in 1:tam_acerto){
+        if (acerto[w] == TRUE)
+          acertou <- acertou + 1
+      }
       
       id_conj_treino_antigo <- c(id_conj_treino_antigo,id_conj_treino)
       id_conj_treino <- (1:N)[-sup][new]
@@ -815,7 +816,7 @@ funcSelfTrainModificado3 <- function(form,data,
       sup <- c(sup,(1:N)[-sup][new])
     }
     
-    # acertou_g_3 <<- c(acertou_g_3, acertou)
+    acertou_g_3 <<- c(acertou_g_3, acertou)
     
     # cat('acertou',acertou,'\n') 
     

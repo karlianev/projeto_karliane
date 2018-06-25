@@ -137,35 +137,35 @@ for (t in 2:2) { #1 = taxa 0,9 2 = taxa 0,95
     }else if (t == 2){ #TAXA 0.95
       if (c==1){ #NB
         #escrever no arquivo NB
-        write.csv(data_arquivo_modif2, "resultado_modif2_nb_003_095.csv", row.names = FALSE)
-        write.csv(data_arquivo_acc_por_taxa_modif2, "resultado_acc_modif2_nb_003_095.csv", row.names = FALSE)
+        write.csv(data_arquivo_modif2, "resultado_modif2_nb_004_095.csv", row.names = FALSE)
+        write.csv(data_arquivo_acc_por_taxa_modif2, "resultado_acc_modif2_nb_004_095.csv", row.names = FALSE)
        
-        write.csv(data_arquivo_modif3, "resultado_modif3_nb_003_095.csv", row.names = FALSE)
-        write.csv(data_arquivo_acc_por_taxa_modif3, "resultado_acc_modif3_nb_003_095.csv", row.names = FALSE)
+        write.csv(data_arquivo_modif3, "resultado_modif3_nb_004_095.csv", row.names = FALSE)
+        write.csv(data_arquivo_acc_por_taxa_modif3, "resultado_acc_modif3_nb_004_095.csv", row.names = FALSE)
         
       }else if (c==2){ #AD
         #escrever no arquivo AD
-        write.csv(data_arquivo_modif2, "resultado_modif2_ad_003_095.csv", row.names = FALSE)
-        write.csv(data_arquivo_acc_por_taxa_modif2, "resultado_acc_modif2_ad_003_095.csv", row.names = FALSE)
+        write.csv(data_arquivo_modif2, "resultado_modif2_ad_004_095.csv", row.names = FALSE)
+        write.csv(data_arquivo_acc_por_taxa_modif2, "resultado_acc_modif2_ad_004_095.csv", row.names = FALSE)
         
-        write.csv(data_arquivo_modif3, "resultado_modif3_ad_003_095.csv", row.names = FALSE)
-        write.csv(data_arquivo_acc_por_taxa_modif3, "resultado_acc_modif3_ad_003_095.csv", row.names = FALSE)
+        write.csv(data_arquivo_modif3, "resultado_modif3_ad_004_095.csv", row.names = FALSE)
+        write.csv(data_arquivo_acc_por_taxa_modif3, "resultado_acc_modif3_ad_004_095.csv", row.names = FALSE)
         
       }else if (c==3){ #ripper
         #escrever no arquivo ripper
-        write.csv(data_arquivo_modif2, "resultado_modif2_rip_003_095.csv", row.names = FALSE)
-        write.csv(data_arquivo_acc_por_taxa_modif2, "resultado_acc_modif2_rip_003_095.csv", row.names = FALSE)
+        write.csv(data_arquivo_modif2, "resultado_modif2_rip_004_095.csv", row.names = FALSE)
+        write.csv(data_arquivo_acc_por_taxa_modif2, "resultado_acc_modif2_rip_004_095.csv", row.names = FALSE)
         
-        write.csv(data_arquivo_modif3, "resultado_modif3_rip_003_095.csv", row.names = FALSE)
-        write.csv(data_arquivo_acc_por_taxa_modif3, "resultado_acc_modif3_rip_003_095.csv", row.names = FALSE)
+        write.csv(data_arquivo_modif3, "resultado_modif3_rip_004_095.csv", row.names = FALSE)
+        write.csv(data_arquivo_acc_por_taxa_modif3, "resultado_acc_modif3_rip_004_095.csv", row.names = FALSE)
         
       }else if (c==4){ #ibk
         #escrever no arquivo ripper
-        write.csv(data_arquivo_modif2, "resultado_modif2_ibk_003_095.csv", row.names = FALSE)
-        write.csv(data_arquivo_acc_por_taxa_modif2, "resultado_acc_modif2_ibk_003_095.csv", row.names = FALSE)
+        write.csv(data_arquivo_modif2, "resultado_modif2_ibk_004_095.csv", row.names = FALSE)
+        write.csv(data_arquivo_acc_por_taxa_modif2, "resultado_acc_modif2_ibk_004_095.csv", row.names = FALSE)
         
-        write.csv(data_arquivo_modif3, "resultado_modif3_ibk_003_095.csv", row.names = FALSE)
-        write.csv(data_arquivo_acc_por_taxa_modif3, "resultado_acc_modif3_ibk_003_095.csv", row.names = FALSE)
+        write.csv(data_arquivo_modif3, "resultado_modif3_ibk_004_095.csv", row.names = FALSE)
+        write.csv(data_arquivo_acc_por_taxa_modif3, "resultado_acc_modif3_ibk_004_095.csv", row.names = FALSE)
         
       }
     }
