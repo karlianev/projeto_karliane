@@ -265,11 +265,11 @@ funcSelfTrain <- function(form,data,
       }
         
       
-      rotulados <- checa_classe(probPreds_1_it, probPreds, indices, thrConf, usarModa = FALSE, moda)
+      rotulados <- checa_classe(probPreds_1_it, probPreds, thrConf)
       if (length(rotulados$id) == 0){
-        rotulados <- checa_confianca(probPreds_1_it, probPreds, indices, thrConf, usarModa = FALSE, moda)
+        rotulados <- checa_confianca(probPreds_1_it, probPreds, thrConf)
         if (length(rotulados$id) == 0){
-            rotulados <- checa_classe_diferentes(probPreds_1_it, probPreds, indices, thrConf, moda)
+            rotulados <- checa_classe_diferentes(probPreds_1_it, probPreds, thrConf, moda)
         }
       }
       new <- rotulados$id
@@ -861,7 +861,7 @@ funcSelfTrainInclusaoProp <- function(form,data,
   
   repeat {
     
-    acertou <- 0
+    #acertou <- 0
     #cat("conj_treino", conj_treino, "nrow(conj_treino)", nrow(conj_treino))
     it <- it+1
     
@@ -891,24 +891,27 @@ funcSelfTrainInclusaoProp <- function(form,data,
       
       indices <- row.names(probPreds)   # pega o id de cada exemplo 
       if (votacao){
-        moda <<- guarda_moda(indices,probPreds) # Armazena a moda das classes
+        moda <<- guarda_moda(probPreds) # Armazena a moda das classes
       }else{
-        moda <<- guarda_soma(indices,predicao) # Armazena a soma das classes
+        moda <<- guarda_soma(predicao) # Armazena a soma das classes
       }
       
     }else{
       indices <- row.names(probPreds)   # pega o id de cada exemplo 
       if (votacao){
-        moda <<- guarda_moda(indices,probPreds) # Armazena a moda das classes
+        moda <<- guarda_moda(probPreds) # Armazena a moda das classes
       }else{
-        moda <<- guarda_soma(indices,predicao) # Armazena a soma das classes
+        moda <<- guarda_soma(predicao) # Armazena a soma das classes
       }
       
-      rotulados <- checa_classe(probPreds_1_it, probPreds, indices, thrConf, usarModa = TRUE, moda)
+      rotulados <- checa_classe(probPreds_1_it, probPreds, thrConf)
       if (length(rotulados$id) == 0){
-        rotulados <- checa_confianca(probPreds_1_it, probPreds, indices, thrConf, usarModa = TRUE, moda)
+        rotulados <- checa_confianca(probPreds_1_it, probPreds, thrConf)
         if (length(rotulados$id) == 0){
-          rotulados <- checa_classe_diferentes(probPreds_1_it, probPreds, indices, thrConf, moda)
+          rotulados <- checa_classe_diferentes(probPreds_1_it, probPreds, thrConf, moda)
+          if(length(rotulados$id) == 0){
+            rotulados <- checa_confiancas_diferentes(probPreds_1_it, probPreds, thrConf)
+          }
         }
       }
       new <- rotulados$id
@@ -920,11 +923,11 @@ funcSelfTrainInclusaoProp <- function(form,data,
     if (verbose) {
       cat('tx_incl',taxa,'IT.',it,'BD',i,thrConf,'\t nr. added exs. =',length(new),'\n') 
       ##guardando nas variaveis 
-      it_g <<-c(it_g,it)
-      bd_g <<-c(bd_g,bd_nome)
-      thrConf_g <<-c(thrConf_g,thrConf)
-      nr_added_exs_g <<-c(nr_added_exs_g,length(new))
-      tx_g <<- c(tx_g, taxa)
+      it_g_ip <<-c(it_g_ip,it)
+      bd_g_ip <<-c(bd_g_ip,bd_nome)
+      thrConf_g_ip <<-c(thrConf_g_ip,thrConf)
+      nr_added_exs_g_ip <<-c(nr_added_exs_g_ip,length(new))
+      tx_g_ip <<- c(tx_g_ip, taxa)
     }
     
       ###    Em testes - INICIO    ###
@@ -944,13 +947,13 @@ funcSelfTrainInclusaoProp <- function(form,data,
       qtd_Exemplos_Rot <- length(data[(1:N)[-sup][new],as.character(form[[2]])])
       totalrot <- totalrot + qtd_Exemplos_Rot
 
-      acertou <- 0
-      acerto <- treinamento[(1:N)[-sup][as.integer(new)], as.character(form[2])]== data[(1:N)[-sup][as.integer(new)], as.character(form[2])]
-      tam_acerto <- NROW(acerto)
-      for (w in 1:tam_acerto){
-        if (acerto[w] == TRUE)
-          acertou <- acertou + 1
-      }
+      # acertou <- 0
+      # acerto <- treinamento[(1:N)[-sup][as.integer(new)], as.character(form[2])]== data[(1:N)[-sup][as.integer(new)], as.character(form[2])]
+      # tam_acerto <- NROW(acerto)
+      # for (w in 1:tam_acerto){
+      #   if (acerto[w] == TRUE)
+      #     acertou <- acertou + 1
+      # }
 
 
       id_conj_treino_antigo <- c(id_conj_treino_antigo,id_conj_treino)
@@ -958,7 +961,7 @@ funcSelfTrainInclusaoProp <- function(form,data,
       sup <- c(sup,(1:N)[-sup][as.factor(new)])
     }
     
-    acertou_g <<- c(acertou_g, acertou)    
+    # acertou_g_ip <<- c(acertou_g_ip, acertou)    
     if(length(new)==0){
       thrConf <- max(probPreds[,2]) #FALTOU FAZER USANDO A M?DIA DAS PREDI??ES.
       # thrConf<-mean(probPreds[,2])
@@ -1006,22 +1009,26 @@ tratar_dados_faltosos <- function(rotulados,probPreds,probPreds_1_it,indices,thr
   novos_rotulados <- rotulados
   
   while(((length(classes_dist_rot) < length(classes_dist_pp)) || distinguir_classes(classes_dist_pp,classes_dist_rot)) && (thrConf > min(probPreds$p))){ # enquanto houver mais classes no probPreds do que nos rotulados...
-    cat("Classe faltando no conjunto dos rotulados | Recalculando taxa de confiança... thrConf = ")
+    #cat("Classe faltando no conjunto dos rotulados | Recalculando taxa de confiança... thrConf = ")
     # thrConf <- min(probPreds$p) # Baixar confianca para a menor
     thrConf <- thrConf - 0.2
     if(thrConf < min(probPreds$p)){
       thrConf <- min(probPreds$p)
     }
-    cat(thrConf,"\n")
+    #cat(thrConf,"\n")
     
     #Rotular novamente
-    novos_rotulados <- checa_classe(probPreds_1_it, probPreds, indices, thrConf, usarModa = FALSE, moda)
+    novos_rotulados <- checa_classe(probPreds_1_it, probPreds, thrConf)
     if (length(novos_rotulados$id) == 0){
-      novos_rotulados <- checa_confianca(probPreds_1_it, probPreds, indices, thrConf, usarModa = FALSE, moda)
+      novos_rotulados <- checa_confianca(probPreds_1_it, probPreds, thrConf)
       if (length(novos_rotulados$id) == 0){
-        novos_rotulados <- checa_classe_diferentes(probPreds_1_it, probPreds, indices, thrConf, moda)
+        novos_rotulados <- checa_classe_diferentes(probPreds_1_it, probPreds, thrConf, moda)
+        if(length(novos_rotulados$id) == 0){
+          novos_rotulados <- checa_confiancas_diferentes(probPreds_1_it, probPreds, thrConf)
+        }
       }
     }
+    
     classes_dist_rot <- unique(novos_rotulados$cl)
   }
   
@@ -1080,11 +1087,14 @@ estratificar_rot <- function(new,probPreds,proporcoes){
   add_prop <- c()
   if(length(proporcoes)){
     pos <- 1 # para controlar as posicoes dos ids a serem adicionados
-    for(indice in new){
+    for(x in new){
+      if(x %in% probPreds[,3]){
+      indice <- which(probPreds[,3] == x)
       if((as.character(probPreds[indice,1]) %in% names(proporcoes))  && (proporcoes[[probPreds[indice,1]]] > 0)){
         add_prop[pos] <- indice
         pos <- pos + 1
         proporcoes[[as.character(probPreds[indice,1])]] <- proporcoes[[as.character(probPreds[indice,1])]] - 1
+      }
       }
     }
   }

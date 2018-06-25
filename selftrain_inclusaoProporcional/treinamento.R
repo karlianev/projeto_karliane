@@ -15,16 +15,17 @@ if(c==1){ #NB
   
   if (t==1){ #0.9
      nbST_IP<- funcSelfTrainInclusaoProp(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list(4)),'func',0.9,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, votacao = FALSE)
-#    nbST<- funcSelfTrainModificado2(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list(4)),'func',0.9,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, votacao = FALSE)
-#    nbST_3<- funcSelfTrainModificado3(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list(4)),'func',0.9,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, stdNB)
+     nbST_2<- funcSelfTrainModificado2(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list(4)),'func',0.9,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, votacao = FALSE)
+     nbST_3<- funcSelfTrainModificado3(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list(4)),'func',0.9,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, stdNB)
   }else if (t==2){ #0.95
-    nbST<- funcSelfTrain(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.95,100,1,TRUE, votacao = FALSE)
-    nbST_IP<- funcSelfTrainInclusaoProp(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list(4)),'func',0.95,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, votacao = FALSE)
-   # nbST<- funcSelfTrainModificado2(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.95,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, votacao = FALSE)
-   #nbST_3<- funcSelfTrainModificado3(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.95,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, stdNB)
+    #nbST<- funcSelfTrain(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.95,100,1,TRUE, votacao = FALSE)
+    nbST_IP<- funcSelfTrainInclusaoProp(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.95,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, votacao = FALSE)
+    nbST_2<- funcSelfTrainModificado2(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.95,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, votacao = FALSE)
+    nbST_3<- funcSelfTrainModificado3(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner("naiveBayes", list()),'func',0.95,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, stdNB)
   }
   matriz_confusaoIP<- table(predict(nbST_IP, base_teste), base_teste$class)
-  matriz_confusao1<- table(predict(nbST, base_teste), base_teste$class)
+  matriz_confusao2<- table(predict(nbST_2, base_teste), base_teste$class)
+  matriz_confusao3<- table(predict(nbST_3, base_teste), base_teste$class)
 }
 if(c==2){ #AD
   stdTree <- rpartXse(as.formula(paste(classe,'~', '.')),base_rotulados_ini,se=0.5)
@@ -33,14 +34,17 @@ if(c==2){ #AD
   
   if (t==1){ #0.9
     ST_IP <- funcSelfTrainInclusaoProp(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.9,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, votacao = FALSE)
-#    ST_3 <- funcSelfTrainModificado3(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.9,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, stdTree)
+    ST_2 <- funcSelfTrainModificado2(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.9,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, votacao = FALSE)
+    ST_3 <- funcSelfTrainModificado3(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.9,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, stdTree)
    
   }else if (t==2){ #0.95
     ST_IP <- funcSelfTrainInclusaoProp(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.95,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, votacao = FALSE)
-#    ST_3 <- funcSelfTrainModificado3(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.95,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, stdTree)
+    ST_2 <- funcSelfTrainModificado2(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.95,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, votacao = FALSE)
+    ST_3 <- funcSelfTrainModificado3(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('rpartXse',list(se=0.5)),'f',0.95,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, stdTree)
   }  
-  matriz_confusao1 = table(predict(ST_IP,base_teste,type='class'),base_teste$class)
-  matriz_confusao3 = c()#table(predict(ST_3,base_teste,type='class'),base_teste$class)
+  matriz_confusaoIP = table(predict(ST_IP,base_teste,type='class'),base_teste$class)
+  matriz_confusao2 = table(predict(ST_2,base_teste,type='class'),base_teste$class)
+  matriz_confusao3 = table(predict(ST_3,base_teste,type='class'),base_teste$class)
   
 }
 
@@ -51,14 +55,17 @@ if(c==3){ #RIPPER
   
   if (t==1){ #0.9
     ST_IP <- funcSelfTrainInclusaoProp(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.9,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, votacao = FALSE)
-#    ST_3 <- funcSelfTrainModificado3(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.9,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, stdJRip)
+    ST_2 <- funcSelfTrainModificado2(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.9,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, votacao = FALSE)
+    ST_3 <- funcSelfTrainModificado3(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.9,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, stdJRip)
     
   }else if (t==2){ #0.95
     ST_IP <- funcSelfTrainInclusaoProp(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.95,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, votacao = FALSE)
-#    ST_3 <- funcSelfTrainModificado3(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.95,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, stdJRip)
+    ST_2 <- funcSelfTrainModificado2(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.95,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, votacao = FALSE)
+    ST_3 <- funcSelfTrainModificado3(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('JRip',list()),'f2',0.95,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, stdJRip)
   }  
-  matriz_confusao1 = table(predict(ST_IP,base_teste),base_teste$class)
-  matriz_confusao3 = c()#table(predict(ST_3,base_teste),base_teste$class)
+  matriz_confusaoIP = table(predict(ST_IP,base_teste),base_teste$class)
+  matriz_confusao2 = table(predict(ST_2,base_teste),base_teste$class)
+  matriz_confusao3 = table(predict(ST_3,base_teste),base_teste$class)
 }
 
 if(c==4){ #IBK
@@ -68,25 +75,29 @@ if(c==4){ #IBK
   
   if (t==1){ #0.9
     ST_IP <- funcSelfTrainInclusaoProp(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('IBk',list(control = Weka_control(K=15, X=TRUE))),'f2',0.9,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, votacao = FALSE)
-#    ST_3 <- funcSelfTrainModificado3(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('IBk',list(control = Weka_control(K=15, X=TRUE))),'f2',0.9,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, stdIBK)
+    ST_2 <- funcSelfTrainModificado2(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('IBk',list(control = Weka_control(K=15, X=TRUE))),'f2',0.9,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, votacao = FALSE)
+    ST_3 <- funcSelfTrainModificado3(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('IBk',list(control = Weka_control(K=15, X=TRUE))),'f2',0.9,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, stdIBK)
     
   }else if (t==2){ #0.95
     ST_IP <- funcSelfTrainInclusaoProp(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('IBk',list(control = Weka_control(K=15, X=TRUE))),'f2',0.95,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, votacao = FALSE)
-#    ST_3 <- funcSelfTrainModificado3(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('IBk',list(control = Weka_control(K=15, X=TRUE))),'f2',0.95,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, stdIBK)
+    ST_2 <- funcSelfTrainModificado2(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('IBk',list(control = Weka_control(K=15, X=TRUE))),'f2',0.95,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, votacao = FALSE)
+    ST_3 <- funcSelfTrainModificado3(as.formula(paste(classe,'~', '.')), base_treino_self_training,learner('IBk',list(control = Weka_control(K=15, X=TRUE))),'f2',0.95,100,1,TRUE,qtd_exem_menor_classe, limiar = acc_sup_3, stdIBK)
   }  
   matriz_confusaoIP = table(predict(ST_IP,base_teste),base_teste$class)
-  matriz_confusao1 = c()#table(predict(ST_3,base_teste),base_teste$class)
+  matriz_confusao2 = table(predict(ST_2,base_teste),base_teste$class)
+  matriz_confusao3 = table(predict(ST_3,base_teste),base_teste$class)
 }
 
 
 n <- length(base_teste$class)
 
 
+acc_ip <- ((sum(diag(matriz_confusaoIP)) / n) * 100)
+acc <- ((sum(diag(matriz_confusao2)) / n) * 100)
+acc_3 <- ((sum(diag(matriz_confusao3)) / n) * 100)
 
-acc <- ((sum(diag(matriz_confusaoIP)) / n) * 100)
-acc_3 <- ((sum(diag(matriz_confusao1)) / n) * 100)
 
-
+acc_g_ip <- c(acc_g_ip, acc_ip)
 acc_g <- c(acc_g, acc)
 acc_g_3 <- c(acc_g_3, acc_3)
 
@@ -97,8 +108,9 @@ acc_g_sup <- c(acc_g_sup, acc_sup_3)
 
 bd <- c(bd, bd_nome)
 tx <- c(tx, taxa)
-cat("\n Acerto global modifInclusãoProp (%) =", acc)
-cat("\n Acerto global modif_1 (%) =", acc_3)
+cat("\n Acerto global modifInclusãoProp (%) =", acc_ip)
+cat("\n Acerto global modif_2 (%) =", acc)
+cat("\n Acerto global modif_3 (%) =", acc_3)
 cat("\n Acerto global supervisionado (%) =", acc_sup_3)
 
 
