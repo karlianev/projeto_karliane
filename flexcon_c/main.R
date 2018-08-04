@@ -13,9 +13,11 @@ set_workspace <- function() {
 # Function to define constants in all code
 defines <- function(){
   classifiers <<- c("naiveBayes", "rpartXse", "JRip", "IBk")
-  
-  cr <<- c(2:8)
+  change_rate <<- c(2:8)
   extention <<- ".csv"
+  funcs <<- c('func', 'f', 'f2', 'f2')
+  obj <<- c(learner(classifiers[1], list()), learner(classifiers[2], list(se=0.5)), learner(classifiers[3], list()),
+           learner(classifiers[4], list(control = Weka_control(K = 15, X = TRUE))))
 }
 
 # Função void que inicia todas as variáveis globais do código
@@ -23,6 +25,9 @@ defines <- function(){
 init_global_variables <- function() {
   conj_treino <<- c()
   treinamento <<- c()
+  acc_c1_s <<- c()
+  acc_c1_v <<- c()
+  acc_c2 <<- c()
   
   # FlexCon-C1 variables
   it_g <<- c()
@@ -46,81 +51,28 @@ init_global_variables <- function() {
   bd <<- c()
   tx <<- c()
   
-  #fazendo teste com classificador supervisionado
-  acc_g_sup <<- c()
-  
 }
 
-# Função principal para realizar as chamadas a outras funções
-# Main function to call orther in order
-main <- function(){
-  set_workspace()
-  defines()
-  # Carregando pacotes necessários
-  # Loading necessary packages
-  source('configurations.R')
-  
-  # Carregando o script com as funções
-  # Loading functions script
-  source('functions.R')
-  
-  for (t in cr) {
-    cat("teste",t)
-    if((t%%2)==0){
-      cat(" par ")
-    }else{
-      cat(" impar ")
+set_workspace()
+
+# Carregando o script com as funções
+# Loading functions script
+source('functions.R')
+installNeedPacks()
+
+init_global_variables()
+defines()
+
+for (cr in change_rate) {
+  for (cl in 1:length(classifiers)) {
+    for(i in 0:0) {
+      for(j in 1:5) {
+        taxa <- j * 5
+        source('databases.R')
+        source('splitData.R')
+        source('training.R')
+      }
     }
-  }
-}
-
-# main()
-
-# for(c in classifiers){
-  init_global_variables()
-  # for(i in 0:0){
-    # cat("\n                          BASE DE DADOS       ",i,"        cl",c,"\n\n\n")
-    # for(j in 1:5){
-      taxa <- j*5
-      i <- 0
-      source('databases.R')
-      source('splitData.R')
-      source('~/R/karliane/projeto_karliane/selftrain_modificado2/treinamento.R')
-    # }
-  # }
-# }  
-  #fazendo teste com classificador supervisionado
-  # accSupervised <- data.frame(tx, bd, acc_g_sup)
-
-write_archive <- function(cr, cl) {
-  flexcon_c1_s <- c()
-  flexcon_c1_v <- c()
-  flexcon_c2 <- c()
-  
-  flexcon_c1_s <- paste("flexcon_c1_S_", cl, "_", cr, extention, sep = "")
-  flexcon_c1_v <- paste("flexcon_c1_V_", cl, "_", cr, extention, sep = "")
-  flexcon_c2 <- paste("flexcon_c2_", cl, "_", cr, extention, sep = "")
-  
-  auxC1s <- data.frame(acc_g)
-  auxC1v <- data.frame(acc_g)
-  auxC2 <- data.frame(acc_g_3)
-  
-  accFlexConC1s <- matrix(auxC1s, ncol = 5, byrow = TRUE)
-  accFlexConC1v <- matrix(auxC1v, ncol = 5, byrow = TRUE)
-  accFlexConC2 <- matrix(auxC2, ncol = 5, byrow = TRUE)
-  
-  write.csv(accFlexConC1s, flexcon_c1_s, row.names = FALSE)
-  # write.csv(data_arquivo_acc_por_taxa_modif3, "resultado_acc_modif3_ibk_007_soma_095.csv", row.names = FALSE)
-  
-}
-
-
-for(t in cr){
-  conf <- 90
-  acc_local <- 94
-  limiar <- 70
-  if((acc_local > (limiar + 1)) && ((conf - t) > 0.0)){
-    conf <- conf - t
-    cat("\nConfiaça: ", conf, "        CR: ", t)
+    output_archive(cr, as.character(classifiers[cl]), acc_c1_s, acc_c1_v, acc_c2)
   }
 }
