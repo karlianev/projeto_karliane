@@ -223,9 +223,9 @@ flexConC <- function(learner, pred_func, min_exem_por_classe, limiar, method) {
 
   # FlexCon-C1 only
   if ((method == "1") || (method == "2")) {
-    moda <- matrix(data = rep(0, length(base_original$class)), ncol = length(unique(base_original$class)),
-                   nrow = NROW(base_original), byrow = TRUE, dimnames = list(row.names(base_original),
-                   sort(unique(base_original$class), decreasing = FALSE)))
+    moda <- matrix(data = rep(0, getLength(data$class)), ncol = length(levels(data$class)),
+                   nrow = NROW(data), byrow = TRUE, dimnames = list(row.names(data),
+                   sort(levels(data$class), decreasing = FALSE)))
   }
   
   # FlexCon-C2 only
