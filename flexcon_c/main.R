@@ -1,6 +1,6 @@
 # Função chega o SO utilizado e seta o diretório
 # This function check the OS and change work directory
-set_workspace <- function() {
+setWorkspace <- function() {
   mySystem <- Sys.info()
   if(mySystem[[1]] == "Linux"){
     setwd("~/R/karliane/projeto_karliane/flexcon_c")
@@ -22,7 +22,7 @@ defines <- function(){
 
 # Função void que inicia todas as variáveis globais do código
 # Void Function to load all global variables of the code
-init_global_variables <- function() {
+initGlobalVariables <- function() {
   conj_treino <<- c()
   treinamento <<- c()
   acc_c1_s <<- c()
@@ -53,26 +53,28 @@ init_global_variables <- function() {
   
 }
 
-set_workspace()
+setWorkspace()
 
 # Carregando o script com as funções
 # Loading functions script
 source('functions.R')
 installNeedPacks()
 
-init_global_variables()
+initGlobalVariables()
 defines()
 
-for (cr in change_rate) {
-  for (cl in 1:length(classifiers)) {
+# for (cr in change_rate) {
+  # for (cl in 1:length(classifiers)) {
     for(i in 0:0) {
-      for(j in 1:5) {
+      source('databases.R')
+      for(j in 1:1) {
         taxa <- j * 5
-        source('databases.R')
+        cr <- 5
+        cl <- 1
         source('splitData.R')
         source('training.R')
       }
     }
     output_archive(cr, as.character(classifiers[cl]), acc_c1_s, acc_c1_v, acc_c2)
-  }
-}
+#   }
+# }

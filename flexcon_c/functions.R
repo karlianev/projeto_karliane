@@ -152,7 +152,10 @@ storageSum <- function(prob_preds, moda) {
   for (x in 1:NROW(prob_preds)) {
     id <- as.character(prob_preds[x, ncol(prob_preds)])
     for (y in 1:length(dist_classes)) { 
-      moda[id, dist_classes[y]] <- moda[id, dist_classes[y]] + prob_preds[x, dist_classes[y]]
+      if (prob_preds[x, 1] == dist_classes[y]) {
+        moda[id, dist_classes[y]] <- moda[id, dist_classes[y]] + prob_preds[x, 2]
+        break
+      }
     }
   }
   return (moda)
@@ -232,6 +235,7 @@ flexConC <- function(learner, pred_func, min_exem_por_classe, limiar, method) {
     new_samples <- cleanVector(new_samples)
     acertou <- 0
     it = it + 1
+    cat("Iteração", it)
     
     if (qtd_exemplos_rot > 0) {
       qtd_exemplos_rot = 0
