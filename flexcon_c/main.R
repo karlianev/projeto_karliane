@@ -63,18 +63,16 @@ installNeedPacks()
 initGlobalVariables()
 defines()
 
-# for (cr in change_rate) {
-  # for (cl in 1:length(classifiers)) {
-    for(i in 0:0) {
+for (cr in change_rate) {
+  for (cl in 1:length(classifiers)) {
+    for(i in 0:30) {
       source('databases.R')
-      for(j in 1:1) {
+      for(j in 1:5) {
         taxa <- j * 5
-        cr <- 5
-        cl <- 1
         source('splitData.R')
         source('training.R')
       }
     }
     output_archive(cr, as.character(classifiers[cl]), acc_c1_s, acc_c1_v, acc_c2)
-#   }
-# }
+  }
+}

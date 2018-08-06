@@ -66,7 +66,7 @@ confidenceCheck <- function(data_1_it, data_x_it, thr_conf) {
   ycl <- c()
   lvls <- match(data_x_it$id, data_1_it$id)
   for (indice in 1:length(lvls)) {
-    if ((data_1_it[lvls[indice], 1] == data_x_it[indice, 1])) {
+    if ((as.character(data_1_it[lvls[indice], 1]) == as.character(data_x_it[indice, 1]))) {
       if ((data_1_it[lvls[indice], 2] >= thr_conf) || (data_x_it[indice, 2] >= thr_conf)) {
         pos <- pos + 1
         xid[pos] <- indice
@@ -137,7 +137,7 @@ storageFashion <- function(prob_preds, moda) {
   for (x in 1:NROW(prob_preds)) {
     id <- as.character(prob_preds[x, ncol(prob_preds)])
     for (y in 1:(length(dist_classes))) {
-      if (prob_preds[x, 1] == dist_classes[y]) {
+      if (as.character(prob_preds[x, 1]) == as.character(dist_classes[y])) {
         moda[id, dist_classes[y]] <- moda[id, dist_classes[y]] + 1
         break
       }
@@ -152,7 +152,7 @@ storageSum <- function(prob_preds, moda) {
   for (x in 1:NROW(prob_preds)) {
     id <- as.character(prob_preds[x, ncol(prob_preds)])
     for (y in 1:length(dist_classes)) { 
-      if (prob_preds[x, 1] == dist_classes[y]) {
+      if (as.character(prob_preds[x, 1]) == as.character(dist_classes[y])) {
         moda[id, dist_classes[y]] <- moda[id, dist_classes[y]] + prob_preds[x, 2]
         break
       }
@@ -223,8 +223,8 @@ flexConC <- function(learner, pred_func, min_exem_por_classe, limiar, method) {
 
   # FlexCon-C1 only
   if ((method == "1") || (method == "2")) {
-    moda <- matrix(data = rep(0, getLength(data$class)), ncol = length(levels(data$class)),
-                   nrow = NROW(data), byrow = TRUE, dimnames = list(row.names(data),
+    moda <- matrix(data = rep(0, getLength(data[- sup]$class)), ncol = length(levels(data$class)),
+                   nrow = NROW(data[- sup]), byrow = TRUE, dimnames = list(row.names(data),
                    sort(levels(data$class), decreasing = FALSE)))
   }
   
@@ -235,7 +235,6 @@ flexConC <- function(learner, pred_func, min_exem_por_classe, limiar, method) {
     new_samples <- cleanVector(new_samples)
     acertou <- 0
     it = it + 1
-    cat("Iteração", it)
     
     if (qtd_exemplos_rot > 0) {
       qtd_exemplos_rot = 0
