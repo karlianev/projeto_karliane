@@ -68,6 +68,7 @@ for (cr in change_rate) {
     for(i in 0:30) {
       source('databases.R')
       for(j in 1:5) {
+        cat("\nCR:", cr, "   CL:", cl, "   BD:", i, "   TX:",j)
         taxa <- j * 5
         source('splitData.R')
         source('training.R')

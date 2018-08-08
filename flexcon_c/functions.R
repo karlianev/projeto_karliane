@@ -289,10 +289,10 @@ flexConC <- function(learner, pred_func, min_exem_por_classe, limiar, method) {
       
       sup <- c(sup, id_conj_treino)
       
-      if(length(new_samples) == 0) {
-        thr_conf <- max(prob_preds[ ,2])
-      }
+    } else (length(new_samples) == 0) {
+      thr_conf <- max(prob_preds[ , 2])
     }
+    
     if ((it == max_its) || ((length(sup) / N) >= 1)) {
       break
     }
