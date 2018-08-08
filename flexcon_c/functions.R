@@ -289,7 +289,7 @@ flexConC <- function(learner, pred_func, min_exem_por_classe, limiar, method) {
       
       sup <- c(sup, id_conj_treino)
       
-    } else (length(new_samples) == 0) {
+    } else {
       thr_conf <- max(prob_preds[ , 2])
     }
     
@@ -303,7 +303,7 @@ flexConC <- function(learner, pred_func, min_exem_por_classe, limiar, method) {
 flexConC1 <- function(prob_preds, thr_conf, moda, it) {
   if(it == 1) {
     prob_preds_1_it <<- prob_preds
-    new_samples <- which(prob_preds[, 2] >= thr_conf)
+    new_samples <- which(prob_preds[ , 2] >= thr_conf)
     rotulados <- data.frame(id = prob_preds[new_samples, 3], cl = prob_preds[new_samples, 1])
   } else { 
     rotulados <- classCheck(prob_preds_1_it, prob_preds, thr_conf)
