@@ -100,7 +100,7 @@ differentClassesCheck <- function(data_1_it, data_x_it, thr_conf, moda) {
 
 # Check in both matrixes if one of confidences values are higger than thr_conf
 # The class of this samples is select observing the sum of the confidences or choose the most voted class
-differentConfidencesCheck <- function(data_1_it, data_x_it, thr_conf) {
+differentConfidencesCheck <- function(data_1_it, data_x_it, thr_conf, moda) {
   pos <- 0
   xid <- c()
   ycl <- c()
@@ -223,9 +223,9 @@ flexConC <- function(learner, pred_func, min_exem_por_classe, limiar, method) {
 
   # FlexCon-C1 only
   if ((method == "1") || (method == "2")) {
-    moda <- matrix(data = rep(0, getLength(data[- sup]$class)), ncol = length(levels(data$class)),
-                   nrow = NROW(data[- sup]), byrow = TRUE, dimnames = list(row.names(data),
-                   sort(levels(data$class), decreasing = FALSE)))
+    moda <- matrix(data = rep(0, getLength(base_original$class)), ncol = length(levels(base_original$class)),
+                   nrow = NROW(base_original), byrow = TRUE, dimnames = list(row.names(base_original),
+                   sort(levels(base_original$class), decreasing = FALSE)))
   }
   
   # FlexCon-C2 only
@@ -315,7 +315,7 @@ flexConC1 <- function(prob_preds, thr_conf, moda, it) {
         rotulados <- differentClassesCheck(prob_preds_1_it, prob_preds, thr_conf, moda)
         len_rotulados <- getLength(rotulados$id)
         if(len_rotulados == 0) {
-          rotulados <- differentConfidencesCheck(prob_preds_1_it, prob_preds, thr_conf)
+          rotulados <- differentConfidencesCheck(prob_preds_1_it, prob_preds, thr_conf, moda)
         }
       }
     }
