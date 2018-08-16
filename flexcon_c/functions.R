@@ -39,10 +39,10 @@ cleanVector <- function(my_vector) {
 # Check which samples in data_x_it have equal classes than data_1_it
 # Check in both matrixes if the confidence value are higger than thr_conf
 classCheck <- function(data_1_it, data_x_it, thr_conf) {
-  examples <- c()
+  examples <- cleanVector(examples)
   pos <- 0
-  xid <- c()
-  ycl <- c()
+  xid <- cleanVector(xid)
+  ycl <- cleanVector(ycl)
   lvls <- match(data_x_it$id, data_1_it$id)
   for (indice in 1:length(lvls)) {
     if ((as.character(data_1_it[lvls[indice], 1]) == as.character(data_x_it[indice, 1]))) {
@@ -60,10 +60,10 @@ classCheck <- function(data_1_it, data_x_it, thr_conf) {
 # Check in both matrixes if one of confidences values are higger than thr_conf
 # The class of this samples is select observing the sum of the confidences or choose the most voted class
 confidenceCheck <- function(data_1_it, data_x_it, thr_conf) {
-  examples <- c()
+  examples <- cleanVector(examples)
   pos <- 0
-  xid <- c()
-  ycl <- c()
+  xid <- cleanVector(xid)
+  ycl <- cleanVector(ycl)
   lvls <- match(data_x_it$id, data_1_it$id)
   for (indice in 1:length(lvls)) {
     if ((as.character(data_1_it[lvls[indice], 1]) == as.character(data_x_it[indice, 1]))) {
@@ -82,8 +82,8 @@ confidenceCheck <- function(data_1_it, data_x_it, thr_conf) {
 # The class of this samples is select observing the sum of the confidences or choose the most voted class
 differentClassesCheck <- function(data_1_it, data_x_it, thr_conf, moda) {
   pos <- 0
-  xid <- c()
-  ycl <- c()
+  xid <- cleanVector(xid)
+  ycl <- cleanVector(ycl)
   lvls <- match(data_x_it$id, data_1_it$id)
   for (indice in 1:length(lvls)) {
     if ((as.character(data_1_it[lvls[indice], 1]) != as.character(data_x_it[indice, 1]))) {
@@ -102,8 +102,8 @@ differentClassesCheck <- function(data_1_it, data_x_it, thr_conf, moda) {
 # The class of this samples is select observing the sum of the confidences or choose the most voted class
 differentConfidencesCheck <- function(data_1_it, data_x_it, thr_conf, moda) {
   pos <- 0
-  xid <- c()
-  ycl <- c()
+  xid <- cleanVector(xid)
+  ycl <- cleanVector(ycl)
   lvls <- match(data_x_it$id, data_1_it$id)
   for (indice in 1:length(lvls)) {
     if ((as.character(data_1_it[lvls[indice], 1]) != as.character(data_x_it[indice, 1]))) {
@@ -163,16 +163,16 @@ storageSum <- function(prob_preds, moda) {
 
 # Calculate the acc value of the training samples
 calcLocalAcc <- function() {
-  if (c==1) {
+  if (c == 1) {
     classificador <- naiveBayes(as.factor(class) ~ ., conj_treino)
     matriz <- table(predict(classificador, base_rotulados_ini), base_rotulados_ini$class)
-  } else if (c==2) {
+  } else if (c == 2) {
     classificador <- rpartXse(as.factor(class) ~ ., conj_treino)
     matriz <- table(predict(classificador, base_rotulados_ini, type="class"), base_rotulados_ini$class)        
-  } else if (c==3) {
+  } else if (c == 3) {
     classificador <- JRip(as.factor(class) ~ ., conj_treino)
     matriz <- table(predict(classificador, base_rotulados_ini), base_rotulados_ini$class)        
-  } else if (c==4) {
+  } else if (c == 4) {
     classificador <- IBk(as.factor(class) ~ ., conj_treino)
     matriz <- table(predict(classificador, base_rotulados_ini), base_rotulados_ini$class)
   }
@@ -198,28 +198,38 @@ convertProbPreds <- function(prob_preds) {
   return (prob_preds)
 }
 
+
+# Função para definir constantes ao longo do código
+# Function to define constants in all code
+defines <- function() {
+  classifiers <<- c("naiveBayes", "rpartXse", "JRip", "IBk")
+  change_rate <<- c(2:8)
+  extention <<- ".csv"
+  funcs <<- c('func', 'f', 'f2', 'f2')
+  obj <<- c(learner(classifiers[1], list()), learner(classifiers[2], list(se=0.5)), learner(classifiers[3], list()),
+            learner(classifiers[4], list(control = Weka_control(K = 15, X = TRUE))))
+}
+
 # FlexCon-C the base algorithm
 flexConC <- function(learner, pred_func, min_exem_por_classe, limiar, method) {
-  # Initial setup, this is equal in all methods
+  # Initial setup, this is equal in all methods FlexCon-C1 and FlexCon-C2 
   form <- as.formula(paste(classe, '~', '.'))
-  data <- base_treino_self_training
+  data <- base
   thr_conf <- 0.95
   max_its <- 100
   verbose <- TRUE
   it <- 0
-  
-  # FlexCon-C1 and FlexCon-C2 
   N <- NROW(data)
   n_instancias_por_classe <- ddply(data, ~class, summarise, number_of_distinct_orders = length(class))
   n_classes <- NROW(n_instancias_por_classe) - 1
   qtd_exemplos_rot <- 0
   total_rot <- 0
-  conj_treino <<- c()
+  conj_treino <<- cleanVector(conj_treino)
   treino_valido <<- FALSE
   classificar <- TRUE
   sup <- which(!is.na(data[, as.character(form[[2]])]))
-  id_conj_treino <- c()
-  id_conj_treino_antigo <- c()
+  id_conj_treino <- cleanVector(id_conj_treino)
+  id_conj_treino_antigo <- cleanVector(id_conj_treino_antigo)
 
   # FlexCon-C1 only
   if ((method == "1") || (method == "2")) {
@@ -273,7 +283,7 @@ flexConC <- function(learner, pred_func, min_exem_por_classe, limiar, method) {
         new_data <- as.character(prob_preds[new_samples, 1])
       }
       
-      qtd_exemplos_rot <- length(new_data)
+      qtd_exemplos_rot <- getLength(new_data)
       total_rot <- total_rot + qtd_exemplos_rot
       
       acertou <- 0
@@ -284,7 +294,7 @@ flexConC <- function(learner, pred_func, min_exem_por_classe, limiar, method) {
           acertou <<- acertou + 1
         }
       }
-      id_conj_treino_antigo <- c(id_conj_treino_antigo, id_conj_treino)
+      id_conj_treino_antigo <- appendVectors(id_conj_treino_antigo, id_conj_treino)
       id_conj_treino <- (1:N)[-sup][new_samples]
       
       sup <- c(sup, id_conj_treino)
@@ -372,9 +382,41 @@ generateProbPreds <- function(pred_func, model, data, sup) {
 }
 
 # Increment the acc vector with the new value
-incrementAcc <- function(old_acc, acc) {
-  new_acc <- c(old_acc, acc)
-  return (new_acc)
+appendVectors <- function(v1, v2) {
+  vector <- c(v1, v2)
+  return (vector)
+}
+
+# Função void que inicia todas as variáveis globais do código
+# Void Function to load all global variables of the code
+initGlobalVariables <- function() {
+  conj_treino <<- c()
+  treinamento <<- c()
+  acc_c1_s <<- c()
+  acc_c1_v <<- c()
+  acc_c2 <<- c()
+  
+  # FlexCon-C1 variables
+  it_g <<- c()
+  bd_g <<- c()
+  thrConf_g <<- c()
+  nr_added_exs_g <<- c()
+  tx_g <<- c()
+  acc_g <<- c()
+  acertou_g <<- c()
+  
+  # FlexCon-C2 variables
+  it_g_3 <<- c()
+  bd_g_3 <<- c()
+  thrConf_g_3 <<- c()
+  nr_added_exs_g_3 <<- c()
+  tx_g_3 <<- c()
+  acc_g_3 <<- c()
+  acertou_g_3 <<- c()
+  
+  grad_g <<- c()
+  bd <<- c()
+  tx <<- c()
 }
 
 # Install packages if it not installed and load
@@ -400,18 +442,18 @@ newConfidence <- function(acc_local, limiar, tx_conf) {
 }
 
 # Return the acc of the current db
-supAcc <- function(cl){
-  std <- supModel(cl)
+supAcc <- function(cl, base_rotulados_ini){
+  std <- supModel(cl, base_rotulados_ini)
   matriz_confusao_supervisionado <- confusionMatrix(std)
   acc_sup_3 <- getAcc(matriz_confusao_supervisionado, matriz_confusao_supervisionado)
   return(acc_sup_3)
 }
 
 # Return a supervised classifier
-supModel <- function(cl){
+supModel <- function(cl, base_rotulados_ini){
   switch (cl,
           "naiveBayes" = std <- naiveBayes(as.formula(paste(classe, '~', '.')), base_rotulados_ini),
-          "rpartXse" = std <- rpartXse(as.formula(paste(classe, '~', '.')), base_rotulados_ini, se=0.5),
+          "rpartXse" = std <- rpartXse(as.formula(paste(classe, '~', '.')), base_rotulados_ini, se = 0.5),
           "JRip" = std <- JRip(as.formula(paste(classe, '~', '.')), base_rotulados_ini),
           "IBk" = std <- IBk(as.formula(paste(classe, '~', '.')), base_rotulados_ini, control = Weka_control(K = 15,
                                                                                                              X = TRUE))

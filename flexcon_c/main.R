@@ -9,56 +9,16 @@ setWorkspace <- function() {
   }
 }
 
-# Função para definir constantes ao longo do código
-# Function to define constants in all code
-defines <- function(){
-  classifiers <<- c("naiveBayes", "rpartXse", "JRip", "IBk")
-  change_rate <<- c(2:8)
-  extention <<- ".csv"
-  funcs <<- c('func', 'f', 'f2', 'f2')
-  obj <<- c(learner(classifiers[1], list()), learner(classifiers[2], list(se=0.5)), learner(classifiers[3], list()),
-           learner(classifiers[4], list(control = Weka_control(K = 15, X = TRUE))))
-}
-
-# Função void que inicia todas as variáveis globais do código
-# Void Function to load all global variables of the code
-initGlobalVariables <- function() {
-  conj_treino <<- c()
-  treinamento <<- c()
-  acc_c1_s <<- c()
-  acc_c1_v <<- c()
-  acc_c2 <<- c()
-  
-  # FlexCon-C1 variables
-  it_g <<- c()
-  bd_g <<- c()
-  thrConf_g <<- c()
-  nr_added_exs_g <<- c()
-  tx_g <<- c()
-  acc_g <<- c()
-  acertou_g <<- c()
-  
-  # FlexCon-C2 variables
-  it_g_3 <<- c()
-  bd_g_3 <<- c()
-  thrConf_g_3 <<- c()
-  nr_added_exs_g_3 <<- c()
-  tx_g_3 <<- c()
-  acc_g_3 <<- c()
-  acertou_g_3 <<- c()
-  
-  grad_g <<- c()
-  bd <<- c()
-  tx <<- c()
-  
-}
-
 setWorkspace()
 
+medias_c1_s <- cleanVector(medias_c1_s)
+medias_c1_v <- cleanVector(medias_c1_v)
+medias_c2 <- cleanVector(medias_c2)
 # Carregando o script com as funções
 # Loading functions script
 source('functions.R')
 installNeedPacks()
+source('crossValidation.R')
 
 initGlobalVariables()
 defines()
@@ -67,13 +27,42 @@ for (cr in change_rate) {
   for (cl in 1:length(classifiers)) {
     for(i in 0:30) {
       source('databases.R')
+      qtd_exem_por_classe <- ddply(base_original, ~class, summarise, number_of_distinct_orders = length(class))
+      qtd_exem_menor_classe <- trunc(min(qtd_exem_por_classe$number_of_distinct_orders) * 0.1)
+      folds <- crossValidation(base_original, base_original$class)
       for(j in 1:5) {
-        cat("\nCR:", cr, "   CL:", cl, "   BD:", i, "   TX:",j)
         taxa <- j * 5
-        source('splitData.R')
-        source('training.R')
+        acc_c1_s <- cleanVector(acc_c1_s)
+        acc_c1_v <- cleanVector(acc_c1_v)
+        acc_c2 <- cleanVector(acc_c2)
+        for (fold in 1:length(folds)) {
+          base_teste <- base_original[folds[[fold]], ]
+          base <- base_original[- folds[[fold]], ]
+          treinamento <<- base_rotulada_treino <- base
+          #sorteando os exemplos que ficarão rotulados inicialmente
+          for (iter in 1:10) {
+            cat("\nCR:", cr, "   CL:", cl, "   BD:", i, "   TX:", j, "   FOLD:", fold, "Iteração:", iter)
+            H2 <- holdout(base_rotulada_treino$class, ratio = (taxa / 100), mode = "stratified")
+            ids_treino_rot <- H2$tr
+            base <- newBase(base_rotulada_treino, ids_treino_rot)
+            base_rotulados_ini <- base_rotulada_treino[ids_treino_rot, ]
+            source('training.R')
+          }
+        }
+        medias_c1_s <- appendVectors(medias_c1_s, mean(acc_c1_s))
+        medias_c1_v <- appendVectors(medias_c1_v, mean(acc_c1_v))
+        medias_c2 <- appendVectors(medias_c2, mean(acc_c2))
+        # source('splitData.R')
       }
     }
-    output_archive(cr, as.character(classifiers[cl]), acc_c1_s, acc_c1_v, acc_c2)
+    output_archive(cr, as.character(classifiers[cl]), medias_c1_s, medias_c1_v, medias_c2)
+    medias_c1_s <- cleanVector(medias_c1_s)
+    medias_c1_v <- cleanVector(medias_c1_v)
+    medias_c2 <- cleanVector(medias_c2)
   }
+}
+
+newBase <- function(base_rotulada, ids_treino_rot){
+  base_rotulada[- ids_treino_rot, "class"] <- NA
+  return (base_rotulada)
 }
