@@ -206,8 +206,13 @@ defines <- function() {
   change_rate <<- c(2:8)
   extention <<- ".csv"
   funcs <<- c('func', 'f', 'f2', 'f2')
-  obj <<- c(learner(classifiers[1], list()), learner(classifiers[2], list(se=0.5)), learner(classifiers[3], list()),
-            learner(classifiers[4], list(control = Weka_control(K = 15, X = TRUE))))
+  obj <<- c(learner(classifiers[1], list()), learner(classifiers[2], list(se = 0.5)), learner(classifiers[3], list()),
+            learner(classifiers[4], list(control = Weka_control(K = as.integer(sqrt(nrow(base_original))), X = TRUE))))
+}
+
+attKValue <- function(database){
+  listas <- list(control = Weka_control(K = as.integer(sqrt(nrow(database))), X = TRUE))
+  obj[4] <<- c(learner(classifiers[4], listas))
 }
 
 # FlexCon-C the base algorithm
@@ -455,8 +460,8 @@ supModel <- function(cl, base_rotulados_ini){
           "naiveBayes" = std <- naiveBayes(as.formula(paste(classe, '~', '.')), base_rotulados_ini),
           "rpartXse" = std <- rpartXse(as.formula(paste(classe, '~', '.')), base_rotulados_ini, se = 0.5),
           "JRip" = std <- JRip(as.formula(paste(classe, '~', '.')), base_rotulados_ini),
-          "IBk" = std <- IBk(as.formula(paste(classe, '~', '.')), base_rotulados_ini, control = Weka_control(K = 15,
-                                                                                                             X = TRUE))
+          "IBk" = std <- IBk(as.formula(paste(classe, '~', '.')), base_rotulados_ini,
+                             control = Weka_control(K = as.integer(sqrt(nrow(base_rotulados_ini))), X = TRUE))
   )
   return(std)
 }
