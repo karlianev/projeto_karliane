@@ -256,7 +256,7 @@ tratar_dados_c1 <- function(rotulados,probPreds,thrConf,moda,it,taxa_de_perda){
         }
         
         #Rotular novamente
-        novos_rotulados <- flexConC1(prob_preds, thr_conf, moda, it)
+        novos_rotulados <- flexConC1(probPreds, thrConf, moda, it)
         
         classes_dist_rot <- unique(novos_rotulados$cl)
     }
@@ -266,6 +266,7 @@ tratar_dados_c1 <- function(rotulados,probPreds,thrConf,moda,it,taxa_de_perda){
     # print(classes_dist_pp)
     return (novos_rotulados)
 }
+
 tratar_dados_c2 <- function(rotulados,probPreds,prob_preds_superv,thrConf,taxa_de_perda){
     classes_dist <- unique(base_rotulados_ini$class) # Classes distintas na base inicial
     classes_dist_pp <- unique(probPreds$cl)          # Classes distintas no probPreds
@@ -273,7 +274,7 @@ tratar_dados_c2 <- function(rotulados,probPreds,prob_preds_superv,thrConf,taxa_d
     novos_rotulados <- rotulados
     
     while(((length(classes_dist_rot) < length(classes_dist_pp)) || distinguir_classes(classes_dist_pp,classes_dist_rot)) && (thrConf > min(probPreds$p))){ # enquanto houver mais classes no probPreds do que nos rotulados...
-        cat("Classe faltando | Recalculando taxa de confiança... thrConf = ")
+        #cat("Classe faltando | Recalculando taxa de confiança... thrConf = ")
         # thrConf <- min(probPreds$p) # Baixar confianca para a menor
         thrConf <- thrConf - taxa_de_perda
         if(thrConf < min(probPreds$p)){
@@ -281,7 +282,7 @@ tratar_dados_c2 <- function(rotulados,probPreds,prob_preds_superv,thrConf,taxa_d
         }
         
         #Rotular novamente
-        novos_rotulados <- flexConC2(prob_preds, prob_preds_superv, thr_conf)
+        novos_rotulados <- flexConC2(probPreds, prob_preds_superv, thrConf)
         
         classes_dist_rot <- unique(novos_rotulados$cl)
     }
@@ -440,12 +441,12 @@ flexConC <- function(learner, pred_func, min_exem_por_classe, limiar, method, st
     
     if(stratified){
         if(method == "1" || method == "2") {
-            rotulados <- tratar_dados_c1(rotulados,probPreds,thrConf,moda,it,taxa_de_perda = 0.2)
+            rotulados <- tratar_dados_c1(rotulados,prob_preds,thr_conf,moda,it,taxa_de_perda = 0.2)
         } else {
-            rotulados <- tratar_dados_c2(rotulados,probPreds,prob_preds_superv,thrConf,taxa_de_perda = 0.2)
+            rotulados <- tratar_dados_c2(rotulados,prob_preds,prob_preds_superv,thr_conf,taxa_de_perda = 0.2)
         }
          ratio <- prop(rotulados) # Encontra as proporções para incluir os rotulos
-         new_samples <- estratificar_rot(rotulados$id,probPreds,ratio) # Selecionar os rotulos para incluir na base
+         new_samples <- estratificar_rot(rotulados$id,prob_preds,ratio) # Selecionar os rotulos para incluir na base
     }
     
     if (length(new_samples)) {
