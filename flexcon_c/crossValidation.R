@@ -1,3 +1,18 @@
+#' @description This function returns a list with k folds
+#'
+#' @usage crossValidation (database, all_labels, k = 10)
+#'
+#' @param database the database are you using without class column
+#' @param all_labels the class column in the dataset
+#' @param k the number of the folds to split the data
+#'
+#' @return a list with k sublists contains the samples
+#'
+#' @examples
+#' data(iris)
+#' data <- iris[, 1:(length(iris)-1)]
+#' class <- iris$Species
+#' folds <- crossValidation(data, class, k = 10)
 crossValidation <- function(database, all_labels, k = 10) {
   if (k <= 0) {
     stop("K need to be higger than 1")
@@ -19,6 +34,19 @@ crossValidation <- function(database, all_labels, k = 10) {
   }
 }
 
+#' @description This function counts the number of the samples per class in a vector
+#'
+#' @usage samplesPerClass (all_labels, k = 10)
+#'
+#' @param all_labels the class column in the dataset
+#' @param k the number of the folds to split the data
+#'
+#' @return a vector with the number of the samples of each class than each fold
+#'
+#' @examples
+#' data(iris)
+#' class <- iris$Species
+#' samples_each_class <- samplesPerClass(class, k = 10)
 samplesPerClass <- function(all_labels, k) {
   vector <- c()
   samples_per_class <- distSamples(all_labels)
@@ -38,6 +66,18 @@ percentageOfClasses <- function(labels) {
   return (percent)
 }
 
+#' @description This function counts the number of the samples per class in a vector
+#'
+#' @usage distSamples (labels)
+#'
+#' @param labels the class column in the dataset
+#'
+#' @return a vector with the number of the samples of the each class
+#'
+#' @examples
+#' data(iris)
+#' class <- iris$Species
+#' samples_each_class <- distSamples(class)
 distSamples <- function(labels) {
   x <- c()
   percent <- c()

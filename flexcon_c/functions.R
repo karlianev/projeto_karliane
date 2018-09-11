@@ -1,7 +1,7 @@
 storagePred <- function(predic, iterac) {
   if (iterac == 1) {
     soma <<- predic
-    cat("criar vetor com o voto e a soma")  
+    cat("criar vetor com o voto e a soma")
   } else {
     cat("incrementar o voto e a soma")
   }
@@ -31,9 +31,19 @@ f2 <- function(m, d) {
   data.frame(cl = col1, p = col2, id = row.names(d))
 }
 
-cleanVector <- function(my_vector) {
-  my_vector <- c()
-  return (my_vector)
+#' @description This function provide an easy way to clean the any variable.
+#'
+#' @usage cleanVector(x)
+#'
+#' @param x a variable should be clean.
+#'
+#' @return a clean variable.
+#'
+#' @examples
+#' x <- cleanVector(x)
+cleanVector <- function(x) {
+  x <- c()
+  return (x)
 }
 
 # Check which samples in data_x_it have equal classes than data_1_it
@@ -125,7 +135,7 @@ searchClass <- function(i, moda) {
   for (j in 1:length(moda[i, ])) {
     if((moda[i, j] >= maior)) {
       maior <- moda[i, j]
-      cl <- classes[j] 
+      cl <- classes[j]
     }
   }
   return (cl)
@@ -151,7 +161,7 @@ storageSum <- function(prob_preds, moda) {
   dist_classes <- unique(base_original$class)
   for (x in 1:NROW(prob_preds)) {
     id <- as.character(prob_preds[x, ncol(prob_preds)])
-    for (y in 1:length(dist_classes)) { 
+    for (y in 1:length(dist_classes)) {
       if (as.character(prob_preds[x, 1]) == as.character(dist_classes[y])) {
         moda[id, dist_classes[y]] <- moda[id, dist_classes[y]] + prob_preds[x, 2]
         break
@@ -168,10 +178,10 @@ calcLocalAcc <- function() {
     matriz <- table(predict(classificador, base_rotulados_ini), base_rotulados_ini$class)
   } else if (c == 2) {
     classificador <- rpartXse(as.factor(class) ~ ., conj_treino)
-    matriz <- table(predict(classificador, base_rotulados_ini, type="class"), base_rotulados_ini$class)        
+    matriz <- table(predict(classificador, base_rotulados_ini, type="class"), base_rotulados_ini$class)
   } else if (c == 3) {
     classificador <- JRip(as.factor(class) ~ ., conj_treino)
-    matriz <- table(predict(classificador, base_rotulados_ini), base_rotulados_ini$class)        
+    matriz <- table(predict(classificador, base_rotulados_ini), base_rotulados_ini$class)
   } else if (c == 4) {
     classificador <- IBk(as.factor(class) ~ ., conj_treino)
     matriz <- table(predict(classificador, base_rotulados_ini), base_rotulados_ini$class)
@@ -217,7 +227,7 @@ attKValue <- function(database){
 
 # FlexCon-C the base algorithm
 flexConC <- function(learner, pred_func, min_exem_por_classe, limiar, method) {
-  # Initial setup, this is equal in all methods FlexCon-C1 and FlexCon-C2 
+  # Initial setup, this is equal in all methods FlexCon-C1 and FlexCon-C2
   form <- as.formula(paste(classe, '~', '.'))
   data <- base
   thr_conf <- 0.95
@@ -242,15 +252,15 @@ flexConC <- function(learner, pred_func, min_exem_por_classe, limiar, method) {
                    nrow = NROW(base_original), byrow = TRUE, dimnames = list(row.names(base_original),
                    sort(levels(base_original$class), decreasing = FALSE)))
   }
-  
+
   # FlexCon-C2 only
   add_rot_superv <- FALSE
-  
+
   repeat {
     new_samples <- cleanVector(new_samples)
     acertou <- 0
     it = it + 1
-    
+
     if (qtd_exemplos_rot > 0) {
       qtd_exemplos_rot = 0
       treino_valido <- validTraining(data, id_conj_treino, n_classes, min_exem_por_classe)
@@ -262,7 +272,7 @@ flexConC <- function(learner, pred_func, min_exem_por_classe, limiar, method) {
     }
     model <- generateModel(learner, form, data, sup)
     prob_preds <- generateProbPreds(pred_func, model, data, sup)
-    
+
     switch (method,
             "1" = {
               moda <- storageSum(prob_preds, moda)
@@ -280,17 +290,17 @@ flexConC <- function(learner, pred_func, min_exem_por_classe, limiar, method) {
     )
     if (length(new_samples)) {
       new_data <- data[(1:N)[-sup][new_samples], as.character(form[2])]
-      
+
       if (add_rot_superv) {
         add_rot_superv <- FALSE
         new_data <- as.character(prob_preds_superv[new_samples, 1])
       } else {
         new_data <- as.character(prob_preds[new_samples, 1])
       }
-      
+
       qtd_exemplos_rot <- getLength(new_data)
       total_rot <- total_rot + qtd_exemplos_rot
-      
+
       acertou <- 0
       acerto <- treinamento[(1:N)[-sup][new_samples], as.character(form[2])] == new_data
       tam_acerto <- NROW(acerto)
@@ -301,13 +311,13 @@ flexConC <- function(learner, pred_func, min_exem_por_classe, limiar, method) {
       }
       id_conj_treino_antigo <- appendVectors(id_conj_treino_antigo, id_conj_treino)
       id_conj_treino <- (1:N)[-sup][new_samples]
-      
+
       sup <- c(sup, id_conj_treino)
-      
+
     } else {
       thr_conf <- max(prob_preds[ , 2])
     }
-    
+
     if ((it == max_its) || ((length(sup) / N) >= 1)) {
       break
     }
@@ -320,7 +330,7 @@ flexConC1 <- function(prob_preds, thr_conf, moda, it) {
     prob_preds_1_it <<- prob_preds
     new_samples <- which(prob_preds[ , 2] >= thr_conf)
     rotulados <- data.frame(id = prob_preds[new_samples, 3], cl = prob_preds[new_samples, 1])
-  } else { 
+  } else {
     rotulados <- classCheck(prob_preds_1_it, prob_preds, thr_conf)
     len_rotulados <- getLength(rotulados$id)
     if (len_rotulados == 0) {
@@ -343,13 +353,13 @@ flexConC1 <- function(prob_preds, thr_conf, moda, it) {
 flexConC2 <- function(prob_preds, prob_preds_superv, thr_conf) {
   prob_preds <- convertProbPreds(prob_preds)
   prob_preds_superv <- convertProbPreds(prob_preds_superv)
-  
+
   prob_preds_con <- (prob_preds[, 2] >= thr_conf)
   prob_preds_superv_con <- (prob_preds_superv[, 2] >= thr_conf)
-  
+
   prob_preds_cl <- prob_preds[, 1]
   prob_preds_superv_cl <-  prob_preds_superv[, 1]
-  
+
   new_samples <- which((prob_preds_con & prob_preds_superv_con) & (prob_preds_cl == prob_preds_superv_cl))
   if (length(new_samples) == 0) {
     new_samples <- which((prob_preds_con | prob_preds_superv_con) & (prob_preds_cl == prob_preds_superv_cl))
@@ -400,7 +410,7 @@ initGlobalVariables <- function() {
   acc_c1_s <<- c()
   acc_c1_v <<- c()
   acc_c2 <<- c()
-  
+
   # FlexCon-C1 variables
   it_g <<- c()
   bd_g <<- c()
@@ -409,7 +419,7 @@ initGlobalVariables <- function() {
   tx_g <<- c()
   acc_g <<- c()
   acertou_g <<- c()
-  
+
   # FlexCon-C2 variables
   it_g_3 <<- c()
   bd_g_3 <<- c()
@@ -418,7 +428,7 @@ initGlobalVariables <- function() {
   tx_g_3 <<- c()
   acc_g_3 <<- c()
   acertou_g_3 <<- c()
-  
+
   grad_g <<- c()
   bd <<- c()
   tx <<- c()
@@ -484,7 +494,7 @@ validClassification <- function(treino_valido_i, id_conj_treino, id_conj_treino_
   } else {
     classificar <- FALSE
   }
-  return(classificar)  
+  return(classificar)
 }
 
 # Chech if i have a min accetable samples per class
@@ -511,11 +521,11 @@ output_archive <- function(cr, cl, acc_c1_s, acc_c1_v, acc_c2) {
   flexcon_c1_s <- c()
   flexcon_c1_v <- c()
   flexcon_c2 <- c()
-  
+
   flexcon_c1_s <- paste("flexcon_c1_S_", cl, "_", cr, extention, sep = "")
   flexcon_c1_v <- paste("flexcon_c1_V_", cl, "_", cr, extention, sep = "")
   flexcon_c2 <- paste("flexcon_c2_", cl, "_", cr, extention, sep = "")
-  
+
   acc_flexcon_c1_s <- matrix(acc_c1_s, ncol = 5, byrow = TRUE)
   acc_flexcon_c1_v <- matrix(acc_c1_v, ncol = 5, byrow = TRUE)
   acc_flexcon_c2 <- matrix(acc_c2, ncol = 5, byrow = TRUE)

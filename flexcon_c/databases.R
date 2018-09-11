@@ -1,10 +1,10 @@
 setwd("../bases")
 
 if (i == 0) {
-  base_original <- read.arff("iris.arff");  
+  base_original <- read.arff("iris.arff")
   bd_nome <- "iris"
 } else if  (i == 1) {
-  base_original <- read.arff("bupa.arff");  
+  base_original <- read.arff("bupa.arff")
   bd_nome <- "bupa"
 } else if (i == 2) {
   base_original <- read.arff("segment.arff")
@@ -15,7 +15,7 @@ if (i == 0) {
 } else if  (i == 4) {
   base_original <- read.arff("phishingData.arff")
   bd_nome <- "phishing"
-} else if (i == 5) {  
+} else if (i == 5) {
   base_original <- read.arff("haberman.arff")
   bd_nome <- "haberman"
 } else if (i == 6) {
@@ -30,10 +30,10 @@ if (i == 0) {
 } else if (i == 9) {
   base_original <- read.arff("wilt.arff")
   bd_nome <- "wilt"
-} else if (i == 10) {  
+} else if (i == 10) {
   base_original <- read.arff("kr-vs-kp.arff")
   bd_nome <- "kr-vs-kp"
-} else if (i == 11) {  
+} else if (i == 11) {
   base_original <- read.arff("blood-transfusion-service.arff")
   bd_nome <- "blood-transfusion-service"
 } else if (i == 12) {
@@ -42,13 +42,13 @@ if (i == 0) {
 } else if (i == 13) {
   base_original <- read.arff("connectionist-mines-vs-rocks.arff")
   bd_nome <- "connectionist-mines-vs-rocks"
-} else if (i == 14) {  
+} else if (i == 14) {
   base_original <- read.arff("flare.arff")
   bd_nome <- "flare"
-} else if (i == 15) {  
+} else if (i == 15) {
   base_original <- read.arff("indian-liver-patient.arff")
   bd_nome <- "indian-liver-patient"
-} else if (i == 16) {  
+} else if (i == 16) {
   base_original <- read.arff("leukemia-haslinger.arff")
   bd_nome <- "leukemia-haslinger"
 } else if (i == 17) {
@@ -60,14 +60,14 @@ if (i == 0) {
 } else if (i == 19) {
   base_original <- read.arff("musk.arff")
   bd_nome <- "musk"
-} else if (i == 20) {  
-  base_original <-read.arff("ozone-onehr.arff")
+} else if (i == 20) {
+  base_original <- read.arff("ozone-onehr.arff")
   bd_nome <- "ozone-onehr"
-} else if (i == 21) {  
-  base_original <-read.arff("pendigits.arff")
+} else if (i == 21) {
+  base_original <- read.arff("pendigits.arff")
   bd_nome <- "pendigits"
-} else if (i == 22) {  
-  base_original <-read.arff("planning-relax.arff")
+} else if (i == 22) {
+  base_original <- read.arff("planning-relax.arff")
   bd_nome <- "planning-relax"
 } else if (i == 23) {
   base_original <- read.arff("seeds.arff")
@@ -82,7 +82,7 @@ if (i == 0) {
   base_original <- read.arff("tic-tac-toe.arff")
   bd_nome <- "tic-tac-toe"
 } else if (i == 27) {
-  base_original <-read.arff("twonorm.arff")
+  base_original <- read.arff("twonorm.arff")
   bd_nome <- "twonorm"
 } else if  (i == 28) {
   base_original <- read.arff("hill-valley-with-noise.arff")
@@ -93,7 +93,7 @@ if (i == 0) {
 } else if (i == 30) {
   base_original <- read.arff("car.arff")
   bd_nome <- "car"
-}  
+}
 
 classe <- "class"
 

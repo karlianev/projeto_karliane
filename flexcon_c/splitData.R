@@ -11,8 +11,8 @@ qtd_exem_menor_classe <- trunc(min(qtd_exem_por_classe$number_of_distinct_orders
 
 #criação dos conjuntos de treinamento e teste
 #o holdout cria dois conjuntos: 1) H$tr com o id de 75% dos exemplos para treinamento e 2) H$ts com id de 25% dos eemplos para teste
-H <- holdout(base_original$class, ratio = 0.75, mode = "stratified") 
-base <- base_original[H$tr, ] 
+H <- holdout(base_original$class, ratio = 0.75, mode = "stratified")
+base <- base_original[H$tr, ]
 base_teste <- base_original[H$ts, ]
 
 #Armazena os exemplos inicialmente routlados, será usado para treinamento supervisionado
