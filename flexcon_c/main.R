@@ -1,3 +1,25 @@
+#' @description This function set the class atribute to NA without change the class of selected samples
+#'
+#' @usage newBase(base_rotulada, ids_treino_rot)
+#'
+#' @param base_rotulada the full dataset without changes
+#' @param ids_treino_rot the vector with the selected samples
+#'
+#' @return a new dataset with some percents of the samples have the NA in class atribute
+#'
+#' @examples
+#' data(iris)
+#'
+#' H2 <- holdout(base_rotulada_treino$class, ratio = (taxa / 100), mode = "stratified")
+#' base <- newBase(base_rotulada_treino, ids_treino_rot)
+#' ids_treino_rot <- H2$tr
+#'
+#' @seealso rminer.holdout
+newBase <- function(base_rotulada, ids_treino_rot){
+  base_rotulada[- ids_treino_rot, "class"] <- NA
+  return (base_rotulada)
+}
+
 #' Função chega o SO utilizado e seta o diretório
 #' This function check the OS and change work directory
 setWorkspace <- function() {
@@ -61,24 +83,3 @@ for (cr in change_rate) {
   }
 }
 
-#' @description This function set the class atribute to NA without change the class of selected samples
-#'
-#' @usage newBase(base_rotulada, ids_treino_rot)
-#'
-#' @param base_rotulada the full dataset without changes
-#' @param ids_treino_rot the vector with the selected samples
-#'
-#' @return a new dataset with some percents of the samples have the NA in class atribute
-#'
-#' @examples
-#' data(iris)
-#'
-#' H2 <- holdout(base_rotulada_treino$class, ratio = (taxa / 100), mode = "stratified")
-#' base <- newBase(base_rotulada_treino, ids_treino_rot)
-#' ids_treino_rot <- H2$tr
-#'
-#' @seealso rminer.holdout
-newBase <- function(base_rotulada, ids_treino_rot){
-  base_rotulada[- ids_treino_rot, "class"] <- NA
-  return (base_rotulada)
-}

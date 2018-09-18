@@ -216,8 +216,7 @@ defines <- function() {
   change_rate <<- c(2:8)
   extention <<- ".csv"
   funcs <<- c('func', 'f', 'f2', 'f2')
-  obj <<- c(learner(classifiers[1], list()), learner(classifiers[2], list(se = 0.5)), learner(classifiers[3], list()),
-            learner(classifiers[4], list(control = Weka_control(K = as.integer(sqrt(nrow(base_original))), X = TRUE))))
+  obj <<- c(learner(classifiers[1], list()), learner(classifiers[2], list(se = 0.5)), learner(classifiers[3], list()), learner(classifiers[4], list(control = Weka_control(K = 3, X = TRUE))))
 }
 
 attKValue <- function(database){
@@ -437,7 +436,7 @@ initGlobalVariables <- function() {
 # Install packages if it not installed and load
 installNeedPacks <- function() {
   packages <- c("caret", "ssc", "plyr", "DMwR", "DMwR2", "caTools", "RWeka", "rJava", "rminer", "datasets", "e1071",
-                "ggplot2")
+                "ggplot2", "stats")
   for (pack in packages) {
     if (!require(pack, character.only = TRUE)) {
       install.packages(pack)
