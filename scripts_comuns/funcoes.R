@@ -1090,12 +1090,12 @@ estratificar_rot <- function(new,probPreds,proporcoes){
     pos <- 1 # para controlar as posicoes dos ids a serem adicionados
     for(x in new){
       if(x %in% probPreds[,3]){
-      indice <- which(probPreds[,3] == x)
-      if((as.character(probPreds[indice,1]) %in% names(proporcoes))  && (proporcoes[[probPreds[indice,1]]] > 0)){
-        add_prop[pos] <- indice
-        pos <- pos + 1
-        proporcoes[[as.character(probPreds[indice,1])]] <- proporcoes[[as.character(probPreds[indice,1])]] - 1
-      }
+        indice <- which(probPreds[,3] == x)
+        if((as.character(probPreds[indice,1]) %in% names(proporcoes))  && (proporcoes[[probPreds[indice,1]]] > 0)){
+          add_prop[pos] <- indice
+          pos <- pos + 1
+          proporcoes[[as.character(probPreds[indice,1])]] <- proporcoes[[as.character(probPreds[indice,1])]] - 1
+        }
       }
     }
   }
