@@ -10,7 +10,7 @@ setWorkspace <- function() {
 }
 
 setWorkspace()
-source('functions2.R')
+source('functions.R')
 medias_c1_s <- cleanVector(medias_c1_s)
 medias_c1_v <- cleanVector(medias_c1_v)
 medias_c2 <- cleanVector(medias_c2)
@@ -29,7 +29,7 @@ newBase <- function(base_rotulada, ids_treino_rot){
 }
 
 for (cr in change_rate) {
-  for (cl in 1:length(classifiers)) {
+  for (cl in 1:2) {
     for(i in 0:30) {
       source('databases.R')
       k_NN <- attKValue(base_original)

@@ -202,7 +202,7 @@ convertProbPreds <- function(prob_preds) {
 # Função para definir constantes ao longo do código
 # Function to define constants in all code
 defines <- function() {
-  classifiers <<- c("naiveBayes", "rpartXse")
+  classifiers <<- c("naiveBayes", "rpartXse", "JRip", "IBk")
   change_rate <<- c(5)
   extention <<- ".csv"
   funcs <<- c('func', 'f', 'f2', 'f2')

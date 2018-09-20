@@ -29,7 +29,7 @@ newBase <- function(base_rotulada, ids_treino_rot){
 }
 
 for (cr in change_rate) {
-  for (cl in 1:length(classifiers)) {
+  for (cl in 3:4) {
     for(i in 0:30) {
       source('databases.R')
       k_NN <- attKValue(base_original)
