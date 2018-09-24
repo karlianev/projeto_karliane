@@ -287,7 +287,7 @@ tratar_dados_c2 <- function(rotulados,probPreds,prob_preds_superv,thrConf,taxa_d
         classes_dist_rot <- unique(novos_rotulados$cl)
     }
     
-    cat('thrConf ',thrConf,'\t nr. added exs. =',length(novos_rotulados$id),'\n')
+#    cat('thrConf ',thrConf,'\t nr. added exs. =',length(novos_rotulados$id),'\n')
     # print(novos_rotulados)
     # print(classes_dist_pp)
     return (novos_rotulados)
@@ -295,7 +295,7 @@ tratar_dados_c2 <- function(rotulados,probPreds,prob_preds_superv,thrConf,taxa_d
 
 #2
 prop <- function(rotulados){
-    if(length(rotulados)){
+    if(length(rotulados$id)){
         classes_dist_rot <- unique(rotulados$cl)  # Guarda as classes distintas
         qtd_classes_ini <- c(rep(0,length(classes_dist_rot)))
         qtd_classes_rot <- c(rep(0,length(classes_dist_rot)))
@@ -345,7 +345,7 @@ estratificar_rot <- function(new,probPreds,proporcoes){
         for(x in new){ # percorre os exemplos selecionados
             if(x %in% probPreds[,3]){ 
                 indice <- which(probPreds[,3] == x)
-                if((as.character(probPreds[indice,1]) %in% names(proporcoes))  && (proporcoes[[probPreds[indice,1]]] > 0)){
+                if((as.character(probPreds[indice,1]) %in% names(proporcoes))  && (proporcoes[[as.character(probPreds[indice,1])]] > 0)){
                     add_prop[pos] <- indice
                     pos <- pos + 1
                     proporcoes[[as.character(probPreds[indice,1])]] <- proporcoes[[as.character(probPreds[indice,1])]] - 1
@@ -407,7 +407,7 @@ flexConC <- function(learner, pred_func, min_exem_por_classe, limiar, method, st
     new_samples <- cleanVector(new_samples)
     acertou <- 0
     it = it + 1
-    
+
     if (qtd_exemplos_rot > 0) {
       qtd_exemplos_rot = 0
       treino_valido <- validTraining(data, id_conj_treino, n_classes, min_exem_por_classe)
@@ -698,15 +698,18 @@ output_archive <- function(cr, cl, acc_c1_s, acc_c1_v, acc_c2, acc_c1S_s, acc_c1
   flexcon_c2S <- paste("flexcon_c2S_", cl, "_", cr, extention, sep = "")
   
   acc_flexcon_c1_s <- matrix(acc_c1_s, ncol = 5, byrow = TRUE)
-  acc_flexcon_c1_v <- matrix(acc_c1_v, ncol = 5, byrow = TRUE)
-  acc_flexcon_c2 <- matrix(acc_c2, ncol = 5, byrow = TRUE)
-  acc_flexcon_c1S_s <- matrix(acc_c1S_s, ncol = 5, byrow = TRUE)
-  acc_flexcon_c1S_v <- matrix(acc_c1S_v, ncol = 5, byrow = TRUE)
-  acc_flexcon_c2S <- matrix(acc_c2S, ncol = 5, byrow = TRUE)
+#  acc_flexcon_c1_v <- matrix(acc_c1_v, ncol = 5, byrow = TRUE)
+#  acc_flexcon_c2 <- matrix(acc_c2, ncol = 5, byrow = TRUE)
+#  acc_flexcon_c1S_s <- matrix(acc_c1S_s, ncol = 5, byrow = TRUE)
+#  acc_flexcon_c1S_v <- matrix(acc_c1S_v, ncol = 5, byrow = TRUE)
+#  acc_flexcon_c2S <- matrix(acc_c2S, ncol = 5, byrow = TRUE)
 
-  write_archive(flexcon_c1S_s, acc_flexcon_c1S_s)
-  write_archive(flexcon_c1S_v, acc_flexcon_c1S_v)
-  write_archive(flexcon_c2S, acc_flexcon_c2S)
+  write_archive(flexcon_c1_s, acc_flexcon_c1_s)
+#  write_archive(flexcon_c1_v, acc_flexcon_c1_v)
+#  write_archive(flexcon_c2, acc_flexcon_c2)
+#  write_archive(flexcon_c1S_s, acc_flexcon_c1S_s)
+#  write_archive(flexcon_c1S_v, acc_flexcon_c1S_v)
+#  write_archive(flexcon_c2S, acc_flexcon_c2S)
 }
 
 # Write in the output file the content
