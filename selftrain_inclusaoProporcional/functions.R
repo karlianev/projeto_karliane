@@ -315,7 +315,8 @@ prop <- function(rotulados){
         names(proporcoes) <- as.character(classes_dist_rot) # Organiza os titulos de cada posicao por classe
         
         pos <- 1
-        while (pos <= length(classes_dist_rot)){
+        epoch <- 1
+        while ((pos <= length(classes_dist_rot)) || (epoch >= 50)){
             cl <- as.character(classes_dist_rot[pos])
             proporcoes[[cl]] <- as.numeric(format((qtd_classes_rot[[menorCL]]*qtd_classes_ini[[cl]])/qtd_classes_ini[[menorCL]],digits = 4)) # Regra de 3
             if(trunc(proporcoes[[cl]]) > trunc(qtd_classes_rot[[cl]])){ #Se o resultado passa do numero disponivel pra rotular, eh pq o anteror
@@ -325,6 +326,7 @@ prop <- function(rotulados){
                 pos <- 1
             }else
                 pos <- pos +1
+            epoch <- epoch + 1
         }
         
         # Caso a proporcao para uma base fique entre 0 e 1, esta recebera 1, pois nao se pode adicionar classe pela metade
@@ -609,6 +611,22 @@ installNeedPacks <- function() {
     }
     library(pack, character.only = TRUE)
   }
+}
+
+setDatabases <- function(){
+    base_vector <<- c("iris","bupa","segment","waveform","phishing","haberman","mushroom","pima","vehicle",
+                     "wilt","kr-vs-kp","blood-transfusion-service","cnae-9","connectionist-mines-vs-rocks",
+                     "flare","indian-liver-patient","leukemia-haslinger","mammographic-mass","mfeat-karhunen",
+                     "musk","ozone-onehr","pendigits","planning-relax","seeds","semeion","spectf-heart","tic-tac-toe",
+                     "twonorm","hill","balance-scale","car")
+}
+
+readDatabase <- function(i,format){
+    setwd("../bases")
+    bd <- paste(base_vector[i],format, sep = "")
+    base_original <<- read.arff(bd);  
+    classe <<- "class"
+    setwd("../selftrain_inclusaoProporcional/")
 }
 
 # Return the new confidence value changed by the cr value
