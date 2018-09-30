@@ -247,23 +247,21 @@ tratar_dados_c1 <- function(rotulados,probPreds,thrConf,moda,it,taxa_de_perda){
     classes_dist_rot <- unique(rotulados$cl)         # Classes distintas no conjunto dos rotulados
     novos_rotulados <- rotulados
     
-    while(((length(classes_dist_rot) < length(classes_dist_pp)) || distinguir_classes(classes_dist_pp,classes_dist_rot)) && (thrConf > min(probPreds$p))){ # enquanto houver mais classes no probPreds do que nos rotulados...
-        #cat("Classe faltando | Recalculando taxa de confiança... thrConf = ")
-        # thrConf <- min(probPreds$p) # Baixar confianca para a menor
+	epoch <- 1
+	# Enquanto o (((numero de classes do probPreds for maior que dos rotulados) ou (as classes são diferentes) e 
+	# (o limiar maior que a confiança mínima do probPreds)) e (esteja dentro do limite de iteracoes))
+    while((((length(classes_dist_rot) < length(classes_dist_pp)) || analyzeClasses(classes_dist_pp,classes_dist_rot)) 
+           && (thrConf > min(probPreds$p))) && epoch <= 15){ 
+
         thrConf <- thrConf - taxa_de_perda
         if(thrConf < min(probPreds$p)){
             thrConf <- min(probPreds$p)
         }
-        
         #Rotular novamente
         novos_rotulados <- flexConC1(probPreds, thrConf, moda, it)
-        
         classes_dist_rot <- unique(novos_rotulados$cl)
+		epoch <- epoch + 1
     }
-    
-    #cat('thrConf ',thrConf,'\t nr. added exs. =',length(novos_rotulados$id),'\n')
-    # print(novos_rotulados)
-    # print(classes_dist_pp)
     return (novos_rotulados)
 }
 
@@ -273,23 +271,21 @@ tratar_dados_c2 <- function(rotulados,probPreds,prob_preds_superv,thrConf,taxa_d
     classes_dist_rot <- unique(rotulados$cl)         # Classes distintas no conjunto dos rotulados
     novos_rotulados <- rotulados
     
-    while(((length(classes_dist_rot) < length(classes_dist_pp)) || distinguir_classes(classes_dist_pp,classes_dist_rot)) && (thrConf > min(probPreds$p))){ # enquanto houver mais classes no probPreds do que nos rotulados...
-        #cat("Classe faltando | Recalculando taxa de confiança... thrConf = ")
-        # thrConf <- min(probPreds$p) # Baixar confianca para a menor
+    epoch <- 1
+    # Enquanto o (((numero de classes do probPreds for maior que dos rotulados) ou (as classes são diferentes) e 
+    # (o limiar maior que a confiança mínima do probPreds)) e (esteja dentro do limite de iteracoes))
+    while((((length(classes_dist_rot) < length(classes_dist_pp)) || analyzeClasses(classes_dist_pp,classes_dist_rot)) 
+           && (thrConf > min(probPreds$p))) && (epoch <= 15) ) {
+        
         thrConf <- thrConf - taxa_de_perda # Reduzir limiar
         if(thrConf < min(probPreds$p)){
             thrConf <- min(probPreds$p)
         }
-        
         #Rotular novamente
         novos_rotulados <- flexConC2(probPreds, prob_preds_superv, thrConf)
-        
         classes_dist_rot <- unique(novos_rotulados$cl)
+		epoch <- epoch + 1
     }
-    
-#    cat('thrConf ',thrConf,'\t nr. added exs. =',length(novos_rotulados$id),'\n')
-    # print(novos_rotulados)
-    # print(classes_dist_pp)
     return (novos_rotulados)
 }
 
@@ -316,7 +312,7 @@ prop <- function(rotulados){
         
         pos <- 1
         epoch <- 1
-        while ((pos <= length(classes_dist_rot)) || (epoch >= 50)){
+        while ((pos <= length(classes_dist_rot)) && (epoch <= 50)){
             cl <- as.character(classes_dist_rot[pos])
             proporcoes[[cl]] <- as.numeric(format((qtd_classes_rot[[menorCL]]*qtd_classes_ini[[cl]])/qtd_classes_ini[[menorCL]],digits = 4)) # Regra de 3
             if(trunc(proporcoes[[cl]]) > trunc(qtd_classes_rot[[cl]])){ #Se o resultado passa do numero disponivel pra rotular, eh pq o anteror
@@ -348,7 +344,7 @@ estratificar_rot <- function(new,probPreds,proporcoes){
             if(x %in% probPreds[,3]){ 
                 indice <- which(probPreds[,3] == x)
                 if((as.character(probPreds[indice,1]) %in% names(proporcoes))  && (proporcoes[[as.character(probPreds[indice,1])]] > 0)){
-                    add_prop[pos] <- indice
+                    add_prop[pos] <- indice #indice do probPreds referente ao exemplo a ser rotulado
                     pos <- pos + 1
                     proporcoes[[as.character(probPreds[indice,1])]] <- proporcoes[[as.character(probPreds[indice,1])]] - 1
                 }
@@ -358,26 +354,20 @@ estratificar_rot <- function(new,probPreds,proporcoes){
     return (add_prop)
 }
 
-# verificar se as classes são iguais
-distinguir_classes <- function(classes_dist_pp,classes_dist_rot){ 
-    n <- 0
-    for(cl in classes_dist_rot){
-        aux <- classes_dist_pp == cl
-        n <- which(aux == TRUE)
-        if(!length(n)){                           # Se nao tiver classe igual retorna positivo (se classes_dist_pp >= classes_dist_rot) ou 
-            if(length(classes_dist_rot) < length(classes_dist_pp)) # negativo (se classes_dist_pp < classes_dist_rot) para o rotulamento 
-                return (TRUE)
-        } 
+# verificar se as classes são iguais. Pois pode haver o msm numero de classes, porém diferentes
+analyzeClasses <- function(classes_dist_pp,classes_dist_rot){ 
+    for(cl in classes_dist_pp){
+        if(!(cl %in% classes_dist_rot)) #Caso alguma classe do probPreds não esteja nos rotulados
+            return (TRUE) # Retorna TRUE para rotular novamente
     }
     return (FALSE)
 }
-
 # -- Stratified --
 
 # FlexCon-C the base algorithm
 flexConC <- function(learner, pred_func, min_exem_por_classe, limiar, method, stratified = FALSE) {
   # Initial setup, this is equal in all methods FlexCon-C1 and FlexCon-C2 
-  form <- as.formula(paste(classe, '~', '.'))
+  form <- as.formula(paste("class", '~', '.'))
   data <- base
   thr_conf <- 0.95
   max_its <- 100
@@ -448,7 +438,7 @@ flexConC <- function(learner, pred_func, min_exem_por_classe, limiar, method, st
             rotulados <- tratar_dados_c2(rotulados,prob_preds,prob_preds_superv,thr_conf,taxa_de_perda = 0.2)
         }
          ratio <- prop(rotulados) # Encontra as proporções para incluir os rotulos
-         new_samples <- estratificar_rot(rotulados$id,prob_preds,ratio) # Selecionar os rotulos para incluir na base
+         new_samples <- estratificar_rot(rotulados$id,prob_preds,ratio) # Selecionar os exemplos para incluir na base
     }
     
     if (length(new_samples)) {
@@ -614,19 +604,20 @@ installNeedPacks <- function() {
 }
 
 setDatabases <- function(){
-    base_vector <<- c("iris","bupa","segment","waveform","phishing","haberman","mushroom","pima","vehicle",
-                     "wilt","kr-vs-kp","blood-transfusion-service","cnae-9","connectionist-mines-vs-rocks",
-                     "flare","indian-liver-patient","leukemia-haslinger","mammographic-mass","mfeat-karhunen",
-                     "musk","ozone-onehr","pendigits","planning-relax","seeds","semeion","spectf-heart","tic-tac-toe",
-                     "twonorm","hill","balance-scale","car")
+    base_vector <- c("iris","bupa","segment","waveform-5000","phishingData","haberman","mushroom","pima","vehicle",
+                      "wilt","kr-vs-kp","blood-transfusion-service","cnae-9","connectionist-mines-vs-rocks","flare",
+                      "indian-liver-patient","leukemia-haslinger","mammographic-mass","mfeat-karhunen","musk",
+                      "ozone-onehr","pendigits","planning-relax","seeds","semeion","spectf-heart","tic-tac-toe",
+                      "twonorm","hill-valley-with-noise","balance-scale","car")
+    return (base_vector)
 }
 
-readDatabase <- function(i,format){
+readDatabase <- function(i,base_vector,format){
     setwd("../bases")
     bd <- paste(base_vector[i],format, sep = "")
-    base_original <<- read.arff(bd);  
-    classe <<- "class"
+    base_original <- read.arff(bd);  
     setwd("../selftrain_inclusaoProporcional/")
+    return (base_original)
 }
 
 # Return the new confidence value changed by the cr value
@@ -650,10 +641,10 @@ supAcc <- function(cl, base_rotulados_ini){
 # Return a supervised classifier
 supModel <- function(cl, base_rotulados_ini){
   switch (cl,
-          "naiveBayes" = std <- naiveBayes(as.formula(paste(classe, '~', '.')), base_rotulados_ini),
-          "rpartXse" = std <- rpartXse(as.formula(paste(classe, '~', '.')), base_rotulados_ini, se = 0.5),
-          "JRip" = std <- JRip(as.formula(paste(classe, '~', '.')), base_rotulados_ini),
-          "IBk" = std <- IBk(as.formula(paste(classe, '~', '.')), base_rotulados_ini,
+          "naiveBayes" = std <- naiveBayes(as.formula(paste("class", '~', '.')), base_rotulados_ini),
+          "rpartXse" = std <- rpartXse(as.formula(paste("class", '~', '.')), base_rotulados_ini, se = 0.5),
+          "JRip" = std <- JRip(as.formula(paste("class", '~', '.')), base_rotulados_ini),
+          "IBk" = std <- IBk(as.formula(paste("class", '~', '.')), base_rotulados_ini,
                              control = Weka_control(K = as.integer(sqrt(nrow(base_rotulados_ini))), X = TRUE))
   )
   return(std)

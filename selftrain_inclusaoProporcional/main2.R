@@ -11,6 +11,7 @@ setWorkspace <- function() {
 
 setWorkspace()
 source('functions.R')
+base_vector <- setDatabases()
 medias_c1_s <- cleanVector(medias_c1_s)
 medias_c1_v <- cleanVector(medias_c1_v)
 medias_c2 <- cleanVector(medias_c2)
@@ -29,9 +30,9 @@ newBase <- function(base_rotulada, ids_treino_rot){
 }
 
 for (cr in change_rate) {
-  for (cl in 3:3) {
-    for(i in 0:30) {
-      source('databases.R')
+  for (cl in 2:2) {
+    for(i in 1:31) {
+      base_original <<- readDatabase(i,base_vector,".arff")
       k_NN <- attKValue(base_original)
       qtd_exem_por_classe <- ddply(base_original, ~class, summarise, number_of_distinct_orders = length(class))
       qtd_exem_menor_classe <- trunc(min(qtd_exem_por_classe$number_of_distinct_orders) * 0.1)
