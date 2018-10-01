@@ -15,26 +15,42 @@
 #' folds <- crossValidation(data, class, k = 10)
 crossValidation <- function(database, all_labels, k = 10) {
   if (k <= 0) {
-    stop("K need to be higger than 1")
+    stop("K need to be higger than 0")
   } else {
-    aux <- c()
     folds <- c()
     id_names <- row.names(database)
     each_class <- samplesPerClass(all_labels, k)
     for (i in 1:k) {
       selected_samples <- c()
       for (j in 1:length(levels(all_labels))) {
-        selected_samples <- c(selected_samples, sample(which(all_labels == levels(all_labels)[j]), each_class[j]))
+        range <- which(database[id_names, "class"] == levels(database$class)[j])
+        selected_samples <- c(selected_samples, sample(range, each_class[j]))
       }
-      folds <- c(folds, list(c(aux, as.integer(id_names[selected_samples]))))
-      all_labels <- all_labels[- selected_samples]
+      folds <- c(folds, list(as.integer(id_names[selected_samples])))
       id_names <- id_names[- selected_samples]
+    }
+    if (length(id_names) != 0) {
+      remainder <- c()
+      for (lvls in levels(database$class)) {
+        remainder <- c(remainder, list(sample(1:k, length(which(database$class[as.integer(id_names)] == lvls)))))
+      }
+      names(remainder) <- levels(database$class)
+      for (label in names(remainder)) {
+        if(length(remainder[[label]]) != 0) {
+          for (k in remainder[[label]]) {
+            content <- sample(id_names[which(database[id_names, "class"] == label)], 1)
+            folds[[k]] <- c(folds[[k]], as.integer(content))
+            id_names <- id_names[- which(id_names == content)]
+          }
+        }
+      }
     }
     return (folds)
   }
 }
 
-#' @description This function counts the number of the samples per class in a vector
+#' @description This function counts the number of the samples per class in a
+#'  vector
 #'
 #' @usage samplesPerClass (all_labels, k = 10)
 #'
@@ -66,7 +82,8 @@ percentageOfClasses <- function(labels) {
   return (percent)
 }
 
-#' @description This function counts the number of the samples per class in a vector
+#' @description This function counts the number of the samples per class in a
+#' vector
 #'
 #' @usage distSamples (labels)
 #'
