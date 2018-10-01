@@ -1,71 +1,85 @@
 if (!(grepl("flexcon_c/resultados", getwd(), fixed=TRUE))) {
   setwd("flexcon_c/resultados/")
 }
- 
-#' @description this function do a mean for each row in the matrix and storage it into a vector.
-#' 
-#' @param vec A vector with all accuracies.
-#' 
-#' @return a vector where each position contains the mean to the 10 accuracies.
-catMedias <- function(vec) {
-  med <- matrix(vec, nrow = 10)
-  aux <- c()
-  for(j in 1:(ncol(med))) {
-    aux <- c(aux, mean(med[, j]))
-  }
-  return (aux)
-}
 
-type <- "classifierClass"
-typeAgg <- "classifierAgroupClass"
+type <- "Classifier"
+typeAgg <- "ClassifierAgroup"
 
-classifierClass <- setClass(
-  "classifierClass",
+#' @description This class provide an easy way to store the p-values.
+#'
+#' @slot naive numeric vector.
+#' @slot rpart numeric vector.
+#' @slot JRip numeric vector.
+#' @slot IBk numeric vector.
+#'
+Classifier <- setClass(
+  "Classifier",
   slots = list(naive = "numeric", rpart = "numeric", JRip = "numeric", IBk = "numeric")
 )
 
-classifierAgroupClass <- setClass(
-  "classifierAgroupClass",
-  representation = list(all = type, mean = type)
-  #prototype = list(all = new("classifierClass"), mean = new("classifierClass"))
+#' @description This class provide 2 objects of the Classifier Class
+#'
+#' @slot all an object of the Classifier Class
+#' @slot mean an object of the Classifier Class
+#'
+ClassifierAgroup <- setClass(
+  "ClassifierAgroup",
+  slots = list(all = type, mean = type)
 )
 
-ratesClass <- setClass(
-  "ratesClass",
-  slots = list(tx5 = typeAgg, tx10 = typeAgg, tx15 = typeAgg, tx20 = typeAgg, tx25 = typeAgg)
+#' @description This class provide five objects of the ClassifierAgroup Class
+#'
+#' @slot tx05 an object of the ClassifierAgroup Class
+#' @slot tx10 an object of the ClassifierAgroup Class
+#' @slot tx15 an object of the ClassifierAgroup Class
+#' @slot tx20 an object of the ClassifierAgroup Class
+#' @slot tx25 an object of the ClassifierAgroup Class
+#'
+Rates <- setClass(
+  "Rates",
+  slots = list(tx05 = typeAgg, tx10 = typeAgg, tx15 = typeAgg, tx20 = typeAgg, tx25 = typeAgg)
 )
 
-#' @description Provide a list of the files where each file contains a pattern in the name.
-#' 
-#' @param pattern a pattern which be used in the search.
-#' 
-#' @return a list of these files.
+#' @description Retrieves a list of the files where each file contains a pattern into your name.
+#'
+#' @param pattern A pattern which must be used in the search.
+#'
+#' @return A list of these files.
+#'
 getFiles <- function(pattern) {
   return (list.files(pattern=pattern))
 }
 
-#' @description 
-#' 
-#' @param method
-#' 
-#' @return An object of the classifier class contains the p-values for each classifier
+#' @description Set the p-values into an object.
+#'
+#' @param method The method to be used in pattern.
+#'
+#' @return An object of the ClassifierAgroup class.
+#'
 getClassifiersResultAllRates <- function(method) {
-  obj1 <- classifierAgroupClass()
-  for(i in slotNames(obj1@all)) {
+  obj1 <- ClassifierAgroup()
+  classifiers <- slotNames(obj1@all)
+  mode <- slotNames(obj1)
+  for(i in classifiers) {
     files <- getFiles(join(c(method, i)))
     aux <- prepareDataAllRates(files)
-    for(j in 1:length(slotNames(obj1))) {
-      slot(slot(obj1, slotNames(obj1)[j]), i) <- aux[[j]]
+    for(j in 1:length(mode)) {
+      slot(slot(obj1, mode[j]), i) <- aux[[j]]
     }
   }
   return (obj1)
 }
 
+#' @description Set the p-values into an object.
+#'
+#' @param method The method to be used in pattern.
+#'
+#' @return An object of the Rates class.
 getClassifiersResultOneRate <- function(method) {
-  obj <- ratesClass()
+  obj <- Rates()
   rates <- slotNames(obj)
   mode <- slotNames(obj@tx10)
-  classifiers <- slotNames(obj@tx5@all)
+  classifiers <- slotNames(obj@tx05@all)
     for(i in classifiers) {
       files <- getFiles(join(c(method, i)))
       aux <- prepareDataOneRate(files)
@@ -78,36 +92,81 @@ getClassifiersResultOneRate <- function(method) {
   return (obj)
 }
 
+
+getClassifiersResultTheMean <- function(method) {
+  aux <- Classifier()
+  classifiers <- slotNames(aux)
+  for (i in classifiers) {
+    files <- getFiles(join(c(method, i)))
+    all <- prepareDataTheMean(files)
+    writeArchive(paste(join(c(method, "media", i)), ".csv", sep = ""), all$mean)
+    writeArchive(paste(join(c(method, "desvio", "padrao", i)), ".csv", sep = ""), all$sd)
+  }
+}
+
+#' @description This function calculates the mean value for each column in a matrix
+#' where the rows are represented by the vector input and the culomns are represented
+#' by the number of the folds in the k input and stores it into a new vector.
+#'
+#' @param vec A vector containing all of the accuracies.
+#' @param k An integer reference the number of folds in cross-validation.
+#'
+#' @return A vector in which every position contains the mean value of the k-folds.
+#'
+getMeans <- function(vec, k = 10) {
+  med <- matrix(vec, nrow = k)
+  aux <- c()
+  for(j in 1:(ncol(med))) {
+    aux <- c(aux, mean(med[, j]))
+  }
+  return (aux)
+}
+
+#' Standard Deviation
+getStDev <- function(vec, n) {
+  std <- matrix(vec, nrow = n)
+  aux <- c()
+  for(j in 1:(ncol(std))) {
+    aux <- c(aux, sd(std[, j]))
+  }
+  return (aux)
+}
+
+#' @description The main function in this script.
+#'
 main <- function() {
   method <- c("c1_S", "c1_V", "c2")
   
-  ## Resultado por classificador utilizando todas as 5 taxas de inicialmente rotulados.
-  tx_flexcon_c1_s <<- getClassifiersResultAllRates(method[1])
-  tx_flexcon_c1_v <<- getClassifiersResultAllRates(method[2])
-  tx_flexcon_c2 <<- getClassifiersResultAllRates(method[3])
-
-  ## Resultados utilizando o mesmo percentual de inicialmente rotulados e variando o parâmetro cr
-  cr_flexcon_c1_s <<- getClassifiersResultOneRate(method[1])
-  cr_flexcon_c1_v <<- getClassifiersResultOneRate(method[2])
-  cr_flexcon_c2 <<- getClassifiersResultOneRate(method[3])
+  # ## Resultado por classificador utilizando todas as 5 taxas de inicialmente rotulados.
+  # tx_flexcon_c1_s <<- getClassifiersResultAllRates(method[1])
+  # tx_flexcon_c1_v <<- getClassifiersResultAllRates(method[2])
+  # tx_flexcon_c2 <<- getClassifiersResultAllRates(method[3])
+  # 
+  # ## Resultados utilizando o mesmo percentual de inicialmente rotulados e variando o parâmetro cr
+  # cr_flexcon_c1_s <<- getClassifiersResultOneRate(method[1])
+  # cr_flexcon_c1_v <<- getClassifiersResultOneRate(method[2])
+  # cr_flexcon_c2 <<- getClassifiersResultOneRate(method[3])
   
-  ## 
+  getClassifiersResultTheMean(method[1])
+  getClassifiersResultTheMean(method[2])
+  getClassifiersResultTheMean(method[3])
 }
 
 #' @description Provide a way to paste 2 or more words.
-#' 
+#'
 #' @param vec the words to be pasted in the order.
-#' 
+#'
 #' @return a string with the vec words collapsed in _.
 join <- function(vec) {
   return (paste(vec[1:length(vec)], collapse = "_"))
 }
 
-#' @description read and convert a file to a vector where each column reference a % of the samples with stay with the class atribute
-#' 
-#' @param file csv file to be read
-#' 
-#' @return a vector where each possition reference a data of the csv file readed. 
+#' @description Read and convert a file to a vector where each position references an 
+#' accuracy within the file
+#'
+#' @param file The csv file to be read.
+#'
+#' @return A vector where each position references a data of the csv file read.
 readDataAllRates <- function(file) {
   y <- c()
   read <- read.csv(file)
@@ -118,6 +177,12 @@ readDataAllRates <- function(file) {
   return (y)
 }
 
+#' @description Read a file and use only one column of it.
+#'
+#' @param files A vector contains all files names to be read.
+#' @param rate The number of the column to be read.
+#'
+#' @return A vector with all files read in only one column.
 readDataOneRate <- function(files, rate) {
   y <- c()
   for(file in files) {
@@ -128,16 +193,13 @@ readDataOneRate <- function(files, rate) {
   return (y)
 }
 
-replie <- function(number, replies) {
-  return (rep(number, replies))
-}
-
+#' @description Provide
 prepareDataAllRates <- function(files) {
   pvalues <- c()
   pvalues_mean <- c()
   for(file in files) {
     result <- readDataAllRates(file)
-    result_mean <- catMedias(result)
+    result_mean <- getMeans(result)
     my_anova <- runAnova(result, tam)
     pvalues <- c(pvalues, my_anova$`Pr(>F)`[1])
     my_anova_mean <- runAnova(result_mean, tam/10)
@@ -151,7 +213,7 @@ prepareDataOneRate <- function(files) {
   pvalues_mean <- c()
   for (i in 1:5) {
     result <- readDataOneRate(files, i)
-    result_mean <- catMedias(result)
+    result_mean <- getMeans(result)
     my_anova <- runAnova(result, tam)
     pvalues <- c(pvalues, my_anova$`Pr(>F)`[1])
     my_anova_mean <- runAnova(result_mean, tam/10)
@@ -160,103 +222,39 @@ prepareDataOneRate <- function(files) {
   return (list(pvalues, pvalues_mean))
 }
 
+prepareDataTheMean <- function(files) {
+  agroup_means <- c()
+  agroup_sd <- c()
+  for (file in files) {
+    result <- readDataAllRates(file)
+    result_mean <- getMeans(result, 310)
+    agroup_means <- c(agroup_means, result_mean)
+    result_sd <- getStDev(result, 310)
+    agroup_sd <- c(agroup_sd, result_sd)
+  }
+  mean <- matrix(agroup_means, ncol = 5, byrow = T)
+  sd <- matrix(agroup_sd, ncol = 5, byrow = T)
+  return (list(mean = mean, sd = sd))
+}
+
+#' @description Run the anova function in the data
+#'
+#' @param result A vector data to 
+#' @param tam 
+#'
+#' @return An anova object 
+#'
 runAnova <- function(result, tam) {
-  number_replies <- replie(tam, (length(result) / tam))
-  groups <- replie(1:length(number_replies), number_replies)
+  number_rep <- rep(tam, (length(result) / tam))
+  groups <- rep(1:length(number_rep), number_rep)
   data <- data.frame(result = result, groups = factor(groups))
   fit <- lm(result ~ groups, data)
   return (anova(fit))
 }
 
+# Write in the output file the content
+writeArchive <- function(title, content) {
+  write.csv(content, title, row.names = FALSE)
+}
+
 main()
-
-# h <- new("classClass") 
-# aux2 <- new("classifierClass")
-# aux2@naive <- c(1,2,3,4)
-# aux2@rpart <- c(5,6,7,8)
-# aux3 <- new("classifierClass")
-# 
-# 
-# 
-# 
-# 
-# slot(slot(obj, slotNames(obj)[j]), i)
-# 
-# 
-# 
-# 
-
-# tx_05 <- catMedias(y1)
-# tx_10 <- catMedias(y2)
-# tx_15 <- catMedias(y3)
-# tx_20 <- catMedias(y4)
-# tx_25 <- catMedias(y5)
-# 
-# 
-# tx <- c(tx_05, tx_10, tx_15, tx_20, tx_25)
-
-
-# medias <- c(mean(y1), mean(y2), mean(y3), mean(y4))
-# max(medias) - min(medias)
-# 
-# n <- rep(length(y1), (length(y) / length(y1)))
-# 
-# group <- rep(1:length(n), n)
-# 
-# data <- data.frame(y = y, group = factor(group))
-# 
-# fit <- lm(y~group, data)
-# 
-# anova(fit)
-# 
-# data.aov <- aov(formula = y ~ group, data = data)
-# 
-# summary(data$y)
-# 
-# summary(fit)
-# 
-# summary.aov(fit)
-# 
-# boxplot(y1, y2, y3, y4)
-# 
-# plot(y1, type = "l")
-# 
-# lines(lowess(y1), col = 4)
-# 
-# var.test(y1, y4)
-# wilcox.test(y1, y4)
-# ks.test(y1, y4)
-# t.test(y1, y4)
-# t.test(y1, y4, var.equal=TRUE)
-
-# z1 <- c(18.2, 20.1, 17.6, 16.8, 18.8, 19.7, 19.1)
-# 
-# z2 <- c(17.4, 18.7, 19.1, 16.4, 15.9, 18.4, 17.7)
-# 
-# z3 <- c(15.2, 18.8, 17.7, 16.5, 15.9, 17.1, 16.7)
-# 
-# z <- c(z1, z2, z3)
-#
-# tmp = tapply(y, group, stem)
-# tmp = tapply(z, grupos, stem)
-#
-# tmpfn <- function(x){
-#   c(sum = sum(x), mean = mean(x), var = var(x), n = length(x))
-# }
-#
-# tapply(y, group, tmpfn)
-#
-# tmpfn(y) 
-# num <- rep(length(z1), (length(z)/length(z1)))
-# 
-# grupos <- rep(1:length(num), num)
-# 
-# dados <- data.frame(z = z, grupos = factor(grupos))
-# 
-# ajuste <-lm(z ~ grupos, dados)
-# 
-# minha_anova <- anova(ajuste)
-# 
-# summary(minha_anova)
-# 
-# minha_anova$`Pr(>F)`
