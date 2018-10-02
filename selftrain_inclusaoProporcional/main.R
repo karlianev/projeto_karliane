@@ -55,8 +55,8 @@ for (cr in change_rate) {
             medias_accuracy <- appendVectors(medias_accuracy, accuracy) 
           }
         }
-      }
-    output_archive(cr, as.character(classifiers[cl]), medias_accuracy, as.character(algorithm))
-    medias_accuracy <- cleanVector(medias_accuracy)
+        output_archive(cr, as.character(classifiers[cl]), medias_accuracy, as.character(algorithm))
+        medias_accuracy <- cleanVector(medias_accuracy)
+    }
   }
 }
