@@ -1,3 +1,51 @@
+
+training <- function(cl,base_original,base_rotulados_ini,base_teste,algorithm) {
+    my_learner <- obj[[cl]]
+    my_function <- funcs[cl]
+    classifier_name <- classifiers[cl]
+    limiar <- supAcc(classifier_name, base_rotulados_ini)
+    n <- getLength(base_teste$class)
+    
+    train_algorithm(base_original,my_learner,my_function,limiar,n,algorithm)
+}
+
+train_algorithm <- function(base_original,my_learner,my_function,limiar,n,algorithm) {
+    
+    switch (algorithm,
+            "1" = { # FlexCon-C1 (s)
+                model <- flexConC(base_original,my_learner, my_function, qtd_exem_menor_classe, limiar, "1")
+                name_alg <- "flexcon-c1(s)"
+            },
+            "2" = { # FlexCon-C1 (v)
+                model <- flexConC(base_original,my_learner, my_function, qtd_exem_menor_classe, limiar, "2")
+                name_alg <- "flexcon-c1(v)"
+            },
+            "3" = { # FlexCon-C2
+                model <- flexConC(base_original,my_learner, my_function, qtd_exem_menor_classe, limiar, "3")
+                name_alg <- "flexcon-c2"
+            },
+            "4" = { # FlexCon-C1S (s)
+                model <- flexConC(base_original,my_learner, my_function, qtd_exem_menor_classe, limiar, "1", stratified = TRUE)
+                name_alg <- "flexcon-c1S(s)"
+            },
+            "5" = { # FlexCon-C1S (v)
+                model <- flexConC(base_original,my_learner, my_function, qtd_exem_menor_classe, limiar, "2", stratified = TRUE)
+                name_alg <- "flexcon-c1S(v)"
+            },
+            "6" = { # FlexCon-C2S
+                model <- flexConC(base_original,my_learner, my_function, qtd_exem_menor_classe, limiar, "3", stratified = TRUE)
+                name_alg <- "flexcon-c2S"
+            }
+    )
+    
+    matrix <- confusionMatrix(model)
+    partial_acc <- getAcc(matrix, n)
+    cat("\n Acerto global ",name_alg," (%) =", partial_acc)
+    
+    return (partial_acc)
+}
+
+
 storagePred <- function(predic, iterac) {
   if (iterac == 1) {
     soma <<- predic
@@ -132,7 +180,7 @@ searchClass <- function(i, moda) {
 }
 
 # Storage the vote of the classifier each iteration
-storageFashion <- function(prob_preds, moda) {
+storageFashion <- function(base_original, prob_preds, moda) {
   dist_classes <- unique(base_original$class)
   for (x in 1:NROW(prob_preds)) {
     id <- as.character(prob_preds[x, ncol(prob_preds)])
@@ -147,7 +195,7 @@ storageFashion <- function(prob_preds, moda) {
 }
 
 # Storage the sum of the confidence for each iteration
-storageSum <- function(prob_preds, moda) {
+storageSum <- function(base_original,prob_preds, moda) {
   dist_classes <- unique(base_original$class)
   for (x in 1:NROW(prob_preds)) {
     id <- as.character(prob_preds[x, ncol(prob_preds)])
@@ -365,7 +413,7 @@ analyzeClasses <- function(classes_dist_pp,classes_dist_rot){
 # -- Stratified --
 
 # FlexCon-C the base algorithm
-flexConC <- function(learner, pred_func, min_exem_por_classe, limiar, method, stratified = FALSE) {
+flexConC <- function(base_original,learner, pred_func, min_exem_por_classe, limiar, method, stratified = FALSE) {
   # Initial setup, this is equal in all methods FlexCon-C1 and FlexCon-C2 
   form <- as.formula(paste("class", '~', '.'))
   data <- base
@@ -414,12 +462,12 @@ flexConC <- function(learner, pred_func, min_exem_por_classe, limiar, method, st
     
     switch (method,
             "1" = {
-              moda <- storageSum(prob_preds, moda)
+              moda <- storageSum(base_original,prob_preds, moda)
               rotulados <- flexConC1(prob_preds, thr_conf, moda, it)
               new_samples <- rotulados$id
             },
             "2" = {
-              moda <- storageFashion(prob_preds, moda)
+              moda <- storageFashion(base_original,prob_preds, moda)
               rotulados <- flexConC1(prob_preds, thr_conf, moda, it)
               new_samples <- rotulados$id
             },
@@ -561,12 +609,6 @@ appendVectors <- function(v1, v2) {
 initGlobalVariables <- function() {
   conj_treino <<- c()
   treinamento <<- c()
-  acc_c1_s <<- c()
-  acc_c1_v <<- c()
-  acc_c2 <<- c()
-  acc_c1S_s <<- c()
-  acc_c1S_v <<- c()
-  acc_c2S <<- c()
   
   # FlexCon-C1 variables
   it_g <<- c()
@@ -612,9 +654,9 @@ setDatabases <- function(){
     return (base_vector)
 }
 
-readDatabase <- function(i,base_vector,format){
+readDatabase <- function(base,format){
     setwd("../bases")
-    bd <- paste(base_vector[i],format, sep = "")
+    bd <- paste(base,format, sep = "")
     base_original <- read.arff(bd);  
     setwd("../selftrain_inclusaoProporcional/")
     return (base_original)
@@ -691,34 +733,38 @@ validTraining <- function(data, id_conj_treino, N_classes, min_exem_por_classe) 
 
 
 # Create the base name of the output archives
-output_archive <- function(cr, cl, acc_c1_s, acc_c1_v, acc_c2, acc_c1S_s, acc_c1S_v, acc_c2S) {
-  flexcon_c1_s <- c()
-  flexcon_c1_v <- c()
-  flexcon_c2 <- c()
-  flexcon_c1S_s <- c()
-  flexcon_c1S_v <- c()
-  flexcon_c2S <- c()
-  
-  flexcon_c1_s <- paste("flexcon_c1_S_", cl, "_", cr, extention, sep = "")
-  flexcon_c1_v <- paste("flexcon_c1_V_", cl, "_", cr, extention, sep = "")
-  flexcon_c2 <- paste("flexcon_c2_", cl, "_", cr, extention, sep = "")
-  flexcon_c1S_s <- paste("flexcon_c1S_S_", cl, "_", cr, extention, sep = "")
-  flexcon_c1S_v <- paste("flexcon_c1S_V_", cl, "_", cr, extention, sep = "")
-  flexcon_c2S <- paste("flexcon_c2S_", cl, "_", cr, extention, sep = "")
-  
-  acc_flexcon_c1_s <- matrix(acc_c1_s, ncol = 5, byrow = TRUE)
-#  acc_flexcon_c1_v <- matrix(acc_c1_v, ncol = 5, byrow = TRUE)
-#  acc_flexcon_c2 <- matrix(acc_c2, ncol = 5, byrow = TRUE)
-#  acc_flexcon_c1S_s <- matrix(acc_c1S_s, ncol = 5, byrow = TRUE)
-#  acc_flexcon_c1S_v <- matrix(acc_c1S_v, ncol = 5, byrow = TRUE)
-#  acc_flexcon_c2S <- matrix(acc_c2S, ncol = 5, byrow = TRUE)
+output_archive <- function(cr, cl, medias_accuracy, algorithm) {
 
-  write_archive(flexcon_c1_s, acc_flexcon_c1_s)
-#  write_archive(flexcon_c1_v, acc_flexcon_c1_v)
-#  write_archive(flexcon_c2, acc_flexcon_c2)
-#  write_archive(flexcon_c1S_s, acc_flexcon_c1S_s)
-#  write_archive(flexcon_c1S_v, acc_flexcon_c1S_v)
-#  write_archive(flexcon_c2S, acc_flexcon_c2S)
+    archive <- c()
+    switch (algorithm,
+            "1" = {
+                # FlexCon-C1 (s)
+                archive <- paste("flexcon_c1_S_", cl, "_", cr, extention, sep = "")
+            },
+            "2" = {
+                # FlexCon-C1 (v)
+                archive <- paste("flexcon_c1_V_", cl, "_", cr, extention, sep = "")
+            },
+            "3" = {
+                # FlexCon-C2
+                archive <- paste("flexcon_c2_", cl, "_", cr, extention, sep = "")
+            },
+            "4" = {
+                # FlexCon-C1S (s)
+                archive <- paste("flexcon_c1S_S_", cl, "_", cr, extention, sep = "")
+            },
+            "5" = {
+                # FlexCon-C1S (v)
+                archive <- paste("flexcon_c1S_V_", cl, "_", cr, extention, sep = "")
+            },
+            "6" = {
+                # FlexCon-C2S
+                archive <- paste("flexcon_c2S_", cl, "_", cr, extention, sep = "")
+            }
+    )
+    
+    table_result <- matrix(medias_accuracy, ncol = 5, byrow = TRUE)
+    write_archive(archive, table_result)
 }
 
 # Write in the output file the content
