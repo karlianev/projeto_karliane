@@ -2,3 +2,5 @@
 .Rhistory
 .RData
 .Ruserdata
+flexcon_c/*.csv
+flexcon_c/resultados/

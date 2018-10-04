@@ -56,7 +56,8 @@ classCheck <- function(data_1_it, data_x_it, thr_conf) {
   lvls <- match(data_x_it$id, data_1_it$id)
   for (indice in 1:length(lvls)) {
     if ((as.character(data_1_it[lvls[indice], 1]) == as.character(data_x_it[indice, 1]))) {
-      if ((data_1_it[lvls[indice], 2] >= thr_conf) && (data_x_it[indice, 2] >= thr_conf)) {
+      if ((data_1_it[lvls[indice], 2] >= thr_conf)
+          && (data_x_it[indice, 2] >= thr_conf)) {
         pos <- pos + 1
         xid[pos] <- indice
         ycl[pos] <- data_x_it[indice, 1]
@@ -536,5 +537,5 @@ output_archive <- function(cr, cl, acc_c1_s, acc_c1_v, acc_c2) {
 
 # Write in the output file the content
 write_archive <- function(title, content){
-  write.csv(content, title, row.names = FALSE)
+  write.table(content, title, row.names = FALSE, append = TRUE, sep = ",", col.names = FALSE)
 }
