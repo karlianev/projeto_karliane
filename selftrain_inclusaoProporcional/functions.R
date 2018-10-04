@@ -1,44 +1,45 @@
 
-training <- function(cl,base_original,base_rotulados_ini,base_teste,algorithm) {
+training <- function(cl,base,base_original,base_rotulados_ini,base_teste,algorithm) {
     my_learner <- obj[[cl]]
     my_function <- funcs[cl]
     classifier_name <- classifiers[cl]
-    limiar <- supAcc(classifier_name, base_rotulados_ini)
+    limiar <- supAcc(classifier_name, base_rotulados_ini, base_teste)
     n <- getLength(base_teste$class)
     
-    train_algorithm(base_original,my_learner,my_function,limiar,n,algorithm)
+	partial_acc <- train_algorithm(base,base_original,base_rotulados_ini,base_teste,my_learner,my_function,limiar,n,algorithm)
+	return (partial_acc)
 }
 
-train_algorithm <- function(base_original,my_learner,my_function,limiar,n,algorithm) {
+train_algorithm <- function(base,base_original,base_rotulados_ini,base_teste,my_learner,my_function,limiar,n,algorithm) {
     
     switch (algorithm,
             "1" = { # FlexCon-C1 (s)
-                model <- flexConC(base_original,my_learner, my_function, qtd_exem_menor_classe, limiar, "1")
+                model <- flexConC(base,base_original,base_rotulados_ini,my_learner, my_function, qtd_exem_menor_classe, limiar, "1")
                 name_alg <- "flexcon-c1(s)"
             },
             "2" = { # FlexCon-C1 (v)
-                model <- flexConC(base_original,my_learner, my_function, qtd_exem_menor_classe, limiar, "2")
+                model <- flexConC(base,base_original,base_rotulados_ini,my_learner, my_function, qtd_exem_menor_classe, limiar, "2")
                 name_alg <- "flexcon-c1(v)"
             },
             "3" = { # FlexCon-C2
-                model <- flexConC(base_original,my_learner, my_function, qtd_exem_menor_classe, limiar, "3")
+                model <- flexConC(base,base_original,base_rotulados_ini,my_learner, my_function, qtd_exem_menor_classe, limiar, "3")
                 name_alg <- "flexcon-c2"
             },
             "4" = { # FlexCon-C1S (s)
-                model <- flexConC(base_original,my_learner, my_function, qtd_exem_menor_classe, limiar, "1", stratified = TRUE)
+                model <- flexConC(base,base_original,base_rotulados_ini,my_learner, my_function, qtd_exem_menor_classe, limiar, "1", stratified = TRUE)
                 name_alg <- "flexcon-c1S(s)"
             },
             "5" = { # FlexCon-C1S (v)
-                model <- flexConC(base_original,my_learner, my_function, qtd_exem_menor_classe, limiar, "2", stratified = TRUE)
+                model <- flexConC(base,base_original,base_rotulados_ini,my_learner, my_function, qtd_exem_menor_classe, limiar, "2", stratified = TRUE)
                 name_alg <- "flexcon-c1S(v)"
             },
             "6" = { # FlexCon-C2S
-                model <- flexConC(base_original,my_learner, my_function, qtd_exem_menor_classe, limiar, "3", stratified = TRUE)
+                model <- flexConC(base,base_original,base_rotulados_ini,my_learner, my_function, qtd_exem_menor_classe, limiar, "3", stratified = TRUE)
                 name_alg <- "flexcon-c2S"
             }
     )
     
-    matrix <- confusionMatrix(model)
+    matrix <- confusionMatrix(model,base_teste)
     partial_acc <- getAcc(matrix, n)
     cat("\n Acerto global ",name_alg," (%) =", partial_acc)
     
@@ -229,7 +230,7 @@ calcLocalAcc <- function() {
 }
 
 # Return the confusion matrix
-confusionMatrix <- function(model) {
+confusionMatrix <- function(model,base_teste) {
   coluns_names <- colnames(base_teste)
   db_without_class <- match("class", coluns_names)
   test_db <- base_teste[, - db_without_class]
@@ -289,7 +290,7 @@ porc_classes <- function(classes){
 }
 
 #
-tratar_dados_c1 <- function(rotulados,probPreds,thrConf,moda,it,taxa_de_perda){
+tratar_dados_c1 <- function(rotulados,base_rotulados_ini,probPreds,thrConf,moda,it,taxa_de_perda){
     classes_dist <- unique(base_rotulados_ini$class) # Classes distintas na base inicial
     classes_dist_pp <- unique(probPreds$cl)          # Classes distintas no probPreds
     classes_dist_rot <- unique(rotulados$cl)         # Classes distintas no conjunto dos rotulados
@@ -313,7 +314,7 @@ tratar_dados_c1 <- function(rotulados,probPreds,thrConf,moda,it,taxa_de_perda){
     return (novos_rotulados)
 }
 
-tratar_dados_c2 <- function(rotulados,probPreds,prob_preds_superv,thrConf,taxa_de_perda){
+tratar_dados_c2 <- function(rotulados,base_rotulados_ini,probPreds,prob_preds_superv,thrConf,taxa_de_perda){
     classes_dist <- unique(base_rotulados_ini$class) # Classes distintas na base inicial
     classes_dist_pp <- unique(probPreds$cl)          # Classes distintas no probPreds
     classes_dist_rot <- unique(rotulados$cl)         # Classes distintas no conjunto dos rotulados
@@ -338,7 +339,7 @@ tratar_dados_c2 <- function(rotulados,probPreds,prob_preds_superv,thrConf,taxa_d
 }
 
 #2
-prop <- function(rotulados){
+prop <- function(rotulados,base_rotulados_ini){
     if(length(rotulados$id)){
         classes_dist_rot <- unique(rotulados$cl)  # Guarda as classes distintas
         qtd_classes_ini <- c(rep(0,length(classes_dist_rot)))
@@ -413,7 +414,7 @@ analyzeClasses <- function(classes_dist_pp,classes_dist_rot){
 # -- Stratified --
 
 # FlexCon-C the base algorithm
-flexConC <- function(base_original,learner, pred_func, min_exem_por_classe, limiar, method, stratified = FALSE) {
+flexConC <- function(base,base_original,base_rotulados_ini,learner, pred_func, min_exem_por_classe, limiar, method, stratified = FALSE) {
   # Initial setup, this is equal in all methods FlexCon-C1 and FlexCon-C2 
   form <- as.formula(paste("class", '~', '.'))
   data <- base
@@ -481,11 +482,11 @@ flexConC <- function(base_original,learner, pred_func, min_exem_por_classe, limi
     
     if(stratified){
         if(method == "1" || method == "2") {
-            rotulados <- tratar_dados_c1(rotulados,prob_preds,thr_conf,moda,it,taxa_de_perda = 0.2)
+            rotulados <- tratar_dados_c1(rotulados,base_rotulados_ini,prob_preds,thr_conf,moda,it,taxa_de_perda = 0.2)
         } else {
-            rotulados <- tratar_dados_c2(rotulados,prob_preds,prob_preds_superv,thr_conf,taxa_de_perda = 0.2)
+            rotulados <- tratar_dados_c2(rotulados,base_rotulados_ini,prob_preds,prob_preds_superv,thr_conf,taxa_de_perda = 0.2)
         }
-         ratio <- prop(rotulados) # Encontra as proporções para incluir os rotulos
+         ratio <- prop(rotulados,base_rotulados_ini) # Encontra as proporções para incluir os rotulos
          new_samples <- estratificar_rot(rotulados$id,prob_preds,ratio) # Selecionar os exemplos para incluir na base
     }
     
@@ -673,9 +674,9 @@ newConfidence <- function(acc_local, limiar, tx_conf) {
 }
 
 # Return the acc of the current db
-supAcc <- function(cl, base_rotulados_ini){
+supAcc <- function(cl, base_rotulados_ini, base_teste){
   std <- supModel(cl, base_rotulados_ini)
-  matriz_confusao_supervisionado <- confusionMatrix(std)
+  matriz_confusao_supervisionado <- confusionMatrix(std,base_teste)
   acc_sup_3 <- getAcc(matriz_confusao_supervisionado, matriz_confusao_supervisionado)
   return(acc_sup_3)
 }
