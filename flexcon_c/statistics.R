@@ -136,17 +136,17 @@ getStDev <- function(vec, n) {
 #'
 main <- function() {
   method <- c("c1_S", "c1_V", "c2")
-  
+
   # ## Resultado por classificador utilizando todas as 5 taxas de inicialmente rotulados.
   # tx_flexcon_c1_s <<- getClassifiersResultAllRates(method[1])
   # tx_flexcon_c1_v <<- getClassifiersResultAllRates(method[2])
   # tx_flexcon_c2 <<- getClassifiersResultAllRates(method[3])
-  # 
+  #
   # ## Resultados utilizando o mesmo percentual de inicialmente rotulados e variando o parâmetro cr
   # cr_flexcon_c1_s <<- getClassifiersResultOneRate(method[1])
   # cr_flexcon_c1_v <<- getClassifiersResultOneRate(method[2])
   # cr_flexcon_c2 <<- getClassifiersResultOneRate(method[3])
-  
+
   getClassifiersResultTheMean(method[1])
   getClassifiersResultTheMean(method[2])
   getClassifiersResultTheMean(method[3])
@@ -161,7 +161,7 @@ join <- function(vec) {
   return (paste(vec[1:length(vec)], collapse = "_"))
 }
 
-#' @description Read and convert a file to a vector where each position references an 
+#' @description Read and convert a file to a vector where each position references an
 #' accuracy within the file
 #'
 #' @param file The csv file to be read.
@@ -169,8 +169,8 @@ join <- function(vec) {
 #' @return A vector where each position references a data of the csv file read.
 readDataAllRates <- function(file) {
   y <- c()
-  read <- read.csv(file)
-  for (col in colnames(read)) { 
+  read <- read.csv(file, header = FALSE, col.names = c("V1", "V2", "V3", "V4", "V5"))
+  for (col in colnames(read)) {
    y <- c(y, read[, col])
   }
   tam <<- length(y) / length(colnames(read))
@@ -186,7 +186,7 @@ readDataAllRates <- function(file) {
 readDataOneRate <- function(files, rate) {
   y <- c()
   for(file in files) {
-    read <- read.csv(file)
+    read <- read.csv(file, header = FALSE, col.names = c("V1", "V2", "V3", "V4", "V5"))
     y <- c(y, read[, colnames(read)[rate]])
   }
   tam <<- length(y) / length(files)
@@ -239,10 +239,10 @@ prepareDataTheMean <- function(files) {
 
 #' @description Run the anova function in the data
 #'
-#' @param result A vector data to 
-#' @param tam 
+#' @param result A vector data to
+#' @param tam
 #'
-#' @return An anova object 
+#' @return An anova object
 #'
 runAnova <- function(result, tam) {
   number_rep <- rep(tam, (length(result) / tam))
