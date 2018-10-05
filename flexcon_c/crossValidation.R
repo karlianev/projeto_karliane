@@ -32,13 +32,15 @@ crossValidation <- function(database, all_labels, k = 10) {
     if (length(id_names) != 0) {
       remainder <- c()
       for (lvls in levels(database$class)) {
-        remainder <- c(remainder, list(sample(1:k, length(which(database$class[as.integer(id_names)] == lvls)))))
+        remainder <- c(remainder, list(sample(1:k, length(
+          which(database$class[as.integer(id_names)] == lvls)))))
       }
       names(remainder) <- levels(database$class)
       for (label in names(remainder)) {
         if(length(remainder[[label]]) != 0) {
           for (k in remainder[[label]]) {
-            content <- sample(id_names[which(database[id_names, "class"] == label)], 1)
+            content <- sample(id_names[which(database[id_names, "class"]
+                                             == label)], 1)
             folds[[k]] <- c(folds[[k]], as.integer(content))
             id_names <- id_names[- which(id_names == content)]
           }
@@ -70,16 +72,6 @@ samplesPerClass <- function(all_labels, k) {
     vector[i] <- samples_per_class[i] / k
   }
   return (vector)
-}
-
-percentageOfClasses <- function(labels) {
-  percent <- c()
-  y <- NROW(labels)
-  for(class in levels(labels)) {
-    x <- length(which(labels == class))
-    percent <- c(percent, ((x / y) * 100))
-  }
-  return (percent)
 }
 
 #' @description This function counts the number of the samples per class in a

@@ -1,3 +1,5 @@
+source("utils.R")
+
 if (!(grepl("flexcon_c/resultados", getwd(), fixed=TRUE))) {
   setwd("flexcon_c/resultados/")
 }
@@ -14,7 +16,8 @@ typeAgg <- "ClassifierAgroup"
 #'
 Classifier <- setClass(
   "Classifier",
-  slots = list(naive = "numeric", rpart = "numeric", JRip = "numeric", IBk = "numeric")
+  slots = list(naive = "numeric", rpart = "numeric", JRip = "numeric",
+               IBk ="numeric")
 )
 
 #' @description This class provide 2 objects of the Classifier Class
@@ -37,10 +40,12 @@ ClassifierAgroup <- setClass(
 #'
 Rates <- setClass(
   "Rates",
-  slots = list(tx05 = typeAgg, tx10 = typeAgg, tx15 = typeAgg, tx20 = typeAgg, tx25 = typeAgg)
+  slots = list(tx05 = typeAgg, tx10 = typeAgg, tx15 = typeAgg, tx20 = typeAgg,
+               tx25 = typeAgg)
 )
 
-#' @description Retrieves a list of the files where each file contains a pattern into your name.
+#' @description Retrieves a list of the files where each file contains a pattern
+#' into your name.
 #'
 #' @param pattern A pattern which must be used in the search.
 #'
@@ -92,26 +97,29 @@ getClassifiersResultOneRate <- function(method) {
   return (obj)
 }
 
-
 getClassifiersResultTheMean <- function(method) {
   aux <- Classifier()
   classifiers <- slotNames(aux)
   for (i in classifiers) {
     files <- getFiles(join(c(method, i)))
     all <- prepareDataTheMean(files)
-    writeArchive(paste(join(c(method, "media", i)), ".csv", sep = ""), all$mean)
-    writeArchive(paste(join(c(method, "desvio", "padrao", i)), ".csv", sep = ""), all$sd)
+    name <- paste(join(c(method, "media", i)), ".csv", sep = "")
+    writeArchive(name, all$mean)
+    name <- paste(join(c(method, "desvio_padrao", i)), ".csv", sep = "")
+    writeArchive(name, all$sd)
   }
 }
 
-#' @description This function calculates the mean value for each column in a matrix
-#' where the rows are represented by the vector input and the culomns are represented
-#' by the number of the folds in the k input and stores it into a new vector.
+#' @description This function calculates the mean value for each column in a
+#' matrix where the rows are represented by the vector input and the culomns are
+#' represented by the number of the folds in the k input and stores it into a
+#' new vector.
 #'
 #' @param vec A vector containing all of the accuracies.
 #' @param k An integer reference the number of folds in cross-validation.
 #'
-#' @return A vector in which every position contains the mean value of the k-folds.
+#' @return A vector in which every position contains the mean value of the
+#' k-folds.
 #'
 getMeans <- function(vec, k = 10) {
   med <- matrix(vec, nrow = k)
@@ -136,61 +144,20 @@ getStDev <- function(vec, n) {
 #'
 main <- function() {
   method <- c("c1_S", "c1_V", "c2")
-
-  # ## Resultado por classificador utilizando todas as 5 taxas de inicialmente rotulados.
-  # tx_flexcon_c1_s <<- getClassifiersResultAllRates(method[1])
-  # tx_flexcon_c1_v <<- getClassifiersResultAllRates(method[2])
-  # tx_flexcon_c2 <<- getClassifiersResultAllRates(method[3])
-  #
-  # ## Resultados utilizando o mesmo percentual de inicialmente rotulados e variando o parâmetro cr
-  # cr_flexcon_c1_s <<- getClassifiersResultOneRate(method[1])
-  # cr_flexcon_c1_v <<- getClassifiersResultOneRate(method[2])
-  # cr_flexcon_c2 <<- getClassifiersResultOneRate(method[3])
-
+  ## Resultado por classificador utilizando todas as 5 taxas de inicialmente
+  ## rotulados.
+  tx_flexcon_c1_s <<- getClassifiersResultAllRates(method[1])
+  tx_flexcon_c1_v <<- getClassifiersResultAllRates(method[2])
+  tx_flexcon_c2 <<- getClassifiersResultAllRates(method[3])
+  ## Resultados utilizando o mesmo percentual de inicialmente rotulados e
+  ## variando o parâmetro cr.
+  cr_flexcon_c1_s <<- getClassifiersResultOneRate(method[1])
+  cr_flexcon_c1_v <<- getClassifiersResultOneRate(method[2])
+  cr_flexcon_c2 <<- getClassifiersResultOneRate(method[3])
+  ## Coletando média e desvio padrão
   getClassifiersResultTheMean(method[1])
   getClassifiersResultTheMean(method[2])
   getClassifiersResultTheMean(method[3])
-}
-
-#' @description Provide a way to paste 2 or more words.
-#'
-#' @param vec the words to be pasted in the order.
-#'
-#' @return a string with the vec words collapsed in _.
-join <- function(vec) {
-  return (paste(vec[1:length(vec)], collapse = "_"))
-}
-
-#' @description Read and convert a file to a vector where each position references an
-#' accuracy within the file
-#'
-#' @param file The csv file to be read.
-#'
-#' @return A vector where each position references a data of the csv file read.
-readDataAllRates <- function(file) {
-  y <- c()
-  read <- read.csv(file, header = FALSE, col.names = c("V1", "V2", "V3", "V4", "V5"))
-  for (col in colnames(read)) {
-   y <- c(y, read[, col])
-  }
-  tam <<- length(y) / length(colnames(read))
-  return (y)
-}
-
-#' @description Read a file and use only one column of it.
-#'
-#' @param files A vector contains all files names to be read.
-#' @param rate The number of the column to be read.
-#'
-#' @return A vector with all files read in only one column.
-readDataOneRate <- function(files, rate) {
-  y <- c()
-  for(file in files) {
-    read <- read.csv(file, header = FALSE, col.names = c("V1", "V2", "V3", "V4", "V5"))
-    y <- c(y, read[, colnames(read)[rate]])
-  }
-  tam <<- length(y) / length(files)
-  return (y)
 }
 
 #' @description Provide
@@ -237,6 +204,38 @@ prepareDataTheMean <- function(files) {
   return (list(mean = mean, sd = sd))
 }
 
+#' @description Read and convert a file to a vector where each position references an
+#' accuracy within the file
+#'
+#' @param file The csv file to be read.
+#'
+#' @return A vector where each position references a data of the csv file read.
+readDataAllRates <- function(file) {
+  y <- c()
+  read <- readFile(file)
+  for (col in colnames(read)) {
+    y <- c(y, read[, col])
+  }
+  tam <<- length(y) / length(colnames(read))
+  return (y)
+}
+
+#' @description Read a file and use only one column of it.
+#'
+#' @param files A vector contains all files names to be read.
+#' @param rate The number of the column to be read.
+#'
+#' @return A vector with all files read in only one column.
+readDataOneRate <- function(files, rate) {
+  y <- c()
+  for(file in files) {
+    read <- readFile(file)
+    y <- c(y, read[, colnames(read)[rate]])
+  }
+  tam <<- length(y) / length(files)
+  return (y)
+}
+
 #' @description Run the anova function in the data
 #'
 #' @param result A vector data to
@@ -250,11 +249,6 @@ runAnova <- function(result, tam) {
   data <- data.frame(result = result, groups = factor(groups))
   fit <- lm(result ~ groups, data)
   return (anova(fit))
-}
-
-# Write in the output file the content
-writeArchive <- function(title, content) {
-  write.csv(content, title, row.names = FALSE)
 }
 
 main()
