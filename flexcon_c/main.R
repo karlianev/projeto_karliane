@@ -12,17 +12,16 @@ setWorkspace <- function() {
 setWorkspace()
 source("functions.R")
 source("utils.R")
-installNeedPacks()
 source("crossValidation.R")
 initGlobalVariables()
 defines()
 medias_c1_s <- cleanVector(medias_c1_s)
 medias_c1_v <- cleanVector(medias_c1_v)
 medias_c2 <- cleanVector(medias_c2)
-param <- whichDB()
+cl <- 4
+param <- whichDB(classifiers[cl])
 ini_cr <- param$cr
 ini_bd <- param$bd
-cl <- classifiers[1]
 
 for(i in ini_bd:31) { #Iris
   base_original <- getDatabase(i)
@@ -65,3 +64,4 @@ for(i in ini_bd:31) { #Iris
     ini_cr = 2
   }
 }
+

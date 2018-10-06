@@ -212,22 +212,18 @@ flexConC <- function(learner, pred_func, min_exem_por_classe, limiar, method) {
   sup <- which(!is.na(data[, as.character(form[[2]])]))
   id_conj_treino <- cleanVector(id_conj_treino)
   id_conj_treino_antigo <- cleanVector(id_conj_treino_antigo)
-
   # FlexCon-C1 only
   if ((method == "1") || (method == "2")) {
     moda <- matrix(data = rep(0, getLength(base_original$class)), ncol = length(levels(base_original$class)),
                    nrow = NROW(base_original), byrow = TRUE, dimnames = list(row.names(base_original),
                    sort(levels(base_original$class), decreasing = FALSE)))
   }
-
   # FlexCon-C2 only
   add_rot_superv <- FALSE
-
   repeat {
     new_samples <- cleanVector(new_samples)
     acertou <- 0
     it = it + 1
-
     if (qtd_exemplos_rot > 0) {
       qtd_exemplos_rot = 0
       treino_valido <- validTraining(data, id_conj_treino, n_classes,
@@ -242,7 +238,6 @@ flexConC <- function(learner, pred_func, min_exem_por_classe, limiar, method) {
     }
     model <- generateModel(learner, form, data, sup)
     prob_preds <- generateProbPreds(pred_func, model, data, sup)
-
     switch (method,
             "1" = {
               moda <- storageSum(prob_preds, moda)
@@ -261,17 +256,14 @@ flexConC <- function(learner, pred_func, min_exem_por_classe, limiar, method) {
     )
     if (length(new_samples)) {
       new_data <- data[(1:N)[-sup][new_samples], as.character(form[2])]
-
       if (add_rot_superv) {
         add_rot_superv <- FALSE
         new_data <- as.character(prob_preds_superv[new_samples, 1])
       } else {
         new_data <- as.character(prob_preds[new_samples, 1])
       }
-
       qtd_exemplos_rot <- getLength(new_data)
       total_rot <- total_rot + qtd_exemplos_rot
-
       acertou <- 0
       acerto <- (treinamento[(1:N)[-sup][new_samples], as.character(form[2])]
                  == new_data)
@@ -284,13 +276,10 @@ flexConC <- function(learner, pred_func, min_exem_por_classe, limiar, method) {
       id_conj_treino_antigo <- appendVectors(id_conj_treino_antigo,
                                              id_conj_treino)
       id_conj_treino <- (1:N)[-sup][new_samples]
-
       sup <- c(sup, id_conj_treino)
-
     } else {
       thr_conf <- max(prob_preds[ , 2])
     }
-
     if ((it == max_its) || ((length(sup) / N) >= 1)) {
       break
     }
@@ -385,8 +374,7 @@ getDatabase <- function(pos) {
                  "ozone-onehr", "pendigits", "planning-relax", "seeds",
                  "semeion", "spectf-heart", "tic-tac-toe", "twonorm",
                  "hill-valley-with-noise", "balance-scale", "car")
-  i <- 2
-  database <- paste(databases[i], "arff", sep = ".")
+  database <- paste(databases[pos], "arff", sep = ".")
   base_original <- read.arff(paste("../bases", database, sep = "/"))
   return (base_original)
 }
@@ -404,7 +392,6 @@ initGlobalVariables <- function() {
   acc_c1_s <<- c()
   acc_c1_v <<- c()
   acc_c2 <<- c()
-
   # FlexCon-C1 variables
   it_g <<- c()
   bd_g <<- c()
@@ -413,7 +400,6 @@ initGlobalVariables <- function() {
   tx_g <<- c()
   acc_g <<- c()
   acertou_g <<- c()
-
   # FlexCon-C2 variables
   it_g_3 <<- c()
   bd_g_3 <<- c()
@@ -422,23 +408,9 @@ initGlobalVariables <- function() {
   tx_g_3 <<- c()
   acc_g_3 <<- c()
   acertou_g_3 <<- c()
-
   grad_g <<- c()
   bd <<- c()
   tx <<- c()
-}
-
-#' @description Install packages if it not installed and load them.
-#'
-installNeedPacks <- function() {
-  packages <- c("caret", "ssc", "plyr", "DMwR", "DMwR2", "caTools", "RWeka",
-                "rJava", "rminer", "datasets", "e1071", "ggplot2", "stats")
-  for (pack in packages) {
-    if (!require(pack, character.only = TRUE)) {
-      install.packages(pack)
-    }
-    library(pack, character.only = TRUE)
-  }
 }
 
 #' @description This function set the class atribute to NA without change the
@@ -479,7 +451,7 @@ newConfidence <- function(acc_local, limiar, tx_conf) {
 #' @description Create the base name of the output archives and call the write
 #' function.
 #'
-#' @param cr current change rate. 
+#' @param cr current change rate.
 #' @param cl current classifier.
 #' @param acc_c1_s acc of the Flexcon-c1 (s).
 #' @param acc_c1_v acc of the Flexcon-c1 (v).
@@ -562,7 +534,7 @@ storageSum <- function(prob_preds, moda) {
 #' @param cl the choosen classifier
 #' @param base_rotulados_ini the dataset with the initial samples labeled.
 #'
-#' @return Return the accuracy of the dataset with the initial samples 
+#' @return Return the accuracy of the dataset with the initial samples
 #' labeled.
 #'
 supAcc <- function(cl, base_rotulados_ini){
@@ -655,8 +627,8 @@ validTraining <- function(data, id_conj_treino, Nclasses, min_exem_por_classe) {
   return (treino_valido)
 }
 
-whichDB <- function() {
-  files <- list.files(pattern = "rpart")
+whichDB <- function(pattern) {
+  files <- list.files(pattern = pattern)
   vec <- c()
   for (file in files) {
     bd <- readFile(file)

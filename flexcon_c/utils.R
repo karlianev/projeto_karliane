@@ -1,3 +1,18 @@
+#' @description Install packages if it not installed and load them.
+#'
+installNeedPacks <- function() {
+  packages <- c("ssc", "plyr", "DMwR", "DMwR2", "RWeka",
+                "rminer", "e1071", "ggplot2", "stats")
+  for (pack in packages) {
+    if (!require(pack, character.only = TRUE)) {
+      install.packages(pack)
+    }
+    library(pack, character.only = TRUE)
+  }
+}
+
+installNeedPacks()
+
 #' @description Provide a way to paste 2 or more words.
 #'
 #' @param vec the words to be pasted in the order.
