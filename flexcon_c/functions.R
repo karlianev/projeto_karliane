@@ -630,6 +630,7 @@ validTraining <- function(data, id_conj_treino, Nclasses, min_exem_por_classe) {
 whichDB <- function(pattern) {
   files <- list.files(pattern = pattern)
   vec <- c()
+  cr <- 2
   for (file in files) {
     bd <- readFile(file)
     vec <- c(vec, NROW(bd))
