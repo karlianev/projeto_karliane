@@ -10,11 +10,12 @@ setWorkspace <- function() {
 }
 
 args = commandArgs(trailingOnly=TRUE)
-if (length(args) == 0) {
-  cl <- 1
+if ((args == "-h") || (args == "--help")) {
+  cat("The arg must be integer between 1-4!\n1 - NaiveBayes\n2 - rpartXse",
+       "\n3 - JRip\n4 - IBk")
 } else if (length(args) > 1) {
   stop("Just one argument")
-} else if ((as.integer(args) == F) || (is.na(as.integer(args))) || 
+} else if ((as.integer(args) == F) || (is.na(as.integer(args))) ||
            (as.integer(args) > 4) || (as.integer(args) < 1)) {
   stop("The arg must be integer between 1-4!\n1 - NaiveBayes\n2 - rpartXse",
        "\n3 - JRip\n4 - IBk")
@@ -28,7 +29,7 @@ if (length(args) == 0) {
   medias_c1_s <- cleanVector(medias_c1_s)
   medias_c1_v <- cleanVector(medias_c1_v)
   medias_c2 <- cleanVector(medias_c2)
-  cl <- 4
+  cl <- as.integer(args)
   param <- whichDB(classifiers[cl])
   ini_cr <- param$cr
   ini_bd <- param$bd
