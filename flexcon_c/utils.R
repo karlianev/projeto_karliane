@@ -2,7 +2,7 @@
 #'
 installNeedPacks <- function() {
   packages <- c("ssc", "plyr", "DMwR", "DMwR2", "RWeka", "rminer", "e1071",
-                "ggplot2", "stats")
+                "ggplot2", "stats", "PMCMR", "PMCMRplus")
   for (pack in packages) {
     if (!require(pack, character.only = TRUE)) {
       install.packages(pack)
@@ -28,9 +28,9 @@ join <- function(vec, collapse = "_") {
 #'
 #' @return The content of the file.
 #'
-readFile <- function(file) {
-  return (read.csv(file, header = FALSE, col.names = c("V1", "V2", "V3", "V4",
-                                                       "V5")))
+readFile <- function(file, header = F,
+                     col.names = c("V1", "V2", "V3", "V4", "V5")) {
+  return (read.csv(file, header = header, col.names = col.names))
 }
 
 #' @description Write in the output file the content.
@@ -41,7 +41,7 @@ readFile <- function(file) {
 #' @param content the content of the file.
 #' @param append the method to write in the archive.
 #'
-writeArchive <- function(title, content, append = TRUE) {
-  write.table(content, title, row.names = FALSE, append = append, sep = ",",
-              col.names = FALSE)
+writeArchive <- function(title, content, append = T, row = F, col = F) {
+  write.table(content, title, row.names = row, append = append, sep = ",",
+              col.names = col)
 }

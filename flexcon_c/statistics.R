@@ -1,8 +1,8 @@
-source("utils.R")
-
-if (!(grepl("flexcon_c/resultados", getwd(), fixed=TRUE))) {
-  setwd("flexcon_c/resultados/")
+if (!(grepl("flexcon_c/teste_estatistico", getwd(), fixed=TRUE))) {
+  setwd("flexcon_c/teste_estatistico/")
 }
+
+source("../utils.R")
 
 type <- "Classifier"
 typeAgg <- "ClassifierAgroup"
@@ -47,12 +47,14 @@ Rates <- setClass(
 #' @description Retrieves a list of the files where each file contains a pattern
 #' into your name.
 #'
+#' @param path A path which the files be listed
 #' @param pattern A pattern which must be used in the search.
+#' @param full.names Relative name for the actual dir
 #'
 #' @return A list of these files.
 #'
-getFiles <- function(pattern) {
-  return (list.files(pattern=pattern))
+getFiles <- function(pattern, path = ".", names = F) {
+  return (list.files(path, pattern = pattern, full.names = names))
 }
 
 #' @description Set the p-values into an object.
@@ -103,10 +105,10 @@ getClassifiersResultTheMean <- function(method) {
   for (i in classifiers) {
     files <- getFiles(join(c(method, i)))
     all <- prepareDataTheMean(files)
-    name <- paste(join(c(method, "media", i)), ".csv", sep = "")
-    writeArchive(name, all$mean)
-    name <- paste(join(c(method, "desvio_padrao", i)), ".csv", sep = "")
-    writeArchive(name, all$sd)
+    name <- paste(join(c("../mean_sd/", method, "media", i)), ".csv", sep = "")
+    writeArchive(name, round(t(all$mean), 2))
+    name <- paste(join(c("../mean_sd/", method, "desvio_padrao", i)), ".csv", sep = "")
+    writeArchive(name, round(t(all$sd), 2))
   }
 }
 
@@ -155,9 +157,9 @@ main <- function() {
   cr_flexcon_c1_v <<- getClassifiersResultOneRate(method[2])
   cr_flexcon_c2 <<- getClassifiersResultOneRate(method[3])
   ## Coletando média e desvio padrão
-  getClassifiersResultTheMean(method[1])
-  getClassifiersResultTheMean(method[2])
-  getClassifiersResultTheMean(method[3])
+  # getClassifiersResultTheMean(method[1])
+  # getClassifiersResultTheMean(method[2])
+  # getClassifiersResultTheMean(method[3])
 }
 
 #' @description Provide
@@ -204,8 +206,8 @@ prepareDataTheMean <- function(files) {
   return (list(mean = mean, sd = sd))
 }
 
-#' @description Read and convert a file to a vector where each position references an
-#' accuracy within the file
+#' @description Read and convert a file to a vector where each position
+#' references an accuracy within the file
 #'
 #' @param file The csv file to be read.
 #'
@@ -246,9 +248,94 @@ readDataOneRate <- function(files, rate) {
 runAnova <- function(result, tam) {
   number_rep <- rep(tam, (length(result) / tam))
   groups <- rep(1:length(number_rep), number_rep)
-  data <- data.frame(result = result, groups = factor(groups))
+  data <<- data.frame(result = result, groups = factor(groups))
   fit <- lm(result ~ groups, data)
-  return (anova(fit))
+  return (aov(fit))
 }
 
-main()
+# main()
+
+method <- c("c1_S", "c1_V", "c2")
+classifier <- c("naiveBayes", "rpartXse", "JRip", "IBk")
+# type <- method[1]
+# order <- c(5, 2)
+# cr <- 2
+# start_rates <- 1
+# end_rates <- 5
+# tx <- 1
+#' Carrega os dados de um arquivo para uma variável para cada % de ini_rot
+#' percorra os crs e carregue os dados referentes ao % de ini_rot
+creatingDataTTest <- function(classifier, type, start_rates = 1, end_rates = 5,
+                              order = c(5, 2, 3, 4, 6, 7, 8)) {
+  all_data <- c()
+  for (tx in start_rates:end_rates) {
+    for (cr in order) {
+      file <- getFiles(join(c(type, classifier, cr)), "../dados", names = T)
+      all_data <- c(all_data, readFile(file)[, tx])
+    }
+  }
+  return (all_data)
+}
+
+#' Testa se os dados são uma distribuição normal e grava no arquivo
+normalDistribution <- function(data, classifier, method) {
+  crs <- c(5, 2, 3, 4, 6, 7, 8)
+  all_rates <- c()
+  for (i in 1:7) {
+    one_rates <- c()
+    for (j in 1:5) {
+      normal <- data[((j - 1) * 31 + 1):(31 * j), i]
+      d <- shapiro.test(normal)
+      one_rates <- c(one_rates, d$p.value)
+    }
+    title <- paste(join(c(classifier, method, "partial", "shapiro", "test")),
+                   "csv", sep = ".")
+    one_rates <- matrix(one_rates, ncol = 5, byrow = TRUE)
+    writeArchive(title, one_rates, row = as.numeric(crs[i]))
+    normal <- data[, i]
+    d <- shapiro.test(normal)
+    all_rates <- c(all_rates, d$p.value)
+  }
+  title <- paste(join(c(classifier, method, "final", "shapiro", "test")), "csv",
+                 sep = ".")
+  all_rates <- matrix(all_rates, ncol = 1, byrow = TRUE)
+  writeArchive(title, all_rates, row = crs)
+}
+
+#' Teste estatístico de friedman utilizado dois a dois
+#' em @param data[((j - 1) * 31 + 1):(31 * j), c(1, i)] 1 é pré-fixado em 5%
+#' e o parametro i varia entre 2, 3, 4, 6, 7, 8
+executeFriedmanTestByTwo <- function(data, classifier, method) {
+  crs <- c(5, 2, 3, 4, 6, 7, 8)
+  all_rates <- c()
+  for (i in 2:7) {
+    one_rates <- c()
+    for(j in 1:5) {
+      v <- data[((j - 1) * 31 + 1):(31 * j), c(1, i)]
+      d <- friedman.test(v)
+      one_rates <- c(one_rates, d$p.value)
+    }
+    title <- paste(join(c(classifier, method, "partial", "friedman", "test")),
+                   "csv", sep = ".")
+    one_rates <- matrix(one_rates, ncol = 5, byrow = TRUE)
+    writeArchive(title, one_rates, row = as.numeric(crs[i]))
+    normal <- data[, i]
+    d <- shapiro.test(normal)
+    all_rates <- c(all_rates, d$p.value)
+  }
+  title <- paste(join(c(classifier, method, "final", "friedman", "test")), "csv",
+                 sep = ".")
+  all_rates <- matrix(all_rates, ncol = 1, byrow = TRUE)
+  writeArchive(title, all_rates, row = crs[2:7])
+}
+
+for (cl in classifier) {
+  for (meth in method) {
+  data <- getMeans(creatingDataTTest(cl, meth))
+  matrix <- matrix(data, ncol = 7)
+  colnames(matrix) <- c(5, 2, 3, 4, 6, 7, 8)
+
+  normalDistribution(matrix, cl, meth)
+  executeFriedmanTestByTwo(matrix, cl, meth)
+  }
+}
