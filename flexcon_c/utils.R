@@ -41,7 +41,8 @@ readFile <- function(file, header = F,
 #' @param content the content of the file.
 #' @param append the method to write in the archive.
 #'
-writeArchive <- function(title, content, append = T, row = F, col = F) {
-  write.table(content, title, row.names = row, append = append, sep = ",",
+writeArchive <- function(title, content, append = T, row = F, col = F,
+                         sep = ",") {
+  write.table(content, title, row.names = row, append = append, sep = sep,
               col.names = col)
 }

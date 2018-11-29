@@ -257,6 +257,8 @@ runAnova <- function(result, tam) {
 
 method <- c("c1_S", "c1_V", "c2")
 classifier <- c("naiveBayes", "rpartXse", "JRip", "IBk")
+classificados <- c("Naïve Bayes", "rpartXse", "RIPPER", "k-NN")
+metodos <- c("FlexCon-C1(s)", "FlexCon-C1(v)", "FlexCon-C2")
 # type <- method[1]
 # order <- c(5, 2)
 # cr <- 2
@@ -266,7 +268,7 @@ classifier <- c("naiveBayes", "rpartXse", "JRip", "IBk")
 #' Carrega os dados de um arquivo para uma variável para cada % de ini_rot
 #' percorra os crs e carregue os dados referentes ao % de ini_rot
 creatingDataTTest <- function(classifier, type, start_rates = 1, end_rates = 5,
-                              order = c(5, 2, 3, 4, 6, 7, 8)) {
+                              order = c(2, 3, 4, 5, 6, 7, 8)) {
   all_data <- c()
   for (tx in start_rates:end_rates) {
     for (cr in order) {
@@ -319,8 +321,8 @@ executeFriedmanTestByTwo <- function(data, classifier, method) {
                    "csv", sep = ".")
     one_rates <- matrix(one_rates, ncol = 5, byrow = TRUE)
     writeArchive(title, one_rates, row = as.numeric(crs[i]))
-    normal <- data[, i]
-    d <- shapiro.test(normal)
+    normal <- data[, c(1, i)]
+    d <- friedman.test(normal)
     all_rates <- c(all_rates, d$p.value)
   }
   title <- paste(join(c(classifier, method, "final", "friedman", "test")), "csv",
@@ -329,13 +331,120 @@ executeFriedmanTestByTwo <- function(data, classifier, method) {
   writeArchive(title, all_rates, row = crs[2:7])
 }
 
-for (cl in classifier) {
-  for (meth in method) {
-  data <- getMeans(creatingDataTTest(cl, meth))
-  matrix <- matrix(data, ncol = 7)
-  colnames(matrix) <- c(5, 2, 3, 4, 6, 7, 8)
+executeWicoxonTestByTwo <- function(data, classifier, method) {
+  crs <- c(5, 2, 3, 4, 6, 7, 8)
+  all_rates <- c()
+  for (i in 2:7) {
+    one_rates <- c()
+    for(j in 1:5) {
+      v <- data[((j - 1) * 31 + 1):(31 * j), c(1, i)]
+      vec <- v[, 1] - v[, 2]
+      d <- wilcox.test(vec)
+      one_rates <- c(one_rates, d$p.value)
+    }
+    title <- paste(join(c(classifier, method, "partial", "Wilcoxon", "test")),
+                   "csv", sep = ".")
+    one_rates <- matrix(one_rates, ncol = 5, byrow = TRUE)
+    writeArchive(title, one_rates, row = as.numeric(crs[i]))
+    normal <- data[, c(1, i)]
+    vec <- normal[, 1] - normal[, 2]
+    d <- wilcox.test(vec)
+    all_rates <- c(all_rates, d$p.value)
+  }
+  title <- paste(join(c(classifier, method, "final", "Wilcoxon", "test")), "csv",
+                 sep = ".")
+  all_rates <- matrix(all_rates, ncol = 1, byrow = TRUE)
+  writeArchive(title, all_rates, row = crs[2:7])
+}
 
-  normalDistribution(matrix, cl, meth)
-  executeFriedmanTestByTwo(matrix, cl, meth)
+for (cl in 1:length(classifier)) {
+  for (meth in 1:length(method)) {
+    data <- creatingDataTTest(classifier[cl], method[meth])
+    data2 <- c()
+    for (i in 1:35) {
+      data2 <- c(data2, getMeans(data[((i - 1) * 310 + 1):(310 * i)]))
+    }
+    matrix <- matrix(data2, nrow = 31)
+    for(j in 1:5) {
+      v <- matrix[, ((j - 1) * 7 + 1):(7 * j)]
+      rownames(v) <- c("iris", "bupa", "segment", "waveform-5000",
+                            "phishingData", "haberman", "mushroom", "pima",
+                            "vehicle", "wilt", "kr-vs-kp",
+                            "blood-transfusion-service", "cnae-9",
+                            "connectionist-mines-vs-rocks", "flare",
+                            "indian-liver-patient", "leukemia-haslinger",
+                            "mammographic-mass", "mfeat-karhunen", "musk",
+                            "ozone-onehr", "pendigits", "planning-relax",
+                            "seeds", "semeion", "spectf-heart", "tic-tac-toe",
+                            "twonorm", "hill-valley-with-noise",
+                            "balance-scale", "car")
+      colnames(v) <- rep(2:8)
+      title <- paste(classifier[cl], metodos[meth], sep = "_")
+      writeArchive(paste("../", title, ".csv", sep = ""), round(v, 2),
+                   row = rownames(v), col = colnames(v),  sep = "&")
+    }
+    # cd <- matrix(h, ncol = 7, byrow = T)
+    # colnames(cd) <- c(2:8)
+    # if ((classifier[cl] == "naiveBayes") || (classifier[cl] == "JRip")) {
+    #   plotClassifierMethod(t = round(cd, 2), nome = classificados[cl],
+    #                        "FlexCon-C")
+    # } else if ((classifier[cl] == "IBk") && ((meth == 1) || (meth == 2))) {
+    #   plotClassifierMethod(t = round(cd, 2), nome = classificados[cl], "FlexCon-C1")
+    # 
+    # }
+    # plotClassifierMethod(t = round(cd, 2), nome = classificados[cl],
+    #                      metodo = metodos[meth])
+    # # new_matrix <- converter(matrix)
+    # # colnames(new_matrix) <- c(2:8)
+    # # normalDistribution(new_matrix, cl, meth)
+    # # executeFriedmanTestByTwo(new_matrix, cl, meth)
+    # # executeWicoxonTestByTwo(new_matrix, cl, meth)
   }
 }
+
+converter <- function(matrix) {
+  base <- c(1, 8, 15, 22, 29)
+  indices <- c(base + 3, base, base + 1, base + 2, base + 4, base + 5, base + 6)
+  new_matrix <- matrix(matrix[, indices], nrow = 155)
+  return (new_matrix)
+}
+
+teste <- function(v, matrix) {
+  d <- c()
+  for (i in 1:ncol(v)) {
+    c <- mean(v[, i])
+    d <- c(d, c)
+  }
+  return (d)
+}
+
+# plot(c(5, 2, 3, 4, 6, 7, 8), d)
+
+# x <- c(564, 521, 495, 564, 560, 481, 545, 478, 580, 484, 539, 467)
+# 
+# y <- c(557, 505, 465, 562, 545, 448, 531, 458, 562, 485, 520, 445)
+# 
+# diff <- x - y
+# 
+# wilcox.test(diff)
+
+plotClassifierMethod <- function(t, nome, metodo) {
+  png(file = paste(paste(nome, metodo, sep = "_"), "png", sep = "."))
+  g_range <- range(min(t), max(t))
+  plot(t[1, ], type = "o", col = 1, ylim = g_range, axes = F, ann = F)
+  axis(1, at = 1:7, lab = 2:8)
+  axis(2, las = 1, at = round(t, 1))
+  box()
+  lines(t[2, ], type = "o", pch = 22, lty = 2, col = 2)
+  lines(t[3, ], type = "o", pch = 23, lty = 3, col = 3)
+  lines(t[4, ], type = "o", pch = 24, lty = 4, col = 4)
+  lines(t[5, ], type = "o", pch = 25, lty = 5, col = 6)
+  title(main = paste("Resultados do", nome, "e", metodo), col.main = "black",
+        font.main = 2)
+  title(xlab = "Variável cr", col.lab = rgb(0, 0, 0))
+  title(ylab = "Acurácia", col.lab = rgb(0, 0, 0))
+  legend(6, g_range[2], c("5%", "10%", "15%", "20%", "25%"), cex = 0.5,
+         col = c(1:4,6), pch = c(21:25), lty = c(1:5))
+  dev.off()
+}
+

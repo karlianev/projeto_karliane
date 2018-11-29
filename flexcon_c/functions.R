@@ -376,6 +376,7 @@ getDatabase <- function(pos) {
                  "hill-valley-with-noise", "balance-scale", "car")
   database <- paste(databases[pos], "arff", sep = ".")
   base_original <- read.arff(paste("../bases", database, sep = "/"))
+  bd_nome <<- databases[pos]
   return (base_original)
 }
 
@@ -392,25 +393,32 @@ initGlobalVariables <- function() {
   acc_c1_s <<- c()
   acc_c1_v <<- c()
   acc_c2 <<- c()
-  # FlexCon-C1 variables
-  it_g <<- c()
-  bd_g <<- c()
-  thrConf_g <<- c()
-  nr_added_exs_g <<- c()
-  tx_g <<- c()
-  acc_g <<- c()
-  acertou_g <<- c()
-  # FlexCon-C2 variables
-  it_g_3 <<- c()
-  bd_g_3 <<- c()
-  thrConf_g_3 <<- c()
-  nr_added_exs_g_3 <<- c()
-  tx_g_3 <<- c()
-  acc_g_3 <<- c()
-  acertou_g_3 <<- c()
-  grad_g <<- c()
-  bd <<- c()
-  tx <<- c()
+  # # FlexCon-C1 variables
+  # it_g <<- c()
+  # bd_g <<- c()
+  # thrConf_g <<- c()
+  # nr_added_exs_g <<- c()
+  # tx_g <<- c()
+  # acc_g <<- c()
+  # acertou_g <<- c()
+  # # FlexCon-C2 variables
+  # it_g_3 <<- c()
+  # bd_g_3 <<- c()
+  # thrConf_g_3 <<- c()
+  # nr_added_exs_g_3 <<- c()
+  # tx_g_3 <<- c()
+  # acc_g_3 <<- c()
+  # acertou_g_3 <<- c()
+  # grad_g <<- c()
+  # bd <<- c()
+  # tx <<- c()
+  # Self-Training
+  it_g_o <<- c()
+  bd_g_o <<- c()
+  thrConf_g_o <<- c()
+  nr_added_exs_g_o <<- c()
+  tx_g_o <<- c()
+  acertou_g_o <<- c()
 }
 
 #' @description This function set the class atribute to NA without change the
@@ -453,26 +461,72 @@ newConfidence <- function(acc_local, limiar, tx_conf) {
 #'
 #' @param cr current change rate.
 #' @param cl current classifier.
-#' @param acc_c1_s acc of the Flexcon-c1 (s).
-#' @param acc_c1_v acc of the Flexcon-c1 (v).
-#' @param acc_c2 acc of the Flexcon-c2.
+#' @param acc_c1_s acc of the Flexcon-c1 (s) method.
+#' @param acc_c1_v acc of the Flexcon-c1 (v) method.
+#' @param acc_c2 acc of the Flexcon-c2 method.
+#' @param acc_self acc of the Self-Training method.
 #'
-outputArchive <- function(cr, cl, acc_c1_s, acc_c1_v, acc_c2) {
-  flexcon_c1_s <- c()
-  flexcon_c1_v <- c()
-  flexcon_c2 <- c()
+outputArchive <- function(cr, cl, acc_c1_s, acc_c1_v, acc_c2, acc_self) {
+  # flexcon_c1_s <- paste("flexcon_c1_S_", cl, "_", cr, extention, sep = "")
+  # flexcon_c1_v <- paste("flexcon_c1_V_", cl, "_", cr, extention, sep = "")
+  # flexcon_c2 <- paste("flexcon_c2_", cl, "_", cr, extention, sep = "")
+  self_training <- paste("self_training", cl, "_", cr, extention, sep = "")
 
-  flexcon_c1_s <- paste("flexcon_c1_S_", cl, "_", cr, extention, sep = "")
-  flexcon_c1_v <- paste("flexcon_c1_V_", cl, "_", cr, extention, sep = "")
-  flexcon_c2 <- paste("flexcon_c2_", cl, "_", cr, extention, sep = "")
+  # acc_flexcon_c1_s <- matrix(acc_c1_s, ncol = 5, byrow = TRUE)
+  # acc_flexcon_c1_v <- matrix(acc_c1_v, ncol = 5, byrow = TRUE)
+  # acc_flexcon_c2 <- matrix(acc_c2, ncol = 5, byrow = TRUE)
+  acc_self_training <- matrix(acc_self, ncol = 5, byrow = TRUE)
 
-  acc_flexcon_c1_s <- matrix(acc_c1_s, ncol = 5, byrow = TRUE)
-  acc_flexcon_c1_v <- matrix(acc_c1_v, ncol = 5, byrow = TRUE)
-  acc_flexcon_c2 <- matrix(acc_c2, ncol = 5, byrow = TRUE)
+  # writeArchive(flexcon_c1_s, acc_flexcon_c1_s)
+  # writeArchive(flexcon_c1_v, acc_flexcon_c1_v)
+  # writeArchive(flexcon_c2, acc_flexcon_c2)
+  writeArchive(self_training, acc_self_training)
+}
 
-  writeArchive(flexcon_c1_s, acc_flexcon_c1_s)
-  writeArchive(flexcon_c1_v, acc_flexcon_c1_v)
-  writeArchive(flexcon_c2, acc_flexcon_c2)
+# Function Self-Training original (w/ fix threshold)
+SelfTrainOriginal <- function (learner, predFunc) {
+  form <- as.formula(paste(classe,'~', '.'))
+  data <- base
+  thrConf <- 0.95
+  maxIts <- 100
+  verbose <- T
+  N <- NROW(data)
+  it <- 0
+  sup <- which(!is.na(data[, as.character(form[[2]])]))
+  repeat {
+    new_samples <- cleanVector(new_samples)
+    acertou <- 0
+    it <- it + 1
+    model <- generateModel(learner, form, data, sup)
+    probPreds <- generateProbPreds(predFunc, model, data, sup)
+    new_samples <- which(probPreds[, 2] > thrConf)
+    if (verbose) {
+      it_g_o <<- c(it_g_o, it)
+      bd_g_o <<- c(bd_g_o, bd_nome)
+      thrConf_g_o <<- c(thrConf_g_o, thrConf)
+      nr_added_exs_g_o <<- c(nr_added_exs_g_o, length(new_samples))
+      tx_g_o <<- c(tx_g_o, taxa)
+    }
+    if (length(new_samples)) {
+      new_data <- data[(1:N)[-sup][new_samples], as.character(form[[2]])]
+      new_data <- as.character( probPreds[new_samples, 1])
+      acertou <- 0
+      acerto <- (treinamento[(1:N)[-sup][new_samples], as.character(form[2])]
+                 == new_data)
+      acertou <- length(which(acerto == T))
+      sup <- c(sup, (1:N)[-sup][new_samples])
+      acertou_g_o <<- c(acertou_g_o, acertou)
+    }
+    else {
+      acertou <- 0
+      acertou_g_o <<- c(acertou_g_o, acertou)
+      break
+    }
+    if ((it == maxIts) || ((length(sup) / N) >= 1)) {
+      break
+    }
+  }
+  return(model)
 }
 
 # Search in the 'moda' vector the higger value of the sample (sum or vote)
