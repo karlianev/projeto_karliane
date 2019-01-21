@@ -1,8 +1,9 @@
 #' @description Install packages if it was not installed and load them.
 #'
+#' Hmisc -> pacote para usar a funcao partitio.matrix ou partition.vector
 installNeedPacks <- function() {
   packages <- c("ssc", "plyr", "DMwR", "DMwR2", "RWeka", "rminer", "e1071",
-                "ggplot2", "stats", "PMCMR", "PMCMRplus")
+                "ggplot2", "stats", "PMCMR", "Hmisc")
   for (pack in packages) {
     if (!require(pack, character.only = TRUE)) {
       install.packages(pack)

@@ -3,9 +3,9 @@
 setWorkspace <- function() {
   mySystem <- Sys.info()
   if (mySystem[[1]] == "Linux") {
-    setwd("~/R/karliane/projeto_karliane/flexcon_c")
+    setwd("~/R/karliane/projeto_karliane/co_training")
   } else {
-    setwd("C:\\local_R\\projeto_karliane\\flexcon_c")
+    setwd("C:\\local_R\\projeto_karliane\\co_training")
   }
 }
 
@@ -18,7 +18,7 @@ setWorkspace <- function() {
 #   stop("The arg must be integer between 1-4!\n1 - NaiveBayes\n2 - rpartXse",
 #        "\n3 - JRip\n4 - IBk")
 # } else {
-  args <- 1
+  args <- 1 #classificador 1 = naive, 2=rpartxse, 3=ripper, 4=ibk
   setWorkspace()
   source("functions.R")
   source("utils.R")
@@ -30,18 +30,19 @@ setWorkspace <- function() {
   medias_c2 <- cleanVector(medias_c2)
   medias_self <- cleanVector(medias_self)
   cl <- as.integer(args)
-  param <- whichDB(classifiers[cl])
-  ini_cr <- param$cr
-  ini_bd <- param$bd
-  for(i in ini_bd:2) { #Iris
+  # param <- whichDB(classifiers[cl])
+  # ini_cr <- param$cr
+  # ini_bd <- param$bd
+  ini_bd <- 1
+  for(i in ini_bd:31) { #bases de dados #Iris=1
     base_original <- getDatabase(i)
     k_NN <- attKValue(base_original)
     qtd_exem_por_classe <- ddply(base_original, ~class, summarise,
                                  distinct_orders = length(class))
     qtd_exem_menor_classe <- trunc(min(qtd_exem_por_classe$distinct_orders) * 0.1)
     folds <- crossValidation(base_original, base_original$class)
-    for (cr in 5:5) { #2
-      for(j in 1:5) { #1
+    for (cr in 5:5) { #2 change rate
+      for(j in 1:5) { #1 taxa de exemplos inicialmente rotulados
         taxa <- j * 5 # 5%
         acc_c1_s <- cleanVector(acc_c1_s)
         acc_c1_v <- cleanVector(acc_c1_v)

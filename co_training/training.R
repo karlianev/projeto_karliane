@@ -31,8 +31,12 @@ n <- getLength(base_teste$class)
 
 
 # Self-Training Original
-self_training <- SelfTrainOriginal(my_learner, my_function)
-matrix_self <- confusionMatrix(self_training)
-partial_acc_self <- getAcc(matrix_self, n)
-acc_self <- appendVectors(acc_self, partial_acc_self)
-cat("\n Acerto global Self-Training O.    (%) =", partial_acc_self)
+co_training <- coTrainingOriginal(my_learner, my_function)
+matrix_self_model1 <- confusionMatrix(co_training[[1]])
+matrix_self_model2 <- confusionMatrix(co_training[[2]])
+partial_acc_self_model1 <- getAcc(matrix_self_model1, n)
+partial_acc_self_model2 <- getAcc(matrix_self_model2, n)
+acc_self <- appendVectors(acc_self, mean(c(partial_acc_self_model1, partial_acc_self_model2)))
+cat("\n Acerto global co-Training O. 1 Model (%) =", partial_acc_self_model1)
+cat("\n Acerto global co-Training O. 2 Model (%) =", partial_acc_self_model2)
+cat("\n Acerto global co-Training O.         (%) =", mean(c(partial_acc_self_model1, partial_acc_self_model2)))
