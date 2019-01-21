@@ -12,7 +12,7 @@ n <- getLength(base_teste$class)
 # partial_acc_c1_s <- getAcc(matrix_c1_s, n)
 # acc_c1_s <- appendVectors(acc_c1_s, partial_acc_c1_s)
 # cat("\n Acerto global flexcon-c1(s)       (%) =", partial_acc_c1_s)
-# 
+#
 # # FlexCon-C1 (V)
 # flex_con_c1_v <- flexConC(my_learner, my_function, qtd_exem_menor_classe,
 #                           limiar, "2")
@@ -20,7 +20,7 @@ n <- getLength(base_teste$class)
 # partial_acc_c1_v <- getAcc(matrix_c1_v, n)
 # acc_c1_v <- appendVectors(acc_c1_v, partial_acc_c1_v)
 # cat("\n Acerto global flexcon-c1(v)       (%) =", partial_acc_c1_v)
-# 
+#
 # # FlexCon-C2
 # flex_con_c2 <- flexConC(my_learner, my_function, qtd_exem_menor_classe,
 #                         limiar, "3")

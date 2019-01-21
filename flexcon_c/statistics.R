@@ -314,8 +314,8 @@ executeFriedmanTestByTwo <- function(data, classifier, method) {
     one_rates <- c()
     for(j in 1:5) {
       v <- data[((j - 1) * 31 + 1):(31 * j), c(1, i)]
-      d <- friedman.test(v)
-      one_rates <- c(one_rates, d$p.value)
+      tx_normal <- friedman.test(v)
+      one_rates <- c(one_rates, tx_normal$p.value)
     }
     title <- paste(join(c(classifier, method, "partial", "friedman", "test")),
                    "csv", sep = ".")
@@ -329,6 +329,17 @@ executeFriedmanTestByTwo <- function(data, classifier, method) {
                  sep = ".")
   all_rates <- matrix(all_rates, ncol = 1, byrow = TRUE)
   writeArchive(title, all_rates, row = crs[2:7])
+  for(j in 1:5) {
+    v <- data[((j - 1) * 31 + 1):(31 * j),]
+    tx_pareado <- posthoc.friedman.nemenyi.test(v)
+    title <- paste(join(c(classifier, method, "partial", "posthoc_friedman")),
+                   "csv", sep = ".")
+    writeArchive(title, round(tx_pareado$p.value, 5), row = as.numeric(c(3:8)))
+  }
+  pareado <- posthoc.friedman.nemenyi.test(data)
+  title <- paste(join(c(classifier, method, "final", "posthoc_friedman")),
+                 "csv", sep = ".")
+  writeArchive(title, round(pareado$p.value, 5), row = as.numeric(c(3:8)))
 }
 
 executeWicoxonTestByTwo <- function(data, classifier, method) {
@@ -357,6 +368,13 @@ executeWicoxonTestByTwo <- function(data, classifier, method) {
   writeArchive(title, all_rates, row = crs[2:7])
 }
 
+converter <- function(matrix) {
+  base <- c(1, 8, 15, 22, 29)
+  indices <- c(base + 3, base, base + 1, base + 2, base + 4, base + 5, base + 6)
+  new_matrix <- matrix(matrix[, indices], nrow = 155)
+  return (new_matrix)
+}
+
 for (cl in 1:length(classifier)) {
   for (meth in 1:length(method)) {
     data <- creatingDataTTest(classifier[cl], method[meth])
@@ -365,48 +383,12 @@ for (cl in 1:length(classifier)) {
       data2 <- c(data2, getMeans(data[((i - 1) * 310 + 1):(310 * i)]))
     }
     matrix <- matrix(data2, nrow = 31)
-    for(j in 1:5) {
-      v <- matrix[, ((j - 1) * 7 + 1):(7 * j)]
-      rownames(v) <- c("iris", "bupa", "segment", "waveform-5000",
-                            "phishingData", "haberman", "mushroom", "pima",
-                            "vehicle", "wilt", "kr-vs-kp",
-                            "blood-transfusion-service", "cnae-9",
-                            "connectionist-mines-vs-rocks", "flare",
-                            "indian-liver-patient", "leukemia-haslinger",
-                            "mammographic-mass", "mfeat-karhunen", "musk",
-                            "ozone-onehr", "pendigits", "planning-relax",
-                            "seeds", "semeion", "spectf-heart", "tic-tac-toe",
-                            "twonorm", "hill-valley-with-noise",
-                            "balance-scale", "car")
-      colnames(v) <- rep(2:8)
-      title <- paste(classifier[cl], metodos[meth], sep = "_")
-      writeArchive(paste("../", title, ".csv", sep = ""), round(v, 2),
-                   row = rownames(v), col = colnames(v),  sep = "&")
-    }
-    # cd <- matrix(h, ncol = 7, byrow = T)
-    # colnames(cd) <- c(2:8)
-    # if ((classifier[cl] == "naiveBayes") || (classifier[cl] == "JRip")) {
-    #   plotClassifierMethod(t = round(cd, 2), nome = classificados[cl],
-    #                        "FlexCon-C")
-    # } else if ((classifier[cl] == "IBk") && ((meth == 1) || (meth == 2))) {
-    #   plotClassifierMethod(t = round(cd, 2), nome = classificados[cl], "FlexCon-C1")
-    # 
-    # }
-    # plotClassifierMethod(t = round(cd, 2), nome = classificados[cl],
-    #                      metodo = metodos[meth])
-    # # new_matrix <- converter(matrix)
-    # # colnames(new_matrix) <- c(2:8)
-    # # normalDistribution(new_matrix, cl, meth)
-    # # executeFriedmanTestByTwo(new_matrix, cl, meth)
-    # # executeWicoxonTestByTwo(new_matrix, cl, meth)
+    new_matrix <- converter(matrix)
+    colnames(new_matrix) <- c(5, 2:4, 6:8)
+    normalDistribution(new_matrix, classifier[cl], method[meth])
+    executeFriedmanTestByTwo(new_matrix, classifier[cl], method[meth])
+    executeWicoxonTestByTwo(new_matrix, classifier[cl], method[meth])
   }
-}
-
-converter <- function(matrix) {
-  base <- c(1, 8, 15, 22, 29)
-  indices <- c(base + 3, base, base + 1, base + 2, base + 4, base + 5, base + 6)
-  new_matrix <- matrix(matrix[, indices], nrow = 155)
-  return (new_matrix)
 }
 
 teste <- function(v, matrix) {
