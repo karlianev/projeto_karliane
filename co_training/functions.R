@@ -496,8 +496,8 @@ criar_visao <- function(dados){
   return(visoes)
 }
 
-# Function Self-Training original (w/ fix threshold)
-coTrainingOriginal <- function (learner, predFunc, k_fixo = F) {
+# Function co-Training original (w/ fix threshold)
+coTrainingOriginal <- function (learner, predFunc, k_fixo = T) {
   form <- as.formula(paste(classe,'~', '.'))
   k <- 5
   # k <- 10
@@ -528,8 +528,8 @@ coTrainingOriginal <- function (learner, predFunc, k_fixo = F) {
     probPreds2 <- generateProbPreds(predFunc, model2, data2, sup2)
 
     if (k_fixo) { 
-      # qtd_add <- k
-      qtd_add <- as.integer(nrow(probPreds1)*0.1)
+      qtd_add <- k
+      # qtd_add <- as.integer(nrow(probPreds1)*0.1)
     }
     else {
       qtd_add <- min(length(which(probPreds1[, 2] > thrConf)), length(which(probPreds2[, 2] > thrConf)))
@@ -573,6 +573,109 @@ coTrainingOriginal <- function (learner, predFunc, k_fixo = F) {
       acertou_g_o <<- c(acertou_g_o, acertou)
       break
     }
+    if ((it == maxIts) || ((length(sup1) / N) >= 1) || ((length(sup2) / N) >= 1) ) {
+      break
+    }
+  }
+  model <- list(model1, model2)
+  return (model)
+}
+
+# Function co-Training Gradativo (w/ fix threshold)
+coTrainingGradativo <- function (learner, predFunc, k_fixo = T) {
+  form <- as.formula(paste(classe,'~', '.'))
+  k <- 5
+  # k <- 10
+  # k <- 0.05
+  # k <- 0.1
+  data <- base
+  thrConf <- 0.95
+  maxIts <- 100
+  verbose <- T
+  N <- NROW(data)
+  
+##dif. origin.  
+  qtd_Exemplos_Rot <- 0
+  gradativo <- 0.05
+##dif. origin.    
+  
+  #primeiramente se faz necessario particionar os dados, ou seja, criar duas visoes
+  visao <- criar_visao(data)
+  data1 <- visao[[1]]
+  data2 <- visao[[2]]
+  
+  it <- 0
+  sup1 <- which(!is.na(data1[, as.character(form[[2]])])) #exemplos inicialmente rotulados
+  sup2 <- which(!is.na(data2[, as.character(form[[2]])])) #exemplos inicialmente rotulados
+  repeat {
+    new_samples1 <- cleanVector(new_samples1)
+    new_samples2 <- cleanVector(new_samples2)
+    acertou <- 0
+    it <- it + 1
+    
+##dif. origin.        
+    if ((it>1)&&(qtd_Exemplos_Rot>0)){
+      thrConf <- (thrConf - gradativo)
+      if (thrConf <= 0.0) thrConf <- (thrConf + gradativo)
+    }
+    qtd_Exemplos_Rot <- 0
+##dif. origin.        
+    
+    model1 <- generateModel(learner, form, data1, sup1)
+    model2 <- generateModel(learner, form, data2, sup2)
+    probPreds1 <- generateProbPreds(predFunc, model1, data1, sup1)
+    probPreds2 <- generateProbPreds(predFunc, model2, data2, sup2)
+    
+    if (k_fixo) { 
+      qtd_add <- k
+      # qtd_add <- as.integer(nrow(probPreds1)*0.1)
+    }
+    else {
+      qtd_add <- min(length(which(probPreds1[, 2] > thrConf)), length(which(probPreds2[, 2] > thrConf)))
+    }
+
+    #criando os vetores em ordem decrescente pela confiança
+    probPreds1_ordenado <- order(probPreds1$p, decreasing = T)
+    probPreds2_ordenado <- order(probPreds2$p, decreasing = T)
+    
+    new_samples1 <- as.integer(rownames(probPreds1[probPreds1_ordenado[1:qtd_add], ]))
+    new_samples2 <- as.integer(rownames(probPreds2[probPreds2_ordenado[1:qtd_add], ]))
+    
+    if (verbose) {
+      it_g_o <<- c(it_g_o, it)
+      bd_g_o <<- c(bd_g_o, bd_nome)
+      thrConf_g_o <<- c(thrConf_g_o, thrConf)
+      nr_added_exs_g_o <<- c(nr_added_exs_g_o, qtd_add)
+      tx_g_o <<- c(tx_g_o, taxa)
+    }
+    if ((length(new_samples1)) && (length(new_samples2))) {
+      new_data1 <- data1[(1:N)[-sup1][new_samples2], as.character(form[[2]])]
+      new_data2 <- data2[(1:N)[-sup2][new_samples1], as.character(form[[2]])]
+      
+      new_data1 <- as.character( probPreds2[new_samples2, 1])
+      new_data2 <- as.character( probPreds1[new_samples1, 1])
+      
+      #acertou <- 0
+      #acerto <- (treinamento[(1:N)[-sup][new_samples], as.character(form[2])] == new_data)
+      
+      #acertou <- length(which(acerto == T))
+      
+      sup1 <- c(sup1, (1:N)[-sup1][new_samples2])
+      sup2 <- c(sup2, (1:N)[-sup2][new_samples1])
+      
+      acertou_g_o <<- c(acertou_g_o, acertou)
+    }
+    else {
+      acertou <- 0
+      acertou_g_o <<- c(acertou_g_o, acertou)
+      break
+    }
+##dif. origin.
+    if(length(new)==0){
+      thrConf<-min(max(probPreds1[,2]), max(probPreds2[,2]))
+    }
+##dif. origin.    
+    
     if ((it == maxIts) || ((length(sup1) / N) >= 1) || ((length(sup2) / N) >= 1) ) {
       break
     }

@@ -192,7 +192,7 @@ guarda_soma <- function(p){ # p = predicao
 #            FIM               #
 #                              #
 ################################
-
+#FLEXCON
 #funcao self-training modificado, usa uma f?rmula para calcular a nova taxa de confian?a.
 #inclui no conjunto dos rotulados os exemplos que possuem mesmo rotulo e taxa de conf. >= thrconf
 #caso n?o exista nenhum exemplo com essa caracter?stica, serao incluidos os exemplos que possuem o mesmo
@@ -430,7 +430,6 @@ funcSelfTrainGradativo <- function(form,data,
       nr_added_exs_g_gra <<-c(nr_added_exs_g_gra,length(new))
       tx_g_gra <<- c(tx_g_gra, taxa)
       grad_g<<-c(grad_g,grad)
-      
       }
     
     if (length(new)) {
@@ -484,31 +483,6 @@ validar_treino<- function(data,id_conj_treino,N_classes,min_exem_por_classe){
   }
 } 
 
-#funcao, chamada em modificado2 e 3, que define o conjunto de treinamento a ser classificado e indica se a classificacao e possivel
-validar_classificacao <- function(treino_valido_i, id_conj_treino, id_conj_treino_antigo, data, N_classes, min_exem_por_classe){
-  #data[sup,] corresponde os que possuem rotulos (INICIALMENTE ROTULADOS OU N?fO)
-  if (treino_valido_i){
-    #o conjunto de treinamento serao as instancias inclu????das (rotuladas)
-    conj_treino <<- data[id_conj_treino,]
-    id_conj_treino_antigo <<- c()
-    classificar <- TRUE
-    
-  }else if (length(id_conj_treino_antigo)>=1) {
-    #o conjunto de treinamento será o anterior + as instancias incluidas (rotuladas)
-    conj_treino <<- rbind(data[id_conj_treino,],data[id_conj_treino_antigo,])
-    
-    id_conj_treino1 <- c(id_conj_treino, id_conj_treino_antigo)
-    validar_treino(data,id_conj_treino1,N_classes,min_exem_por_classe);
-
-    if (treino_valido){
-      classificar <- TRUE
-    }else{
-      classificar <- FALSE
-    }
-    
-  }else classificar <- FALSE #a confian?a permanece a mesma ao inves de parar
-  return(classificar)  
-}
 
 #funcao que faz o treinamento usando o conjunto de treinamento definido na funcao validar_classificacao e
 #calcula a acuracia para ser usada na definicao da nova taxa de confianca. Essa acuracia comparada com o 
@@ -570,6 +544,7 @@ calcular_confianca<-function(acc_local,limiar,txConf){
 #   return(txConf)
 # }
 
+#FLEXCON-C
 #calcula a confianca de acordo com o treinamento do classificador
 #so acumula o conjunto de treinamento com o conjunto anterior caso o conjunto de treinamento nao seja valido
 #usa votacao para definir o rotulo nos casos em que os classificadores divergem

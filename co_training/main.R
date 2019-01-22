@@ -34,7 +34,7 @@ setWorkspace <- function() {
   # ini_cr <- param$cr
   # ini_bd <- param$bd
   ini_bd <- 1
-  for(i in ini_bd:31) { #bases de dados #Iris=1
+  for(i in ini_bd:1) { #bases de dados #Iris=1
     base_original <- getDatabase(i)
     k_NN <- attKValue(base_original)
     qtd_exem_por_classe <- ddply(base_original, ~class, summarise,
@@ -42,7 +42,7 @@ setWorkspace <- function() {
     qtd_exem_menor_classe <- trunc(min(qtd_exem_por_classe$distinct_orders) * 0.1)
     folds <- crossValidation(base_original, base_original$class)
     for (cr in 5:5) { #2 change rate
-      for(j in 1:5) { #1 taxa de exemplos inicialmente rotulados
+      for(j in 1:1) { #1 taxa de exemplos inicialmente rotulados
         taxa <- j * 5 # 5%
         acc_c1_s <- cleanVector(acc_c1_s)
         acc_c1_v <- cleanVector(acc_c1_v)
