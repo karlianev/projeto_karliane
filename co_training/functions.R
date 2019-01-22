@@ -528,8 +528,13 @@ coTrainingOriginal <- function (learner, predFunc, k_fixo = T) {
     probPreds2 <- generateProbPreds(predFunc, model2, data2, sup2)
 
     if (k_fixo) { 
-      qtd_add <- k
+      qtd_add <- min(k,nrow(probPreds1)) # tamanho do probpreds1=probpreds2
+      
       # qtd_add <- as.integer(nrow(probPreds1)*0.1)
+      # if ((nrow(probPreds1)>=1) && (qtd_add<1)){
+      #   qtd_add <- 1
+      # }
+      
     }
     else {
       qtd_add <- min(length(which(probPreds1[, 2] > thrConf)), length(which(probPreds2[, 2] > thrConf)))

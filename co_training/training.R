@@ -31,8 +31,8 @@ n <- getLength(base_teste$class)
 
 
 # CO-Training Original
- co_training_GRA <- coTrainingGradativo(my_learner, my_function)
-#co_training <- coTrainingOriginal(my_learner, my_function)
+# co_training_GRA <- coTrainingGradativo(my_learner, my_function)
+co_training <- coTrainingOriginal(my_learner, my_function)
 matrix_self_model1 <- confusionMatrix(co_training[[1]])
 matrix_self_model2 <- confusionMatrix(co_training[[2]])
 partial_acc_self_model1 <- getAcc(matrix_self_model1, n)
