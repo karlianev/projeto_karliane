@@ -18,7 +18,7 @@ setWorkspace <- function() {
 #   stop("The arg must be integer between 1-4!\n1 - NaiveBayes\n2 - rpartXse",
 #        "\n3 - JRip\n4 - IBk")
 # } else {
-  args <- 2 #classificador 1 = naive, 2=rpartxse, 3=ripper, 4=ibk
+  args <- 4 #classificador 1 = naive, 2=rpartxse, 3=ripper, 4=ibk
   
   setWorkspace()
   source("functions.R")
@@ -42,6 +42,12 @@ setWorkspace <- function() {
                                  distinct_orders = length(class))
     qtd_exem_menor_classe <- trunc(min(qtd_exem_por_classe$distinct_orders) * 0.1)
     folds <- crossValidation(base_original, base_original$class)
+    
+    visao <- criar_visao(base_original)
+    data1 <- visao[[1]]
+    data2 <- visao[[2]]
+    
+
     for (cr in 5:5) { #2 change rate
       for(j in 1:1) { #1 taxa de exemplos inicialmente rotulados
         taxa <- j * 5 # 5%
@@ -50,17 +56,25 @@ setWorkspace <- function() {
         acc_c2 <- cleanVector(acc_c2)
         acc_self <- cleanVector(acc_self)
         for (fold in 1:length(folds)) {
-          base_teste <- base_original[folds[[fold]], ]
-          base <- base_original[- folds[[fold]], ]
-          treinamento <<- base_rotulada_treino <- base
+          base_teste1 <- data1[folds[[fold]], ]
+          base_teste2 <- data2[folds[[fold]], ]
+          base1 <- data1[- folds[[fold]], ]
+          base2 <- data2[- folds[[fold]], ]
+          treinamento1 <- base1
+          treinamento2 <- base2
           #sorteando os exemplos que ficarão rotulados inicialmente
           cat("\nBD:", i, "    CL:", cl, "    CR:", cr, "   TX:", j, "   FOLD:",
               fold)
-          H2 <- holdout(base_rotulada_treino$class, ratio = (taxa / 100),
+          H2 <- holdout(base1$class, ratio = (taxa / 100),
                         mode = "stratified")
           ids_treino_rot <- H2$tr
-          base <- newBase(base_rotulada_treino, ids_treino_rot)
-          base_rotulados_ini <- base_rotulada_treino[ids_treino_rot, ]
+          base1 <- newBase(base1, ids_treino_rot)
+          base2 <- newBase(base2, ids_treino_rot)
+          base_rotulados_ini1 <- base1[ids_treino_rot, ]
+          base_rotulados_ini2 <- base2[ids_treino_rot, ]
+          base_rotulados_ini <- cbind(base_rotulados_ini1[,-ncol(base_rotulados_ini1)], base_rotulados_ini2)
+          base_teste <- cbind(base_teste1[,-ncol(base_teste1)], base_teste2)
+          
           source('training.R')
         }
         # medias_c1_s <- appendVectors(medias_c1_s, acc_c1_s)

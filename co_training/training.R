@@ -3,7 +3,7 @@ my_function <- funcs[cl]
 classifier_name <- classifiers[cl]
 limiar <- supAcc(classifier_name, base_rotulados_ini)
 
-n <- getLength(base_teste$class)
+num_row <- getLength(base_teste1$class)
 
 # # FlexCon-C1 (S)
 # flex_con_c1_s <- flexConC(my_learner, my_function, qtd_exem_menor_classe,
@@ -32,11 +32,11 @@ n <- getLength(base_teste$class)
 
 # CO-Training Original
 # co_training_GRA <- coTrainingGradativo(my_learner, my_function)
-co_training <- coTrainingOriginal(my_learner, my_function)
+co_training <- coTrainingOriginal(my_learner, my_function, base1, base2)
 matrix_self_model1 <- confusionMatrix(co_training[[1]])
 matrix_self_model2 <- confusionMatrix(co_training[[2]])
-partial_acc_self_model1 <- getAcc(matrix_self_model1, n)
-partial_acc_self_model2 <- getAcc(matrix_self_model2, n)
+partial_acc_self_model1 <- getAcc(matrix_self_model1, num_row)
+partial_acc_self_model2 <- getAcc(matrix_self_model2, num_row)
 acc_self <- appendVectors(acc_self, mean(c(partial_acc_self_model1, partial_acc_self_model2)))
 cat("\n Acerto global co-Training O. 1 Model (%) =", partial_acc_self_model1)
 cat("\n Acerto global co-Training O. 2 Model (%) =", partial_acc_self_model2)

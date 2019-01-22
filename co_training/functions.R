@@ -382,8 +382,8 @@ getDatabase <- function(pos) {
 }
 
 # Get the length of the data
-getLength <- function(n) {
-  return (length(n))
+getLength <- function(tamanho) {
+  return (length(tamanho))
 }
 
 #' @description Void Function to load all global variables of the code
@@ -486,10 +486,11 @@ outputArchive <- function(cr, cl, acc_c1_s, acc_c1_v, acc_c2, acc_self) {
 
 #funcao que cria duas visoes para serem usadas no treinamento do co-training
 criar_visao <- function(dados){
-  col <- (ncol(dados)-1)/2
+  col <- round((ncol(dados)-1) / 2)
+  col1 <- as.integer((ncol(dados)-1) / 2)
   xl <- dados[,1:ncol(dados)-1] #a base dados sem os rotulos
   yl <- dados[-(1:ncol(dados)-1)] #rotulos da base 
-  view <- partition.matrix(xl, rowsep = nrow(dados), colsep = c(col,col))
+  view <- partition.matrix(xl, rowsep = nrow(dados), colsep = c(col,col1))
   data1 <- data.frame(view$`1`$`1`,yl)
   data2 <- data.frame(view$`1`$`2`,yl)
   visoes <- list(data1,data2)
@@ -497,22 +498,20 @@ criar_visao <- function(dados){
 }
 
 # Function co-Training original (w/ fix threshold)
-coTrainingOriginal <- function (learner, predFunc, k_fixo = T) {
+coTrainingOriginal <- function (learner, predFunc, data1, data2, k_fixo = F) {
   form <- as.formula(paste(classe,'~', '.'))
   k <- 5
   # k <- 10
   # k <- 0.05
   # k <- 0.1
-  data <- base
   thrConf <- 0.95
   maxIts <- 100
   verbose <- T
-  N <- NROW(data)
+  N <- NROW(data1)
   
   #primeiramente se faz necessario particionar os dados, ou seja, criar duas visoes
-  visao <- criar_visao(data)
-  data1 <- visao[[1]]
-  data2 <- visao[[2]]
+  # data1 <- visao[[1]]
+  # data2 <- visao[[2]]
   
   it <- 0
   sup1 <- which(!is.na(data1[, as.character(form[[2]])])) #exemplos inicialmente rotulados
@@ -754,8 +753,8 @@ storageSum <- function(prob_preds, moda) {
 supAcc <- function(cl, base_rotulados_ini){
   std <- supModel(cl, base_rotulados_ini)
   matriz_confusao_supervisionado <- confusionMatrix(std)
-  acc_sup_3 <- getAcc(matriz_confusao_supervisionado, matriz_confusao_supervisionado)
-  return(acc_sup_3)
+  # acc_sup_3 <- getAcc(matriz_confusao_supervisionado, sum(matriz_confusao_supervisionado))
+  return (getAcc(matriz_confusao_supervisionado, sum(matriz_confusao_supervisionado)))
 }
 
 #' @description A supervised model trained with the initial samples.
