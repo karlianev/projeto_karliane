@@ -35,7 +35,7 @@ setWorkspace <- function() {
   # ini_cr <- param$cr
   # ini_bd <- param$bd
   ini_bd <- 1
-  for(i in ini_bd:31) { #bases de dados #Iris=1
+  for(i in ini_bd:9) { #bases de dados #Iris=1
     base_original <- getDatabase(i)
     k_NN <- attKValue(base_original)
     qtd_exem_por_classe <- ddply(base_original, ~class, summarise,
@@ -60,6 +60,8 @@ setWorkspace <- function() {
           base_teste2 <- data2[folds[[fold]], ]
           base1 <- data1[- folds[[fold]], ]
           base2 <- data2[- folds[[fold]], ]
+          
+#acho que a variavel treinamento nao esta sendo usada!!!!          
           treinamento1 <- base1
           treinamento2 <- base2
           #sorteando os exemplos que ficarão rotulados inicialmente
