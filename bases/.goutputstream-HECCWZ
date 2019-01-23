@@ -30,7 +30,7 @@
 @attribute Google_Index { 1,-1 }
 @attribute Links_pointing_to_page { 1,0,-1 }
 @attribute Statistical_report { -1,1 }
-@attribute class {1,-1}
+@attribute Class  { -1,1 }
 
 
 @data

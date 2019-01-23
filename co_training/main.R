@@ -18,7 +18,7 @@ setWorkspace <- function() {
 #   stop("The arg must be integer between 1-4!\n1 - NaiveBayes\n2 - rpartXse",
 #        "\n3 - JRip\n4 - IBk")
 # } else {
-  args <- 4 #classificador 1 = naive, 2=rpartxse, 3=ripper, 4=ibk
+  args <- 1 #classificador 1 = naive, 2=rpartxse, 3=ripper, 4=ibk
   
   setWorkspace()
   source("functions.R")
@@ -35,7 +35,7 @@ setWorkspace <- function() {
   # ini_cr <- param$cr
   # ini_bd <- param$bd
   ini_bd <- 1
-  for(i in ini_bd:1) { #bases de dados #Iris=1
+  for(i in ini_bd:31) { #bases de dados #Iris=1
     base_original <- getDatabase(i)
     k_NN <- attKValue(base_original)
     qtd_exem_por_classe <- ddply(base_original, ~class, summarise,
