@@ -30,7 +30,7 @@ join <- function(vec, collapse = "_") {
 #' @return The content of the file.
 #'
 readFile <- function(file, header = F,
-                     col.names = c("V1", "V2", "V3", "V4", "V5")) {
+                     col.names = c("BD", "V1", "V2", "V3", "V4", "V5")) {
   return (read.csv(file, header = header, col.names = col.names))
 }
 
