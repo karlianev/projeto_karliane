@@ -19,7 +19,7 @@ setWorkspace <- function() {
 #   stop("The arg must be integer between 1-4!\n1 - NaiveBayes\n2 - rpartXse",
 #        "\n3 - JRip\n4 - IBk")
 # } else {
-  args <- 1 #classificador 1 = naive, 2=rpartxse, 3=ripper, 4=ibk
+  args <- 2 #classificador 1 = naive, 2=rpartxse, 3=ripper, 4=ibk
   
   setWorkspace()
   source("functions.R")

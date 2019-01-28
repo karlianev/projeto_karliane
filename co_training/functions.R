@@ -562,19 +562,23 @@ coTrainingOriginal <- function (learner, predFunc, data1, data2, k_fixo = T) {
       tx_g_o <<- c(tx_g_o, taxa)
     }
     if ((length(new_samples1)) && (length(new_samples2))) {
-      new_data1 <- data1[(1:N)[-sup1][new_samples2], as.character(form[[2]])]
-      new_data2 <- data2[(1:N)[-sup2][new_samples1], as.character(form[[2]])]
+      ids_new_samples1 <- match(new_samples2, rownames(data1[(1:N)[-sup2],]))
+      ids_new_samples2 <- match(new_samples1, rownames(data2[(1:N)[-sup1],]))
+      new_data1 <- data1[(1:N)[-sup1][ids_new_samples1], as.character(form[[2]])]
+      new_data2 <- data2[(1:N)[-sup2][ids_new_samples2], as.character(form[[2]])]
+      # new_data1 <- data1[(1:N)[-sup1][new_samples2], as.character(form[[2]])]
+      # new_data2 <- data2[(1:N)[-sup2][new_samples1], as.character(form[[2]])]
       
-      new_data1 <- as.character( probPreds2[new_samples2, 1])
-      new_data2 <- as.character( probPreds1[new_samples1, 1])
+      new_data1 <- as.character(probPreds2[probPreds2_ordenado[1:qtd_add], 1])
+      new_data2 <- as.character(probPreds1[probPreds1_ordenado[1:qtd_add], 1])
       
       #acertou <- 0
       #acerto <- (treinamento[(1:N)[-sup][new_samples], as.character(form[2])] == new_data)
       
       #acertou <- length(which(acerto == T))
-      
-      sup1 <- c(sup1, (1:N)[-sup1][new_samples2])
-      sup2 <- c(sup2, (1:N)[-sup2][new_samples1])
+      # ERROR!!
+      sup1 <- c(sup1, data1[(1:N)[-sup1][new_samples2], ])
+      sup2 <- c(sup2, data2[(1:N)[-sup2][new_samples1], ])
       
       acertou_g_o <<- c(acertou_g_o, acertou)
     }
