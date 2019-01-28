@@ -1,9 +1,12 @@
+print("entrou")
 my_learner <- obj[[cl]]
 my_function <- funcs[cl]
 classifier_name <- classifiers[cl]
-limiar <- supAcc(classifier_name, base_rotulados_ini)
+limiar1 <- supAcc(classifier_name, base_rotulados_ini1, base_teste1)
+limiar2 <- supAcc(classifier_name, base_rotulados_ini2, base_teste2)
 
 num_row <- getLength(base_teste1$class)
+print("passou 6")
 
 # # FlexCon-C1 (S)
 # flex_con_c1_s <- flexConC(my_learner, my_function, qtd_exem_menor_classe,
@@ -32,7 +35,9 @@ num_row <- getLength(base_teste1$class)
 
 # CO-Training Original
 # co_training_GRA <- coTrainingGradativo(my_learner, my_function)
+print("chegou co-training")
 co_training <- coTrainingOriginal(my_learner, my_function, base1, base2)
+print("passou co-training")
 matrix_self_model1 <- confusionMatrix(co_training[[1]])
 matrix_self_model2 <- confusionMatrix(co_training[[2]])
 partial_acc_self_model1 <- getAcc(matrix_self_model1, num_row)

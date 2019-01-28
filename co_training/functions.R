@@ -100,7 +100,7 @@ confidenceCheck <- function(data_1_it, data_x_it, thr_conf) {
 }
 
 # Return the confusion matrix
-confusionMatrix <- function(model) {
+confusionMatrix <- function(model, base_teste) {
   coluns_names <- colnames(base_teste)
   db_without_class <- match("class", coluns_names)
   test_db <- base_teste[, - db_without_class]
@@ -522,27 +522,30 @@ coTrainingOriginal <- function (learner, predFunc, data1, data2, k_fixo = T) {
     new_samples2 <- cleanVector(new_samples2)
     acertou <- 0
     it <- it + 1
+    cat("iteração: ", it, "\n")
     model1 <- generateModel(learner, form, data1, sup1)
     model2 <- generateModel(learner, form, data2, sup2)
     probPreds1 <- generateProbPreds(predFunc, model1, data1, sup1)
     probPreds2 <- generateProbPreds(predFunc, model2, data2, sup2)
 
     if (k_fixo) { 
+      #NAO VAMOS USAR ESSE K
       #quanidade de atributos = ao valor de K definido no inicio da funcao
-      qtd_add <- min(k,nrow(probPreds1)) # tamanho do probpreds1=probpreds2
+      # qtd_add <- min(k,nrow(probPreds1)) # tamanho do probpreds1=probpreds2
       
       #quanidade de atributos = 10% do conjunto nao rotulado      
-      # qtd_add <- as.integer(nrow(probPreds1)*0.1)
-      # if ((nrow(probPreds1)>=1) && (qtd_add<1)){
-      #   qtd_add <- 1
-      # }
+      qtd_add <- as.integer(nrow(probPreds1)*0.1)
+      if ((nrow(probPreds1)>=1) && (qtd_add<1)){
+        qtd_add <- 1
+      }
       
     }
     else {
+      #co-training adaptado para funcionar igual ao self-training de Felipe
       qtd_add <- min(length(which(probPreds1[, 2] > thrConf)), length(which(probPreds2[, 2] > thrConf)))
     }
-    probPreds1_bkp <- probPreds1
-    probPreds2_bkp <- probPreds2
+    # probPreds1_bkp <- probPreds1
+    # probPreds2_bkp <- probPreds2
     
     #criando os vetores em ordem decrescente pela confian?a
     probPreds1_ordenado <- order(probPreds1$p, decreasing = T)
@@ -749,13 +752,14 @@ storageSum <- function(prob_preds, moda) {
 #'
 #' @param cl the choosen classifier
 #' @param base_rotulados_ini the dataset with the initial samples labeled.
+#' @param baase_tst base de teste = dados inicialmente rotulados.
 #'
 #' @return Return the accuracy of the dataset with the initial samples
 #' labeled.
 #'
-supAcc <- function(cl, base_rotulados_ini){
+supAcc <- function(cl, base_rotulados_ini, base_tst){
   std <- supModel(cl, base_rotulados_ini)
-  matriz_confusao_supervisionado <- confusionMatrix(std)
+  matriz_confusao_supervisionado <- confusionMatrix(std, base_tst)
   # acc_sup_3 <- getAcc(matriz_confusao_supervisionado, sum(matriz_confusao_supervisionado))
   return (getAcc(matriz_confusao_supervisionado, sum(matriz_confusao_supervisionado)))
 }

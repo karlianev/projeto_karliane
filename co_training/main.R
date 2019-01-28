@@ -9,6 +9,7 @@ setWorkspace <- function() {
   }
 }
 
+
 # args = commandArgs(trailingOnly=TRUE)
 # if ((args == "-h") || (args == "--help")) {
 #   cat("The arg must be integer between 1-4!\n1 - NaiveBayes\n2 - rpartXse",
@@ -18,7 +19,7 @@ setWorkspace <- function() {
 #   stop("The arg must be integer between 1-4!\n1 - NaiveBayes\n2 - rpartXse",
 #        "\n3 - JRip\n4 - IBk")
 # } else {
-  args <- 1 #classificador 1 = naive, 2=rpartxse, 3=ripper, 4=ibk
+  args <- 2 #classificador 1 = naive, 2=rpartxse, 3=ripper, 4=ibk
   
   setWorkspace()
   source("functions.R")
@@ -31,8 +32,9 @@ setWorkspace <- function() {
   medias_c2 <- cleanVector(medias_c2)
   medias_self <- cleanVector(medias_self)
   cl <- as.integer(args)
-  ini_bd <- whichDB(join(c("co_training", classifiers[cl])))
-  for(i in ini_bd:31) { #bases de dados #Iris=1
+  ini_bd <- tryCatch({whichDB(join(c("co_training", classifiers[cl])))}, error = function(setIniBd){return(1)})
+  # ini_bd <- whichDB(join(c("co_training", classifiers[cl])))
+  for(i in ini_bd:1) { #bases de dados #Iris=1
     base_original <- getDatabase(i)
     k_NN <- attKValue(base_original)
     qtd_exem_por_classe <- ddply(base_original, ~class, summarise,
@@ -46,7 +48,7 @@ setWorkspace <- function() {
     
 
     for (cr in 5:5) { #2 change rate
-      for(j in 1:5) { #1 taxa de exemplos inicialmente rotulados
+      for(j in 2:5) { #1 taxa de exemplos inicialmente rotulados
         taxa <- j * 5 # 5%
         acc_c1_s <- cleanVector(acc_c1_s)
         acc_c1_v <- cleanVector(acc_c1_v)
@@ -71,8 +73,8 @@ setWorkspace <- function() {
           base2 <- newBase(base2, ids_treino_rot)
           base_rotulados_ini1 <- base1[ids_treino_rot, ]
           base_rotulados_ini2 <- base2[ids_treino_rot, ]
-          base_rotulados_ini <- cbind(base_rotulados_ini1[,-ncol(base_rotulados_ini1)], base_rotulados_ini2)
-          base_teste <- cbind(base_teste1[,-ncol(base_teste1)], base_teste2)
+          # base_rotulados_ini <- cbind(base_rotulados_ini1[,-ncol(base_rotulados_ini1)], base_rotulados_ini2)
+          # base_teste <- cbind(base_teste1[,-ncol(base_teste1)], base_teste2)
           
           source('training.R')
         }
