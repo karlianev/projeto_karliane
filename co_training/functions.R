@@ -528,13 +528,13 @@ coTrainingOriginal <- function (learner, predFunc, data1, data2, k_fixo = T) {
 
     if (k_fixo) { 
       #quanidade de atributos = ao valor de K definido no inicio da funcao
-      # qtd_add <- min(k,nrow(probPreds1)) # tamanho do probpreds1=probpreds2
+      qtd_add <- min(k,nrow(probPreds1)) # tamanho do probpreds1=probpreds2
       
       #quanidade de atributos = 10% do conjunto nao rotulado      
-      qtd_add <- as.integer(nrow(probPreds1)*0.1)
-      if ((nrow(probPreds1)>=1) && (qtd_add<1)){
-        qtd_add <- 1
-      }
+      # qtd_add <- as.integer(nrow(probPreds1)*0.1)
+      # if ((nrow(probPreds1)>=1) && (qtd_add<1)){
+      #   qtd_add <- 1
+      # }
       
     }
     else {

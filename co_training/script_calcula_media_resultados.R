@@ -9,7 +9,7 @@ setWorkspace <- function() {
 setWorkspace()
 
 #atribui os dados a uma matriz
-dados <- as.matrix(read.csv("co_trainingnaiveBayes_5_k_10_porcento.CSV"))
+dados <- as.matrix(read.csv("co_trainingnaiveBayes_5_k_limiar.CSV"))
 
 MatrizMedias = matrix(nrow = (nrow(dados)/10), ncol = ncol(dados))
 
