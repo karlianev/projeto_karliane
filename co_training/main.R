@@ -31,11 +31,8 @@ setWorkspace <- function() {
   medias_c2 <- cleanVector(medias_c2)
   medias_self <- cleanVector(medias_self)
   cl <- as.integer(args)
-  # param <- whichDB(classifiers[cl])
-  # ini_cr <- param$cr
-  # ini_bd <- param$bd
-  ini_bd <- 1
-  for(i in ini_bd:9) { #bases de dados #Iris=1
+  ini_bd <- whichDB(join(c("co_training", classifiers[cl])))
+  for(i in ini_bd:31) { #bases de dados #Iris=1
     base_original <- getDatabase(i)
     k_NN <- attKValue(base_original)
     qtd_exem_por_classe <- ddply(base_original, ~class, summarise,

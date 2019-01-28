@@ -471,17 +471,18 @@ outputArchive <- function(cr, cl, acc_c1_s, acc_c1_v, acc_c2, acc_self) {
   # flexcon_c1_s <- paste("flexcon_c1_S_", cl, "_", cr, extention, sep = "")
   # flexcon_c1_v <- paste("flexcon_c1_V_", cl, "_", cr, extention, sep = "")
   # flexcon_c2 <- paste("flexcon_c2_", cl, "_", cr, extention, sep = "")
-  self_training <- paste("self_training", cl, "_", cr, extention, sep = "")
+  self_training <- paste("co_training_", cl, "_", cr, extention, sep = "")
 
   # acc_flexcon_c1_s <- matrix(acc_c1_s, ncol = 5, byrow = TRUE)
   # acc_flexcon_c1_v <- matrix(acc_c1_v, ncol = 5, byrow = TRUE)
   # acc_flexcon_c2 <- matrix(acc_c2, ncol = 5, byrow = TRUE)
   acc_self_training <- matrix(acc_self, ncol = 5, byrow = TRUE)
 
+  row <- rep(bd_nome, 10)
   # writeArchive(flexcon_c1_s, acc_flexcon_c1_s)
   # writeArchive(flexcon_c1_v, acc_flexcon_c1_v)
   # writeArchive(flexcon_c2, acc_flexcon_c2)
-  writeArchive(self_training, acc_self_training)
+  writeArchive(self_training, acc_self_training, row = row)
 }
 
 #funcao que cria duas visoes para serem usadas no treinamento do co-training
@@ -543,7 +544,7 @@ coTrainingOriginal <- function (learner, predFunc, data1, data2, k_fixo = T) {
     probPreds1_bkp <- probPreds1
     probPreds2_bkp <- probPreds2
     
-    #criando os vetores em ordem decrescente pela confiança
+    #criando os vetores em ordem decrescente pela confian?a
     probPreds1_ordenado <- order(probPreds1$p, decreasing = T)
     probPreds2_ordenado <- order(probPreds2$p, decreasing = T)
     
@@ -640,7 +641,7 @@ coTrainingGradativo <- function (learner, predFunc, k_fixo = T) {
       qtd_add <- min(length(which(probPreds1[, 2] > thrConf)), length(which(probPreds2[, 2] > thrConf)))
     }
 
-    #criando os vetores em ordem decrescente pela confiança
+    #criando os vetores em ordem decrescente pela confian?a
     probPreds1_ordenado <- order(probPreds1$p, decreasing = T)
     probPreds2_ordenado <- order(probPreds2$p, decreasing = T)
     
@@ -843,20 +844,7 @@ validTraining <- function(data, id_conj_treino, Nclasses, min_exem_por_classe) {
 }
 
 whichDB <- function(pattern) {
-  files <- list.files(pattern = pattern)
-  vec <- c()
-  cr <- 2
-  for (file in files) {
-    bd <- readFile(file)
-    vec <- c(vec, NROW(bd))
-  }
-  if (length(vec) != 21) {
-    cr <- 2 + (length(vec) / 3)
-    return (list(bd = 1, cr = cr))
-  }
-  if (max(vec) != min(vec)) {
-    fix <- which(vec == min(vec))
-    cr <- 1 + fix[1]
-  }
-  return (list(bd = (min(vec) / 10) + 1, cr = cr))
+  file <- list.files(pattern = pattern)
+  bd <- readFile(file)
+  return ((nrow(bd) / 10) + 1)
 }
