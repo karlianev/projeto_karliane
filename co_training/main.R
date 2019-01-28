@@ -48,7 +48,7 @@ setWorkspace <- function() {
     
 
     for (cr in 5:5) { #2 change rate
-      for(j in 2:5) { #1 taxa de exemplos inicialmente rotulados
+      for(j in 1:5) { #1 taxa de exemplos inicialmente rotulados
         taxa <- j * 5 # 5%
         acc_c1_s <- cleanVector(acc_c1_s)
         acc_c1_v <- cleanVector(acc_c1_v)

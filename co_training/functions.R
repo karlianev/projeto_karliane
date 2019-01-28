@@ -572,13 +572,17 @@ coTrainingOriginal <- function (learner, predFunc, data1, data2, k_fixo = T) {
       new_data1 <- as.character(probPreds2[probPreds2_ordenado[1:qtd_add], 1])
       new_data2 <- as.character(probPreds1[probPreds1_ordenado[1:qtd_add], 1])
       
+    
       #acertou <- 0
       #acerto <- (treinamento[(1:N)[-sup][new_samples], as.character(form[2])] == new_data)
       
       #acertou <- length(which(acerto == T))
       # ERROR!!
-      sup1 <- c(sup1, data1[(1:N)[-sup1][new_samples2], ])
-      sup2 <- c(sup2, data2[(1:N)[-sup2][new_samples1], ])
+      # sup1 <- c(sup1, data1[(1:N)[-sup1][new_samples2], ])
+      # sup2 <- c(sup2, data2[(1:N)[-sup2][new_samples1], ])
+      
+      sup2 <- as.integer(c(sup2, rownames(data2[(1:N)[-sup2][new_samples1], ])))
+      sup1 <- as.integer(c(sup1, rownames(data1[(1:N)[-sup1][new_samples2], ])))  
       
       acertou_g_o <<- c(acertou_g_o, acertou)
     }
