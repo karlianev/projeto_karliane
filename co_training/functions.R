@@ -176,7 +176,7 @@ differentConfidencesCheck <- function(data_1_it, data_x_it, thr_conf, moda) {
   return (examples)
 }
 
-f <- function(m, d) {
+f <- function(m, d) { #arg 2 - árvore de decisão
   p <- predict(m, d, type = 'prob')
   predicao <<- data.frame(p, row.names(d))
   col1 <- colnames(p)[apply(p, 1, which.max)]
@@ -184,7 +184,7 @@ f <- function(m, d) {
   data.frame(cl = col1, p = col2, id = row.names(d))
 }
 
-f2 <- function(m, d) {
+f2 <- function(m, d) { #arg3 e 4 - Jrip e IBK
   p <- predict(m, d, type = 'probability')
   predicao <<- data.frame(p, row.names(d))
   col1 <- colnames(p)[apply(p, 1, which.max)]
@@ -339,7 +339,7 @@ flexConC2 <- function(prob_preds, prob_preds_superv, thr_conf) {
   return(new_samples)
 }
 
-func <- function(m, d) {
+func <- function(m, d) { #arg1 - naive
   p <- predict(m, d, type = "raw")
   predicao <<- data.frame(p, row.names(d))
   col1 <- colnames(p)[apply(p, 1, which.max)]
@@ -489,6 +489,9 @@ outputArchive <- function(cr, cl, acc_c1_s, acc_c1_v, acc_c2, acc_self) {
 criar_visao <- function(dados){
   col <- round((ncol(dados)-1) / 2)
   col1 <- as.integer((ncol(dados)-1) / 2)
+    if ((col + col1) < (ncol(dados)-1)){
+    col <- col + 1
+  }
   xl <- dados[,1:ncol(dados)-1] #a base dados sem os rotulos
   yl <- dados[-(1:ncol(dados)-1)] #rotulos da base 
   view <- partition.matrix(xl, rowsep = nrow(dados), colsep = c(col,col1))
@@ -499,7 +502,17 @@ criar_visao <- function(dados){
 }
 
 # Function co-Training original (w/ fix threshold)
-coTrainingOriginal <- function (learner, predFunc, data1, data2, k_fixo = T) {
+#@param metodo - 1 = co-training original (k=10%)
+#                2 = co-training baseado no metodo de Felipe (k=limiar)
+#                3 = co-training gradativo (k=limiar que diminui 5% a cada iteracao)
+coTrainingOriginal <- function (learner, predFunc, data1, data2, metodo, k_fixo = T) {
+  if (metodo==2){ #original igual ao de felipe
+    k_fixo <- F
+  }else if (metodo==3){ #gradativo
+    k_fixo <- F
+    qtd_Exemplos_Rot <- 0
+    gradativo <- 0.05
+  }
   form <- as.formula(paste(classe,'~', '.'))
   k <- 5
   # k <- 10
@@ -509,11 +522,6 @@ coTrainingOriginal <- function (learner, predFunc, data1, data2, k_fixo = T) {
   maxIts <- 100
   verbose <- T
   N <- NROW(data1)
-  
-  #primeiramente se faz necessario particionar os dados, ou seja, criar duas visoes
-  # data1 <- visao[[1]]
-  # data2 <- visao[[2]]
-  
   it <- 0
   sup1 <- which(!is.na(data1[, as.character(form[[2]])])) #exemplos inicialmente rotulados
   sup2 <- which(!is.na(data2[, as.character(form[[2]])])) #exemplos inicialmente rotulados
@@ -522,7 +530,15 @@ coTrainingOriginal <- function (learner, predFunc, data1, data2, k_fixo = T) {
     new_samples2 <- cleanVector(new_samples2)
     acertou <- 0
     it <- it + 1
-    cat("iteraÃ§Ã£o: ", it, "\n")
+    
+    if (metodo == 3){ #gradativo
+      if ((it>1)&&(qtd_Exemplos_Rot>0)){
+        thrConf <- (thrConf - gradativo)
+        if (thrConf <= 0.0) thrConf <- (thrConf + gradativo)
+      }
+      qtd_Exemplos_Rot <- 0
+    }
+    
     model1 <- generateModel(learner, form, data1, sup1)
     model2 <- generateModel(learner, form, data2, sup2)
     probPreds1 <- generateProbPreds(predFunc, model1, data1, sup1)
@@ -542,9 +558,7 @@ coTrainingOriginal <- function (learner, predFunc, data1, data2, k_fixo = T) {
       #co-training adaptado para funcionar igual ao self-training de Felipe
       qtd_add <- min(length(which(probPreds1[, 2] > thrConf)), length(which(probPreds2[, 2] > thrConf)))
     }
-    # probPreds1_bkp <- probPreds1
-    # probPreds2_bkp <- probPreds2
-    #criando os vetores em ordem decrescente pela confian?a
+    #criando os vetores em ordem decrescente pela confianca
     probPreds1_ordenado <- order(probPreds1$p, decreasing = T)
     probPreds2_ordenado <- order(probPreds2$p, decreasing = T)
 
@@ -559,10 +573,6 @@ coTrainingOriginal <- function (learner, predFunc, data1, data2, k_fixo = T) {
       tx_g_o <<- c(tx_g_o, taxa)
     }
     if ((length(new_samples1)) && (length(new_samples2))) {
-      # ids_new_samples1 <- match(new_samples2, rownames(data1[(1:N)[-sup2],]))
-      # ids_new_samples2 <- match(new_samples1, rownames(data2[(1:N)[-sup1],]))
-      # new_data1 <- data1[(1:N)[-sup1][ids_new_samples1], as.character(form[[2]])]
-      # new_data2 <- data2[(1:N)[-sup2][ids_new_samples2], as.character(form[[2]])]
       new_data1 <- data1[(1:N)[-sup1][new_samples2], as.character(form[[2]])]
       new_data2 <- data2[(1:N)[-sup2][new_samples1], as.character(form[[2]])]
       
@@ -574,19 +584,24 @@ coTrainingOriginal <- function (learner, predFunc, data1, data2, k_fixo = T) {
       #acerto <- (treinamento[(1:N)[-sup][new_samples], as.character(form[2])] == new_data)
       
       #acertou <- length(which(acerto == T))
-      # ERROR!!
+
       sup1 <- c(sup1, new_samples2)
       sup2 <- c(sup2, new_samples1)
       
-      # sup2 <- as.integer(c(sup2, rownames(data2[(1:N)[-sup2][new_samples1], ])))
-      # sup1 <- as.integer(c(sup1, rownames(data1[(1:N)[-sup1][new_samples2], ])))  
-      
+
       acertou_g_o <<- c(acertou_g_o, acertou)
     }
     else {
       acertou <- 0
       acertou_g_o <<- c(acertou_g_o, acertou)
       break
+    }
+    
+    if (metodo ==3){#gradativo
+      if(length(new_samples1)==0){ #se o 1 for zero o 2 tbm será
+        thrConf<-min(max(probPreds1[,2]), max(probPreds2[,2]))
+      }
+      
     }
     if ((it == maxIts) || ((length(sup1) / N) >= 1) || ((length(sup2) / N) >= 1) ) {
       break
