@@ -853,7 +853,10 @@ validTraining <- function(data, id_conj_treino, Nclasses, min_exem_por_classe) {
 }
 
 whichDB <- function(pattern) {
-  file <- list.files(pattern = pattern)
-  bd <- readFile(file)
-  return ((nrow(bd) / 10) + 1)
+  tryCatch({  
+    file <- list.files(pattern = pattern)
+    bd <- readFile(file)
+    return ((nrow(bd) / 10) + 1)
+  }, 
+  error = function(setIniBd){return(1)})
 }

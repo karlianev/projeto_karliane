@@ -32,8 +32,7 @@ setWorkspace <- function() {
   medias_c2 <- cleanVector(medias_c2)
   medias_self <- cleanVector(medias_self)
   cl <- as.integer(args)
-  ini_bd <- tryCatch({whichDB(join(c("co_training", classifiers[cl])))}, error = function(setIniBd){return(1)})
-  # ini_bd <- whichDB(join(c("co_training", classifiers[cl])))
+  ini_bd <- whichDB(join(c("co_training", classifiers[cl])))
   for(i in ini_bd:1) { #bases de dados #Iris=1
     base_original <- getDatabase(i)
     k_NN <- attKValue(base_original)
