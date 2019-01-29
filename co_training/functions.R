@@ -522,7 +522,7 @@ coTrainingOriginal <- function (learner, predFunc, data1, data2, k_fixo = T) {
     new_samples2 <- cleanVector(new_samples2)
     acertou <- 0
     it <- it + 1
-    cat("iteração: ", it, "\n")
+    cat("iteraÃ§Ã£o: ", it, "\n")
     model1 <- generateModel(learner, form, data1, sup1)
     model2 <- generateModel(learner, form, data2, sup2)
     probPreds1 <- generateProbPreds(predFunc, model1, data1, sup1)
@@ -532,13 +532,11 @@ coTrainingOriginal <- function (learner, predFunc, data1, data2, k_fixo = T) {
       #NAO VAMOS USAR ESSE K
       #quanidade de atributos = ao valor de K definido no inicio da funcao
       # qtd_add <- min(k,nrow(probPreds1)) # tamanho do probpreds1=probpreds2
-      
       #quanidade de atributos = 10% do conjunto nao rotulado      
       qtd_add <- as.integer(nrow(probPreds1)*0.1)
       if ((nrow(probPreds1)>=1) && (qtd_add<1)){
         qtd_add <- 1
       }
-      
     }
     else {
       #co-training adaptado para funcionar igual ao self-training de Felipe
@@ -546,14 +544,13 @@ coTrainingOriginal <- function (learner, predFunc, data1, data2, k_fixo = T) {
     }
     # probPreds1_bkp <- probPreds1
     # probPreds2_bkp <- probPreds2
-    
     #criando os vetores em ordem decrescente pela confian?a
     probPreds1_ordenado <- order(probPreds1$p, decreasing = T)
     probPreds2_ordenado <- order(probPreds2$p, decreasing = T)
-    
-    new_samples1 <- as.integer(rownames(probPreds1[probPreds1_ordenado[1:qtd_add], ]))
-    new_samples2 <- as.integer(rownames(probPreds2[probPreds2_ordenado[1:qtd_add], ]))
-    
+
+    new_samples1 <- probPreds1[probPreds1_ordenado[1:qtd_add], 3]
+    new_samples2 <- probPreds2[probPreds2_ordenado[1:qtd_add], 3]
+
     if (verbose) {
       it_g_o <<- c(it_g_o, it)
       bd_g_o <<- c(bd_g_o, bd_nome)
@@ -562,12 +559,12 @@ coTrainingOriginal <- function (learner, predFunc, data1, data2, k_fixo = T) {
       tx_g_o <<- c(tx_g_o, taxa)
     }
     if ((length(new_samples1)) && (length(new_samples2))) {
-      ids_new_samples1 <- match(new_samples2, rownames(data1[(1:N)[-sup2],]))
-      ids_new_samples2 <- match(new_samples1, rownames(data2[(1:N)[-sup1],]))
-      new_data1 <- data1[(1:N)[-sup1][ids_new_samples1], as.character(form[[2]])]
-      new_data2 <- data2[(1:N)[-sup2][ids_new_samples2], as.character(form[[2]])]
-      # new_data1 <- data1[(1:N)[-sup1][new_samples2], as.character(form[[2]])]
-      # new_data2 <- data2[(1:N)[-sup2][new_samples1], as.character(form[[2]])]
+      # ids_new_samples1 <- match(new_samples2, rownames(data1[(1:N)[-sup2],]))
+      # ids_new_samples2 <- match(new_samples1, rownames(data2[(1:N)[-sup1],]))
+      # new_data1 <- data1[(1:N)[-sup1][ids_new_samples1], as.character(form[[2]])]
+      # new_data2 <- data2[(1:N)[-sup2][ids_new_samples2], as.character(form[[2]])]
+      new_data1 <- data1[(1:N)[-sup1][new_samples2], as.character(form[[2]])]
+      new_data2 <- data2[(1:N)[-sup2][new_samples1], as.character(form[[2]])]
       
       new_data1 <- as.character(probPreds2[probPreds2_ordenado[1:qtd_add], 1])
       new_data2 <- as.character(probPreds1[probPreds1_ordenado[1:qtd_add], 1])
@@ -578,11 +575,11 @@ coTrainingOriginal <- function (learner, predFunc, data1, data2, k_fixo = T) {
       
       #acertou <- length(which(acerto == T))
       # ERROR!!
-      # sup1 <- c(sup1, data1[(1:N)[-sup1][new_samples2], ])
-      # sup2 <- c(sup2, data2[(1:N)[-sup2][new_samples1], ])
+      sup1 <- c(sup1, new_samples2)
+      sup2 <- c(sup2, new_samples1)
       
-      sup2 <- as.integer(c(sup2, rownames(data2[(1:N)[-sup2][new_samples1], ])))
-      sup1 <- as.integer(c(sup1, rownames(data1[(1:N)[-sup1][new_samples2], ])))  
+      # sup2 <- as.integer(c(sup2, rownames(data2[(1:N)[-sup2][new_samples1], ])))
+      # sup1 <- as.integer(c(sup1, rownames(data1[(1:N)[-sup1][new_samples2], ])))  
       
       acertou_g_o <<- c(acertou_g_o, acertou)
     }
