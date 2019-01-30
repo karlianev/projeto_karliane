@@ -103,7 +103,7 @@ confidenceCheck <- function(data_1_it, data_x_it, thr_conf) {
 confusionMatrix <- function(model, base_teste) {
   coluns_names <- colnames(base_teste)
   db_without_class <- match("class", coluns_names)
-  test_db <- as.matrix(base_teste[, - db_without_class])
+  test_db <- base_teste[, - db_without_class]
   type <- 'class'
   class_test_bd <- base_teste$class
   confusion <- table(predict(model, test_db, type), class_test_bd)
