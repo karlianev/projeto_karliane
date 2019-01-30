@@ -103,7 +103,7 @@ confidenceCheck <- function(data_1_it, data_x_it, thr_conf) {
 confusionMatrix <- function(model, base_teste) {
   coluns_names <- colnames(base_teste)
   db_without_class <- match("class", coluns_names)
-  test_db <- base_teste[, - db_without_class]
+  test_db <- as.matrix(base_teste[, - db_without_class])
   type <- 'class'
   class_test_bd <- base_teste$class
   confusion <- table(predict(model, test_db, type), class_test_bd)
@@ -494,7 +494,7 @@ criar_visao <- function(dados){
   }
   xl <- dados[,1:ncol(dados)-1] #a base dados sem os rotulos
   yl <- dados[-(1:ncol(dados)-1)] #rotulos da base 
-  view <- partition.matrix(xl, rowsep = nrow(dados), colsep = c(col,col1))
+  view <- partition.matrix(xl, sep = length(dados), rowsep = nrow(dados), colsep = c(col,col1))
   data1 <- data.frame(view$`1`$`1`,yl)
   data2 <- data.frame(view$`1`$`2`,yl)
   visoes <- list(data1,data2)

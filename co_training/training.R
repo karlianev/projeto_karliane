@@ -1,8 +1,8 @@
 my_learner <- obj[[cl]]
 my_function <- funcs[cl]
 classifier_name <- classifiers[cl]
-limiar1 <- supAcc(classifier_name, base_rotulados_ini1, base_teste1)
-limiar2 <- supAcc(classifier_name, base_rotulados_ini2, base_teste2)
+limiar1 <- supAcc(classifier_name, base_rotulados_ini1, base_rotulados_ini1)
+limiar2 <- supAcc(classifier_name, base_rotulados_ini2, base_rotulados_ini2)
 
 num_row <- getLength(base_teste1$class)
 
