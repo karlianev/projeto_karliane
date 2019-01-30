@@ -367,7 +367,7 @@ getAcc <- function(matrix, all) {
 
 getDatabase <- function(pos) {
   databases <- c("iris", "bupa", "segment", "waveform-5000", "phishingData",
-                 "haberman", "mushroom", "pima", "vehicle", "wilt",
+                 "mushroom", "pima", "vehicle", "wilt",
                  "kr-vs-kp", "blood-transfusion-service", "cnae-9",
                  "connectionist-mines-vs-rocks", "flare",
                  "indian-liver-patient", "leukemia-haslinger",
@@ -375,6 +375,18 @@ getDatabase <- function(pos) {
                  "ozone-onehr", "pendigits", "planning-relax", "seeds",
                  "semeion", "spectf-heart", "tic-tac-toe", "twonorm",
                  "hill-valley-with-noise", "balance-scale", "car")
+
+# haberman deixou de rodar e foi retirada
+#    databases <- c("iris", "bupa", "segment", "waveform-5000", "phishingData",
+#                  "haberman", "mushroom", "pima", "vehicle", "wilt",
+#                  "kr-vs-kp", "blood-transfusion-service", "cnae-9",
+#                  "connectionist-mines-vs-rocks", "flare",
+#                  "indian-liver-patient", "leukemia-haslinger",
+#                  "mammographic-mass", "mfeat-karhunen", "musk",
+#                  "ozone-onehr", "pendigits", "planning-relax", "seeds",
+#                  "semeion", "spectf-heart", "tic-tac-toe", "twonorm",
+#                  "hill-valley-with-noise", "balance-scale", "car")
+  
   database <- paste(databases[pos], "arff", sep = ".")
   base_original <- read.arff(paste("../bases", database, sep = "/"))
   bd_nome <<- databases[pos]
