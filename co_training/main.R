@@ -34,8 +34,10 @@ setWorkspace <- function() {
   medias_c1_v <- cleanVector(medias_c1_v)
   medias_c2 <- cleanVector(medias_c2)
   medias_self <- cleanVector(medias_self)
+  todas_acc_co_v1 <- cleanVector(todas_acc_co_v1)
+  todas_acc_co_v2 <- cleanVector(todas_acc_co_v2)
   cl <- as.integer(args)
-  ini_bd <- whichDB(join(c("co_training", classifiers[cl])))
+  ini_bd <- whichDB(join(c("co_training", classifiers[cl], "visao2")))
   for(i in ini_bd:30) { #bases de dados #Iris=1
     base_original <- getDatabase(i)
     k_NN <- attKValue(base_original)
@@ -55,7 +57,9 @@ setWorkspace <- function() {
         acc_c1_s <- cleanVector(acc_c1_s)
         acc_c1_v <- cleanVector(acc_c1_v)
         acc_c2 <- cleanVector(acc_c2)
-        acc_self <- cleanVector(acc_self)
+        acc_self <- cleanVector(acc_self) #acurácia média dos classificadores das duas visoes
+        acc_co_v1<- cleanVector(acc_co_v1) #acurácia do classificador da visao 1
+        acc_co_v2<- cleanVector(acc_co_v2) #acurácia do classificador da visao 2
         for (fold in 1:length(folds)) {
           base_teste1 <- data1[folds[[fold]], ]
           base_teste2 <- data2[folds[[fold]], ]
@@ -84,17 +88,26 @@ setWorkspace <- function() {
         # medias_c1_v <- appendVectors(medias_c1_v, acc_c1_v)
         # medias_c2 <- appendVectors(medias_c2, acc_c2)
         medias_self <- appendVectors(medias_self, acc_self)
+        todas_acc_co_v1 <- appendVectors(todas_acc_co_v1, acc_co_v1)
+        todas_acc_co_v2 <- appendVectors(todas_acc_co_v2, acc_co_v2)
       }
     data_arquivo_o <- data.frame(bd_g_o, tx_g_o, it_g_o, thrConf_g_o,
                                  nr_added_exs_g_o, acertou_g_o)
-    outputArchive(cr, as.character(classifiers[cl]), medias_c1_s, medias_c1_v,
-                   medias_c2, medias_self)
+    outputArchive(cr, as.character(classifiers[cl]), nome_acc = "media", medias_c1_s, medias_c1_v,
+                   medias_c2, medias_self) 
+    outputArchive(cr, as.character(classifiers[cl]), nome_acc = "visao1", medias_c1_s, medias_c1_v,
+                   medias_c2, todas_acc_co_v1) 
+    outputArchive(cr, as.character(classifiers[cl]), nome_acc = "visao2", medias_c1_s, medias_c1_v,
+                  medias_c2, todas_acc_co_v2) 
+    
     write.csv(data_arquivo_o, paste(c("resultado", classifiers[cl], "095.csv"),
                                     collapse = "_"), row.names = FALSE)
     # medias_c1_s <- cleanVector(medias_c1_s)
     # medias_c1_v <- cleanVector(medias_c1_v)
     # medias_c2 <- cleanVector(medias_c2)
     medias_self <- cleanVector(medias_self)
+    todas_acc_co_v1 <- cleanVector(todas_acc_co_v1)
+    todas_acc_co_v2 <- cleanVector(todas_acc_co_v2)
     }
     # if(ini_cr != 2) {
     #   ini_cr = 2

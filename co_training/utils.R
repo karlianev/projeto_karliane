@@ -44,6 +44,5 @@ readFile <- function(file, header = F,
 #'
 writeArchive <- function(title, content, append = T, row = F, col = F,
                          sep = ",") {
-  write.table(content, title, row.names = row, append = append, sep = sep,
-              col.names = col)
+  write.table(content, title, append = append, row.names = row, col.names = col, sep = sep)
 }

@@ -479,16 +479,16 @@ newConfidence <- function(acc_local, limiar, tx_conf) {
 #' @param acc_c2 acc of the Flexcon-c2 method.
 #' @param acc_self acc of the Self-Training method.
 #'
-outputArchive <- function(cr, cl, acc_c1_s, acc_c1_v, acc_c2, acc_self) {
+outputArchive <- function(cr, cl, nome_acc, acc_c1_s, acc_c1_v, acc_c2, acc_self) {
   # flexcon_c1_s <- paste("flexcon_c1_S_", cl, "_", cr, extention, sep = "")
   # flexcon_c1_v <- paste("flexcon_c1_V_", cl, "_", cr, extention, sep = "")
   # flexcon_c2 <- paste("flexcon_c2_", cl, "_", cr, extention, sep = "")
-  self_training <- paste("co_training_", cl, "_", cr, extention, sep = "")
+  self_training <- paste("co_training_", cl, "_", nome_acc, "_", cr, extention, sep = "")
 
   # acc_flexcon_c1_s <- matrix(acc_c1_s, ncol = 5, byrow = TRUE)
   # acc_flexcon_c1_v <- matrix(acc_c1_v, ncol = 5, byrow = TRUE)
   # acc_flexcon_c2 <- matrix(acc_c2, ncol = 5, byrow = TRUE)
-  acc_self_training <- matrix(acc_self, ncol = 5, byrow = TRUE)
+  acc_self_training <- matrix(acc_self, ncol = 5, byrow = FALSE)
 
   row <- rep(bd_nome, 10)
   # writeArchive(flexcon_c1_s, acc_flexcon_c1_s)
