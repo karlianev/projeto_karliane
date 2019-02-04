@@ -19,8 +19,8 @@ setWorkspace <- function() {
 #   stop("The arg must be integer between 1-4!\n1 - NaiveBayes\n2 - rpartXse",
 #        "\n3 - JRip\n4 - IBk")
 # } else {
-  args <- 1 #classificador 1 = naive, 2=rpartxse, 3=ripper, 4=ibk
-  method <<- 1 # 1 = co-training original (k=10%)  2 = co-training baseado no metodo de Felipe (k=limiar)
+  args <- 4 #classificador 1 = naive, 2=rpartxse, 3=ripper, 4=ibk
+  method <<- 2 # 1 = co-training original (k=10%)  2 = co-training baseado no metodo de Felipe (k=limiar)
               # 3 = co-training gradativo (k=limiar que diminui 5% a cada iteracao)
   
   
@@ -93,11 +93,11 @@ setWorkspace <- function() {
       }
     data_arquivo_o <- data.frame(bd_g_o, tx_g_o, it_g_o, thrConf_g_o,
                                  nr_added_exs_g_o, acertou_g_o)
-    outputArchive(cr, as.character(classifiers[cl]), nome_acc = "media", medias_c1_s, medias_c1_v,
+    outputArchive(cr, as.character(classifiers[cl]), nome_acc = "media", method=method, medias_c1_s, medias_c1_v,
                    medias_c2, medias_self) 
-    outputArchive(cr, as.character(classifiers[cl]), nome_acc = "visao1", medias_c1_s, medias_c1_v,
+    outputArchive(cr, as.character(classifiers[cl]), nome_acc = "visao1", method=method, medias_c1_s, medias_c1_v,
                    medias_c2, todas_acc_co_v1) 
-    outputArchive(cr, as.character(classifiers[cl]), nome_acc = "visao2", medias_c1_s, medias_c1_v,
+    outputArchive(cr, as.character(classifiers[cl]), nome_acc = "visao2", method=method, medias_c1_s, medias_c1_v,
                   medias_c2, todas_acc_co_v2) 
     
     write.csv(data_arquivo_o, paste(c("resultado", classifiers[cl], "095.csv"),
