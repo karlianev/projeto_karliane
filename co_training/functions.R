@@ -176,7 +176,7 @@ differentConfidencesCheck <- function(data_1_it, data_x_it, thr_conf, moda) {
   return (examples)
 }
 
-f <- function(m, d) { #arg 2 - árvore de decisão
+f <- function(m, d) { #arg 2 - ?rvore de decis?o
   p <- predict(m, d, type = 'prob')
   predicao <<- data.frame(p, row.names(d))
   col1 <- colnames(p)[apply(p, 1, which.max)]
@@ -527,9 +527,6 @@ coTrainingOriginal <- function (learner, predFunc, data1, data2, metodo, k_fixo 
   }
   form <- as.formula(paste(classe,'~', '.'))
   k <- 5
-  # k <- 10
-  # k <- 0.05
-  # k <- 0.1
   thrConf <- 0.95
   maxIts <- 100
   verbose <- T
@@ -615,7 +612,7 @@ coTrainingOriginal <- function (learner, predFunc, data1, data2, metodo, k_fixo 
     }
     
     if (metodo ==3){#gradativo
-      if(length(new_samples1)==0){ #se o 1 for zero o 2 tbm será
+      if(length(new_samples1)==0){ #se o 1 for zero o 2 tbm ser?
         thrConf<-min(max(probPreds1[,2]), max(probPreds2[,2]))
       }
       
@@ -675,6 +672,7 @@ coTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
       moda1 <- storageSum(probPreds1, moda1) # Armazena a soma das classes
       moda2 <- storageSum(probPreds2, moda2) # Armazena a soma das classes
     }
+#LEMBRAR DE ADD ESSA PARTE NO FLEXCON-C
     if(it == 1) {
       prob_preds1_1_it <<- probPreds1
       prob_preds2_1_it <<- probPreds2
@@ -732,129 +730,12 @@ coTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
     else {
       acertou <- 0
       acertou_g_o <<- c(acertou_g_o, acertou)
-      if (length(new_samples1) == 0) { #se o 1 for zero o 2 tbm será
+      if (length(new_samples1) == 0) { #se o 1 for zero o 2 tbm ser?
         thrConf1 <- max(probPreds1[,2])
         thrConf2 <- max(probPreds2[,2])
       }
     }
       
-    if ((it == maxIts) || ((length(sup1) / N) >= 1)) {
-      break
-    }
-  }
-  model <- list(model1, model2)
-  return (model)
-}
-
-#@param metodo - 1 = co-training FlexCon-c soma
-#                2 = co-training FlexCon-c Voto
-coTrainingFlexConC <- function (learner, predFunc, data1, data2, votacao = T) {
-  conf_media <- 0
-  form <- as.formula(paste(classe,'~', '.'))
-  thrConf1 <- 0.95
-  thrConf2 <- 0.95
-  maxIts <- 100
-  verbose <- T
-  N <- NROW(data1)
-  it <- 0
-  sup1 <- which(!is.na(data1[, as.character(form[[2]])])) #exemplos inicialmente rotulados
-  sup2 <- which(!is.na(data2[, as.character(form[[2]])])) #exemplos inicialmente rotulados
-  moda1 <- matrix(data = rep(0,length(base_original$class)),ncol = length(unique(base_original$class)), nrow = NROW(base_original), byrow = TRUE, 
-                  dimnames = list(row.names(base_original),unique(base_original$class)))
-  moda2 <- matrix(data = rep(0,length(base_original$class)),ncol = length(unique(base_original$class)), nrow = NROW(base_original), byrow = TRUE, 
-                  dimnames = list(row.names(base_original),unique(base_original$class)))
-  repeat {
-    new_samples1 <- cleanVector(new_samples1)
-    new_samples2 <- cleanVector(new_samples2)
-    acertou <- 0
-    it <- it + 1
-    
-    
-    if ((it>1)&&(qtd_add>0)){
-      thrConf1 <- (thrConf1 + conf_media1 + (qtd_add/nrow(data1[-sup1])))/3
-      thrConf2 <- (thrConf2 + conf_media2 + (qtd_add/nrow(data2[-sup2])))/3
-    }
-    
-    conf_media <- 0
-    
-    model1 <- generateModel(learner, form, data1, sup1)
-    model2 <- generateModel(learner, form, data2, sup2)
-    probPreds1 <- generateProbPreds(predFunc, model1, data1, sup1)
-    probPreds2 <- generateProbPreds(predFunc, model2, data2, sup2)
-    
-    
-    indices1 <- row.names(probPreds1)   # pega o id de cada exemplo 
-    indices2 <- row.names(probPreds2)   # pega o id de cada exemplo 
-    if (votacao){
-      moda1 <- storageFashion(probPreds1, moda1) # Armazena a moda das classes
-      moda2 <- storageFashion(probPreds2, moda2) # Armazena a moda das classes
-    }else{
-      moda1 <- storageSum(probPreds1, moda1) # Armazena a soma das classes
-      moda2 <- storageSum(probPreds2, moda2) # Armazena a soma das classes
-    }
-    if(it == 1) {
-      prob_preds1_1_it <<- probPreds1
-      prob_preds2_1_it <<- probPreds2
-      new_samples1 <- which(probPreds1[ , 2] >= thrConf1)
-      new_samples2 <- which(probPreds2[ , 2] >= thrConf2)
-      rotulados1 <- data.frame(id = probPreds1[new_samples1, 3],
-                               cl = probPreds1[new_samples1, 1])
-      rotulados2 <- data.frame(id = probPreds2[new_samples2, 3],
-                               cl = probPreds2[new_samples2, 1])
-      new_samples1 <- rotulados1$id
-      new_samples2 <- rotulados2$id
-    } else {
-      new_samples1 <- flexConC1(prob_preds1_1_it, probPreds1, thrConf1, moda1, it)
-      new_samples2 <- flexConC1(prob_preds2_1_it, probPreds2, thrConf2, moda2, it)
-    }
-    #co-training adaptado para funcionar igual ao self-training de Felipe
-    qtd_add <- min(length(new_samples1), length(new_samples2))
-    
-    
-    #criando os vetores em ordem decrescente pela confianca
-    probPreds1_ordenado <- order(probPreds1$p, decreasing = T)
-    probPreds2_ordenado <- order(probPreds2$p, decreasing = T)
-    
-    if (qtd_add > 0) {
-      new_samples1 <- probPreds1[probPreds1_ordenado[1:qtd_add], 3]
-      new_samples2 <- probPreds2[probPreds2_ordenado[1:qtd_add], 3]
-    } else {
-      new_samples1 <- cleanVector(new_samples1)
-      new_samples2 <- cleanVector(new_samples2)
-    }
-    if (verbose) {
-      it_g_o <<- c(it_g_o, it)
-      bd_g_o <<- c(bd_g_o, bd_nome)
-      thrConf1_g_o <<- c(thrConf1_g_o, thrConf1)
-      thrConf2_g_o <<- c(thrConf2_g_o, thrConf2)
-      nr_added_exs_g_o <<- c(nr_added_exs_g_o, qtd_add)
-      tx_g_o <<- c(tx_g_o, taxa)
-    }
-    if ((length(new_samples1)) && (length(new_samples2))) {
-      new_data1 <- data1[(1:N)[-sup1][new_samples2], as.character(form[[2]])]
-      new_data2 <- data2[(1:N)[-sup2][new_samples1], as.character(form[[2]])]
-      
-      new_data1 <- as.character(probPreds2[probPreds2_ordenado[1:qtd_add], 1])
-      new_data2 <- as.character(probPreds1[probPreds1_ordenado[1:qtd_add], 1])
-      
-      conf_media1 <- mean(probPreds1[new_samples1,2])
-      conf_media2 <- mean(probPreds1[new_samples2,2])
-      
-      sup1 <- c(sup1, new_samples2)
-      sup2 <- c(sup2, new_samples1)
-      
-      
-      acertou_g_o <<- c(acertou_g_o, acertou)
-    }
-    else {
-      acertou <- 0
-      acertou_g_o <<- c(acertou_g_o, acertou)
-      if (length(new_samples1) == 0) { #se o 1 for zero o 2 tbm será
-        thrConf1 <- max(probPreds1[,2])
-        thrConf2 <- max(probPreds2[,2])
-      }
-    }
-    
     if ((it == maxIts) || ((length(sup1) / N) >= 1)) {
       break
     }
