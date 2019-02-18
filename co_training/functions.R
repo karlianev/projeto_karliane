@@ -427,6 +427,7 @@ initGlobalVariables <- function() {
   # Self-Training
   it_g_o <<- c()
   bd_g_o <<- c()
+  #thrConf_g_o <<- c()
   thrConf1_g_o <<- c()
   thrConf2_g_o <<- c()
   nr_added_exs_g_o <<- c()
@@ -491,10 +492,15 @@ outputArchive <- function(cr, cl, nome_acc, method, acc_c1_s, acc_c1_v, acc_c2, 
   acc_self_training <- matrix(acc_self, ncol = 5, byrow = FALSE)
 
   row <- rep(bd_nome, 10)
+  # col <- rep("ATT", 5)
   # writeArchive(flexcon_c1_s, acc_flexcon_c1_s)
   # writeArchive(flexcon_c1_v, acc_flexcon_c1_v)
   # writeArchive(flexcon_c2, acc_flexcon_c2)
-  writeArchive(self_training, acc_self_training, row = F)
+  if (bd_nome == "iris"){
+    writeArchive(self_training, acc_self_training, row = row, col = T)
+  }else{
+    writeArchive(self_training, acc_self_training, row = row, col = F)
+  }
 }
 
 #funcao que cria duas visoes para serem usadas no treinamento do co-training
@@ -582,7 +588,9 @@ coTrainingOriginal <- function (learner, predFunc, data1, data2, metodo, k_fixo 
     if (verbose) {
       it_g_o <<- c(it_g_o, it)
       bd_g_o <<- c(bd_g_o, bd_nome)
-      thrConf_g_o <<- c(thrConf_g_o, thrConf)
+      thrConf1_g_o <<- c(thrConf1_g_o, thrConf)
+      thrConf2_g_o <<- c(thrConf2_g_o, thrConf)
+      # thrConf_g_o <<- c(thrConf_g_o, thrConf)
       nr_added_exs_g_o <<- c(nr_added_exs_g_o, qtd_add)
       tx_g_o <<- c(tx_g_o, taxa)
     }
@@ -648,7 +656,7 @@ coTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
     new_samples2 <- cleanVector(new_samples2)
     acertou <- 0
     it <- it + 1
-    cat("IT", it, "\n")
+    #cat("IT", it, "\n")
     
     if ((it>1)&&(qtd_add>0)){
       thrConf1 <- (thrConf1 + conf_media1 + (qtd_add/nrow(data1[-sup1])))/3

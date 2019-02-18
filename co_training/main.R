@@ -20,8 +20,9 @@ setWorkspace <- function() {
 #        "\n3 - JRip\n4 - IBk")
 # } else {
   args <- 1 #classificador 1 = naive, 2=rpartxse, 3=ripper, 4=ibk
-  method <<- 3 # 1 = co-training original (k=10%)  2 = co-training baseado no metodo de Felipe (k=limiar)
+  method <<- 4 # 1 = co-training original (k=10%)  2 = co-training baseado no metodo de Felipe (k=limiar)
               # 3 = co-training gradativo (k=limiar que diminui 5% a cada iteracao)
+              # 4 = co-training FlexCon 
   
   
   setWorkspace()
@@ -36,6 +37,7 @@ setWorkspace <- function() {
   medias_self <- cleanVector(medias_self)
   todas_acc_co_v1 <- cleanVector(todas_acc_co_v1)
   todas_acc_co_v2 <- cleanVector(todas_acc_co_v2)
+
   cl <- as.integer(args)
   ini_bd <- whichDB(join(c("co_training", classifiers[cl], "visao2")))
   for(i in ini_bd:30) { #bases de dados #Iris=1
@@ -100,7 +102,7 @@ setWorkspace <- function() {
     outputArchive(cr, as.character(classifiers[cl]), nome_acc = "visao2", method=method, medias_c1_s, medias_c1_v,
                   medias_c2, todas_acc_co_v2) 
     
-    write.csv(data_arquivo_o, paste(c("resultado", classifiers[cl], "095.csv"),
+    write.csv(data_arquivo_o, paste(c("resultado", classifiers[cl],"metodo", method, "095.csv"),
                                     collapse = "_"), row.names = FALSE)
     # medias_c1_s <- cleanVector(medias_c1_s)
     # medias_c1_v <- cleanVector(medias_c1_v)

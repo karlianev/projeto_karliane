@@ -13,20 +13,24 @@ setWorkspaceLocalR <- function() {
 }
 setWorkspaceLocalR()
 source("functions.R")
-metodo <- 3 #1=original, 2=limiar, 3=gradativo
+metodo <- 4 #1=original, 2=limiar, 3=gradativo 4=FlexCon
 
 if (metodo==1){
   nome_diretorio <- "metodo_1_original_completo"
 }else if (metodo==2){
   nome_diretorio <- "metodo 2_limiar_completo"
 }else if (metodo==3){
-  nome_diretorio <- "metodo 3_gradativo"
+  nome_diretorio <- "metodo 3_gradativo_completo"
+}else if (metodo==4){
+  nome_diretorio <- "metodo 4_flexcon"
 }
+
 
 setWorkspace(nome_diretorio)
 
+#é necessario alterar o csv acrescentando um nome de coluna
 #atribui os dados a uma matriz
-nome_arquivo <- "co_training_IBk_media_metodo_3_5.CSV"
+nome_arquivo <- "co_training_JRip_media_metodo_4_5.CSV"
 dados <- as.matrix(read.csv(nome_arquivo))
 
 MatrizMedias = matrix(nrow = (nrow(dados)/10), ncol = ncol(dados))

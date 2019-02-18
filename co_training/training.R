@@ -38,10 +38,10 @@ num_row <- getLength(base_teste1$class)
 #                2 = co-training baseado no metodo de Felipe (k=limiar)
 #                3 = co-training gradativo (k=limiar que diminui 5% a cada iteracao)
 #                4 = co-training FlexCon
-if (method==1)||(method==2)||(method==3){
+if ((method==1)||(method==2)||(method==3)){
   co_training <- coTrainingOriginal(my_learner, my_function, base1, base2,metodo=method)
 }else if (method==4){
-  co_training <- coTrainingFlexCon(my_learner, my_function, base1, base2, F)
+  co_training <- coTrainingFlexCon(my_learner, my_function, base1, base2, T)
 }
 
 matrix_self_model1 <- confusionMatrix(co_training[[1]], base_teste1)
