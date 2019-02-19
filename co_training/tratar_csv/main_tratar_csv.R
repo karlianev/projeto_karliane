@@ -30,7 +30,7 @@ setWorkspace(nome_diretorio)
 
 #é necessario alterar o csv acrescentando um nome de coluna
 #atribui os dados a uma matriz
-nome_arquivo <- "co_training_JRip_media_metodo_4_5.CSV"
+nome_arquivo <- "co_training_rpartXse_media_metodo_4_5.CSV"
 dados <- as.matrix(read.csv(nome_arquivo))
 
 MatrizMedias = matrix(nrow = (nrow(dados)/10), ncol = ncol(dados))
