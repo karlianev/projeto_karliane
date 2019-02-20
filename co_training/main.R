@@ -19,7 +19,7 @@ setWorkspace <- function() {
 #   stop("The arg must be integer between 1-4!\n1 - NaiveBayes\n2 - rpartXse",
 #        "\n3 - JRip\n4 - IBk")
 # } else {
-  args <- 4 #classificador 1 = naive, 2=rpartxse, 3=ripper, 4=ibk
+  args <- 3 #classificador 1 = naive, 2=rpartxse, 3=ripper, 4=ibk
   method <<- 4 # 1 = co-training original (k=10%)  2 = co-training baseado no metodo de Felipe (k=limiar)
               # 3 = co-training gradativo (k=limiar que diminui 5% a cada iteracao)
               # 4 = co-training FlexCon 
@@ -102,8 +102,10 @@ setWorkspace <- function() {
     outputArchive(cr, as.character(classifiers[cl]), nome_acc = "visao2", method=method, medias_c1_s, medias_c1_v,
                   medias_c2, todas_acc_co_v2) 
     
-    write.csv(data_arquivo_o, paste(c("resultado", classifiers[cl],"metodo", method, "095.csv"),
-                                    collapse = "_"), row.names = FALSE)
+    writeArchive(paste(c("resultado", classifiers[cl],"metodo", method, "095.csv"), collapse = "_"), data_arquivo_o, row = F, col = F)
+    # write.csv(data_arquivo_o, paste(c("resultado", classifiers[cl],"metodo", method, "095.csv"),
+    #                                 collapse = "_"), row.names = FALSE)
+    
     # medias_c1_s <- cleanVector(medias_c1_s)
     # medias_c1_v <- cleanVector(medias_c1_v)
     # medias_c2 <- cleanVector(medias_c2)
