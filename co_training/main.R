@@ -10,17 +10,20 @@ setWorkspace <- function() {
 }
 
 
-# args = commandArgs(trailingOnly=TRUE)
-# if ((args == "-h") || (args == "--help")) {
-#   cat("The arg must be integer between 1-4!\n1 - NaiveBayes\n2 - rpartXse",
-#        "\n3 - JRip\n4 - IBk")
-# } else if ((as.integer(args) == F) || (is.na(as.integer(args))) ||
-#            (as.integer(args) > 4) || (as.integer(args) < 1)) {
-#   stop("The arg must be integer between 1-4!\n1 - NaiveBayes\n2 - rpartXse",
-#        "\n3 - JRip\n4 - IBk")
-# } else {
-  args <- 3 #classificador 1 = naive, 2=rpartxse, 3=ripper, 4=ibk
-  method <<- 4 # 1 = co-training original (k=10%)  2 = co-training baseado no metodo de Felipe (k=limiar)
+args = commandArgs(trailingOnly=TRUE)
+if ((args == "-h") || (args == "--help")) {
+  cat("The arg must be integer between 1-4!\n1 - NaiveBayes\n2 - rpartXse",
+       "\n3 - JRip\n4 - IBk")
+}else if ((as.integer(args) == F) || (is.na(as.integer(args))) ||
+           (as.integer(args) > 4) || (as.integer(args) < 1)) {
+  stop("The arg must be integer between 1-4!\n1 - NaiveBayes\n2 - rpartXse",
+       "\n3 - JRip\n4 - IBk")
+}else {
+    args <- args
+    method <- 1
+}
+  # args <- 3 #classificador 1 = naive, 2=rpartxse, 3=ripper, 4=ibk
+  # method <<- 4 # 1 = co-training original (k=10%)  2 = co-training baseado no metodo de Felipe (k=limiar)
               # 3 = co-training gradativo (k=limiar que diminui 5% a cada iteracao)
               # 4 = co-training FlexCon 
   
@@ -40,7 +43,7 @@ setWorkspace <- function() {
 
   cl <- as.integer(args)
   ini_bd <- whichDB(join(c("co_training", classifiers[cl], "visao2")))
-  for(i in ini_bd:30) { #bases de dados #Iris=1
+  for(i in ini_bd:2) { #bases de dados #Iris=1
     base_original <- getDatabase(i)
     k_NN <- attKValue(base_original)
     qtd_exem_por_classe <- ddply(base_original, ~class, summarise,
