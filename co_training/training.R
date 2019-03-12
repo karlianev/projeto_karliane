@@ -41,7 +41,10 @@ num_row <- getLength(base_teste1$class)
 if ((method==1)||(method==2)||(method==3)){
   co_training <- coTrainingOriginal(my_learner, my_function, base1, base2,metodo=method)
 }else if (method==4){
-  co_training <- coTrainingFlexCon(my_learner, my_function, base1, base2, T)
+  co_training <- coTrainingFlexCon(my_learner, my_function, base1, base2, votacao)
+# }else if (method==5){
+#   co_training <- coTrainingFlexConC(my_learner, my_function, base1, base2, votacao)
+#                                     learner, pred_func, min_exem_por_classe, limiar, method
 }
 
 matrix_self_model1 <- confusionMatrix(co_training[[1]], base_teste1)
