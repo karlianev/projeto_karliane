@@ -908,7 +908,7 @@ whichDB <- function(pattern) {
   tryCatch({  
     file <- list.files(pattern = pattern)
     bd <- readFile(file)
-    return ((nrow(bd) / 10) + 1)
+    return (as.integer((nrow(bd) / 10) + 1))
   }, 
   error = function(setIniBd){return(1)})
 }
