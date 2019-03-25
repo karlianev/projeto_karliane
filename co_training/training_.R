@@ -42,9 +42,9 @@ if ((method==1)||(method==2)||(method==3)){
   co_training <- coTrainingOriginal(my_learner, my_function, base1, base2,metodo=method)
 }else if (method==4){
   co_training <- coTrainingFlexCon(my_learner, my_function, base1, base2, votacao)
-}else if ((method==5)||(method==6)||(method==7)){ # modificado add os novos metodos
-   co_training <- coTrainingFlexConC(my_learner, my_function, base1, base2, limiar1,limiar2, method)
-#                                     learner, pred_func, min_exem_por_classe, 
+# }else if (method==5){
+#   co_training <- coTrainingFlexConC(my_learner, my_function, base1, base2, votacao)
+#                                     learner, pred_func, min_exem_por_classe, limiar, method
 }
 
 matrix_self_model1 <- confusionMatrix(co_training[[1]], base_teste1)

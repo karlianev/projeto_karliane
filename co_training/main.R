@@ -49,10 +49,13 @@ setWorkspace <- function() {
 # 
 #PARA RODAR NO RSTUDIO COMENTA A PARTE ACIMA E DESCOMENTA A DE BAIXO
 
-  args <- 3 #classificador 1 = naive, 2=rpartxse, 3=ripper, 4=ibk
-  method <<- 4 # 1 = co-training original (k=10%)  2 = co-training baseado no metodo de Felipe (k=limiar)
+  args <- 1 #classificador 1 = naive, 2=rpartxse, 3=ripper, 4=ibk
+  method <<- 5 # 1 = co-training original (k=10%)  2 = co-training baseado no metodo de Felipe (k=limiar)
                # 3 = co-training gradativo (k=limiar que diminui 5% a cada iteracao)
                # 4 = co-training FlexCon
+               # 5 = co-training FlexConc1s
+               # 6 = co-training FlexConc1v
+               # 7 = co-training FlexConc2
   votacao <<- F
   
   
