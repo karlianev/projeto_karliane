@@ -760,7 +760,7 @@ coTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
 #@param metodo  5- FlexConC1s
 #               6- FlexConC1v
 #               7- FlexConC2
-coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2, method){#inicializar vatacao?
+coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2, method, min_exem_por_classe){#inicializar vatacao?
   #inicializacao das variaveis
   conf_media <- 0
   form <- as.formula(paste(classe,'~', '.'))
@@ -773,8 +773,17 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
   #num de linhas da base a ser treinada
   N <- NROW(data1)
   it <- 0 #iniciando a variavel da interacao
-  sup1 <- which(!is.na(data1[, as.character(form[[2]])])) #exemplos inicialmente rotulados
-  sup2 <- which(!is.na(data2[, as.character(form[[2]])])) #exemplos inicialmente rotulados
+  conj_treino <<- cleanVector(conj_treino) 
+  conj_treino_antigo <<- cleanVector(conj_treino) 
+  
+  id_conj_treino1 <- cleanVector(conj_treino) 
+  id_conj_treino2 <- cleanVector(conj_treino) 
+  id_conj_treino_antigo1 <- cleanVector(conj_treino) 
+  id_conj_treino_antigo2 <- cleanVector(conj_treino) 
+  
+  
+  sup1 <- which(!is.na(data1[, as.character(form[[2]])])) #exemplos inicialmente rotulados (posição no vetor)
+  sup2 <- which(!is.na(data2[, as.character(form[[2]])])) #exemplos inicialmente rotulados (posição no vetor)
   #FlexConC1
   if ((method == "5") || (method == "6")) {
     moda1 <- matrix(data = rep(0,length(base_original$class)),ncol = length(unique(base_original$class)), nrow = NROW(base_original), byrow = TRUE, 
@@ -790,8 +799,14 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
   n_instancias_por_classe <- ddply(data1, ~class, summarise,
                                    number_of_distinct_orders = length(class))
   n_classes <- NROW(n_instancias_por_classe) - 1
+  
   treino_valido <<- FALSE 
+  treino_valido1 <- FALSE 
+  treino_valido2 <- FALSE 
+  
   classificar <- TRUE
+  classificar1 <- TRUE
+  classificar2 <- TRUE
   
   #laco de repeticao igual ao da funcao coTrainingFlexCon
   repeat {
@@ -801,27 +816,31 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
     it <- it + 1
     #cat("IT", it, "\n")
     
-    #condicao para calcular a nova tacha de confianca
+    #condicao para calcular a nova taxa de confianca
     if ((it>1)&&(qtd_add>0)){
+      qtd_add = 0
+      treino_valido1 <- validTraining(data1, id_conj_treino1, n_classes, min_exem_por_classe)
+      classificar1 <- validClassification(treino_valido1, id_conj_treino1, id_conj_treino_antigo1, data1, n_classes, min_exem_por_classe)
+      conj_treino1 <- conj_treino
+      conj_treino_antigo1 <- conj_treino_antigo
       
-      #trecho de codigo da funcao FlexConC
-     # if (qtd_exemplos_rot > 0) {
-     #   qtd_exemplos_rot = 0
-     #   treino_valido <- validTraining(data1, id_conj_treino, n_classes,
-      #                                 min_exem_por_classe)
-      #  classificar <- validClassification(treino_valido, id_conj_treino,
-      #                                     id_conj_treino_antigo, data1, n_classes,
-      #                                     min_exem_por_classe)
-       # if(classificar) {
+      if(classificar1) {
           #caculo para nava taxa de confianca
-          acc_local1 <- calcLocalAcc(base_rotulados_ini1,treinamento1)
+          acc_local1 <- calcLocalAcc(base_rotulados_ini1,conj_treino1)
           thrConf1 <- newConfidence(acc_local1, limiar1, thrConf1)
           
-          acc_local2 <- calcLocalAcc(base_rotulados_ini2,treinamento2)
-          thrConf2 <- newConfidence(acc_local2, limiar2, thrConf2)
-       # }
-      #}
+      }
       
+      treino_valido <<- FALSE
+      treino_valido2 <- validTraining(data2, id_conj_treino2, n_classes, min_exem_por_classe)
+      classificar2 <- validClassification(treino_valido2, id_conj_treino2, id_conj_treino_antigo2, data2, n_classes, min_exem_por_classe)
+      conj_treino2 <- conj_treino
+      conj_treino_antigo2 <- conj_treino_antigo
+      
+      if(classificar2) {
+        acc_local2 <- calcLocalAcc(base_rotulados_ini2,conj_treino2)
+        thrConf2 <- newConfidence(acc_local2, limiar2, thrConf2)
+      }
     }
     
     conf_media <- 0
@@ -835,25 +854,25 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
     if(it == 1) {
       prob_preds1_1_it <<- probPreds1
       prob_preds2_1_it <<- probPreds2
-      new_samples1 <- which(probPreds1[ , 2] >= thrConf1)
-      new_samples2 <- which(probPreds2[ , 2] >= thrConf2)
+      new_samples1 <- which(probPreds1[ , 2] >= thrConf1) #(posição no vetor)
+      new_samples2 <- which(probPreds2[ , 2] >= thrConf2) #(posição no vetor)
       rotulados1 <- data.frame(id = probPreds1[new_samples1, 3],
                                cl = probPreds1[new_samples1, 1])
       rotulados2 <- data.frame(id = probPreds2[new_samples2, 3],
                                cl = probPreds2[new_samples2, 1])
-      new_samples1 <- rotulados1$id
-      new_samples2 <- rotulados2$id
+      new_samples1 <- rotulados1$id #substitui a posição no vetor pelo id do exemplo
+      new_samples2 <- rotulados2$id #substitui a posição no vetor pelo id do exemplo
     } else {
       if(method == 5){
         moda1 <- storageSum(probPreds1, moda1)
         moda2 <- storageSum(probPreds2, moda2)
-        
+        # retorna o id do exemplo
         new_samples1 <- flexConC1(prob_preds1_1_it, probPreds1, thrConf1, moda1, it)
         new_samples2 <- flexConC1(prob_preds2_1_it, probPreds2, thrConf2, moda2, it)
        }else if(method == 6){
           moda1 <- storageFashion(probPreds1, moda1)
           moda2 <- storageFashion(probPreds2, moda2)
-          
+          # retorna o id do exemplo
           new_samples1 <- flexConC1(prob_preds1_1_it, probPreds1, thrConf1, moda1, it)
           new_samples2 <- flexConC1(prob_preds2_1_it, probPreds2, thrConf2, moda2, it)
         }else if(method == 7){
@@ -864,15 +883,15 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
                                                   data1, sup1)
           prob_preds_superv2 <- generateProbPreds(predFunc, model_superv2,
                                                   data2, sup2)
-          
+          # não tenho certeza, ACHO q retorna a posição no vertor
           new_samples1 <- flexConC2(probPreds1, prob_preds_superv1, thrConf1)
           new_samples2 <- flexConC2(probPreds2, prob_preds_superv2, thrConf2)
         }
     }
     
     
-    indices1 <- row.names(probPreds1)   # pega o id de cada exemplo 
-    indices2 <- row.names(probPreds2)   # pega o id de cada exemplo 
+    # indices1 <- row.names(probPreds1)   # pega o id de cada exemplo 
+    # indices2 <- row.names(probPreds2)   # pega o id de cada exemplo 
 
     #co-training adaptado para funcionar igual ao self-training de Felipe
     qtd_add <- min(length(new_samples1), length(new_samples2))
@@ -922,6 +941,10 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
       conf_media1 <- mean(probPreds1[new_samples1,2])
       conf_media2 <- mean(probPreds2[new_samples2,2])
       
+      id_conj_treino_antigo1 <- appendVectors(id_conj_treino_antigo1, id_conj_treino1)
+      id_conj_treino1 <- new_samples1 #(1:N)[-sup1][new_samples1]
+      id_conj_treino_antigo2 <- appendVectors(id_conj_treino_antigo2, id_conj_treino2)
+      id_conj_treino2 <- new_samples2 #(1:N)[-sup1][new_samples1]
       
       sup1 <- c(sup1, new_samples2)
       sup2 <- c(sup2, new_samples1)
@@ -1042,6 +1065,11 @@ supModel <- function(cl, base_rotulados_ini){
 }
 
 #' @description Check if the classification if valid.
+#' se o treino for válido, a função apenas atribui o conj de treinamento antigo
+#' ao novo conj. de treinamento e limpa o conj. antigo.
+#' se o treino não for válido, a função junta o conj de treinamento antigo com o
+#' novo e chama a funcao validTraining para validar se os dois conjuntos juntos 
+#' podem ser treinados.
 #'
 #' @param treino_valido_i boolean for check if it's a valid train.
 #' @param in_conj_treino vector with the samples to train.
@@ -1075,6 +1103,9 @@ validClassification <- function(treino_valido_i, id_conj_treino,
 }
 
 #' @description Check if exists a min accetable samples per class.
+#' o treino só é válido se todas as classes estiverem representadas no conj.
+#' de treimento e se a quantidade de exemplos de cada classe for no mínimo (a qtdade
+#' de exemplos da classe com menor representação no conj. ini. rot.?)
 #'
 #' @param data the all dataset.
 #' @param id_conj_treino vector with the samples selectedes to train.

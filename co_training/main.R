@@ -79,7 +79,7 @@ setWorkspace <- function() {
     k_NN <- attKValue(base_original)
     qtd_exem_por_classe <- ddply(base_original, ~class, summarise,
                                  distinct_orders = length(class))
-    qtd_exem_menor_classe <- trunc(min(qtd_exem_por_classe$distinct_orders) * 0.1)
+    qtd_exem_menor_classe <<- trunc(min(qtd_exem_por_classe$distinct_orders) * 0.1)
     folds <- crossValidation(base_original, base_original$class)
     
     visao <- criar_visao(base_original)
