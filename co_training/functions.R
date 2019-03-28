@@ -775,11 +775,13 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
   it <- 0 #iniciando a variavel da interacao
   conj_treino <<- cleanVector(conj_treino) 
   conj_treino_antigo <<- cleanVector(conj_treino) 
+  id_conj_treino <- cleanVector(id_conj_treino)
+  id_conj_treino_antigo <- cleanVector(id_conj_treino_antigo)
   
-  id_conj_treino1 <- cleanVector(conj_treino) 
-  id_conj_treino2 <- cleanVector(conj_treino) 
-  id_conj_treino_antigo1 <- cleanVector(conj_treino) 
-  id_conj_treino_antigo2 <- cleanVector(conj_treino) 
+  # id_conj_treino1 <- cleanVector(conj_treino) 
+  # id_conj_treino2 <- cleanVector(conj_treino) 
+  # id_conj_treino_antigo1 <- cleanVector(conj_treino) 
+  # id_conj_treino_antigo2 <- cleanVector(conj_treino) 
   
   
   sup1 <- which(!is.na(data1[, as.character(form[[2]])])) #exemplos inicialmente rotulados (posição no vetor)
@@ -801,12 +803,12 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
   n_classes <- NROW(n_instancias_por_classe) - 1
   
   treino_valido <<- FALSE 
-  treino_valido1 <- FALSE 
-  treino_valido2 <- FALSE 
+  # treino_valido1 <- FALSE 
+  # treino_valido2 <- FALSE 
   
   classificar <- TRUE
-  classificar1 <- TRUE
-  classificar2 <- TRUE
+  # classificar1 <- TRUE
+  # classificar2 <- TRUE
 
   mudou_conj_treino <<- FALSE  
   #laco de repeticao igual ao da funcao coTrainingFlexCon
@@ -821,41 +823,42 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
     if ((it>1)&&(qtd_add>0)){
       qtd_add = 0
       
-      treino_valido1 <- validTraining(data1, id_conj_treino1, n_classes, min_exem_por_classe)
-      classificar1 <- validClassification(treino_valido1, id_conj_treino1, id_conj_treino_antigo1, data1, n_classes, min_exem_por_classe)
+      treino_valido <- validTraining(data1, id_conj_treino, n_classes, min_exem_por_classe)
+      classificar <- validClassification(treino_valido, id_conj_treino, id_conj_treino_antigo, 
+                                          data1, n_classes, min_exem_por_classe)
       #cat("TREINO_VALIDO1: ", treino_valido1, "CLASSIFICAR1: ", classificar1, "\n")
       
-      if (mudou_conj_treino){
-        conj_treino1 <- conj_treino
-        conj_treino_antigo1 <- conj_treino_antigo
-        
-      }
-      mudou_conj_treino <<- FALSE
+      # if (mudou_conj_treino){
+      #   conj_treino1 <- conj_treino
+      #   conj_treino_antigo1 <- conj_treino_antigo
+      #   
+      # }
+      # mudou_conj_treino <<- FALSE
       
-      if(classificar1) {
+      if(classificar) {
           print("PASSOU NO CALCULO DA NOVA TAXA DE CONFIANCA")
           #caculo para nava taxa de confianca
-          acc_local1 <- calcLocalAcc(base_rotulados_ini1,conj_treino1)
+          acc_local1 <- calcLocalAcc(base_rotulados_ini1,conj_treino)
           thrConf1 <- newConfidence(acc_local1, limiar1, thrConf1)
           
       }
       
-      treino_valido <<- FALSE
-      treino_valido2 <- validTraining(data2, id_conj_treino2, n_classes, min_exem_por_classe)
-      classificar2 <- validClassification(treino_valido2, id_conj_treino2, id_conj_treino_antigo2, data2, n_classes, min_exem_por_classe)
-      #cat("TREINO_VALIDO2: ", treino_valido2, "CLASSIFICAR2: ", classificar2, "\n")
-      
-      if (mudou_conj_treino){
-        conj_treino2 <- conj_treino
-        conj_treino_antigo2 <- conj_treino_antigo
-      }
-      
-      mudou_conj_treino <<- FALSE
-      if(classificar2) {
-        print("PASSOU NO CALCULO DA NOVA TAXA DE CONFIANCA")
-        acc_local2 <- calcLocalAcc(base_rotulados_ini2,conj_treino2)
-        thrConf2 <- newConfidence(acc_local2, limiar2, thrConf2)
-      }
+      # treino_valido <<- FALSE
+      # treino_valido2 <- validTraining(data2, id_conj_treino2, n_classes, min_exem_por_classe)
+      # classificar2 <- validClassification(treino_valido2, id_conj_treino2, id_conj_treino_antigo2, data2, n_classes, min_exem_por_classe)
+      # #cat("TREINO_VALIDO2: ", treino_valido2, "CLASSIFICAR2: ", classificar2, "\n")
+      # 
+      # if (mudou_conj_treino){
+      #   conj_treino2 <- conj_treino
+      #   conj_treino_antigo2 <- conj_treino_antigo
+      # }
+      # 
+      # mudou_conj_treino <<- FALSE
+      # if(classificar2) {
+      #   print("PASSOU NO CALCULO DA NOVA TAXA DE CONFIANCA")
+      #   acc_local2 <- calcLocalAcc(base_rotulados_ini2,conj_treino2)
+      #   thrConf2 <- newConfidence(acc_local2, limiar2, thrConf2)
+      # }
     }
     
     conf_media <- 0
@@ -956,10 +959,10 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
       conf_media1 <- mean(probPreds1[new_samples1,2])
       conf_media2 <- mean(probPreds2[new_samples2,2])
       
-      id_conj_treino_antigo1 <- appendVectors(id_conj_treino_antigo1, id_conj_treino1)
-      id_conj_treino1 <- new_samples1 #(1:N)[-sup1][new_samples1]
-      id_conj_treino_antigo2 <- appendVectors(id_conj_treino_antigo2, id_conj_treino2)
-      id_conj_treino2 <- new_samples2 #(1:N)[-sup1][new_samples1]
+      id_conj_treino_antigo <- appendVectors(id_conj_treino_antigo, id_conj_treino)
+      id_conj_treino <- new_samples1 #(1:N)[-sup1][new_samples1]
+      # id_conj_treino_antigo2 <- appendVectors(id_conj_treino_antigo2, id_conj_treino2)
+      # id_conj_treino2 <- new_samples2 #(1:N)[-sup1][new_samples1]
       
       sup1 <- c(sup1, new_samples2)
       sup2 <- c(sup2, new_samples1)
