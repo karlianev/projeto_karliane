@@ -807,7 +807,8 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
   classificar <- TRUE
   classificar1 <- TRUE
   classificar2 <- TRUE
-  
+
+  mudou_conj_treino <<- FALSE  
   #laco de repeticao igual ao da funcao coTrainingFlexCon
   repeat {
     new_samples1 <- cleanVector(new_samples1)
@@ -819,12 +820,20 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
     #condicao para calcular a nova taxa de confianca
     if ((it>1)&&(qtd_add>0)){
       qtd_add = 0
+      
       treino_valido1 <- validTraining(data1, id_conj_treino1, n_classes, min_exem_por_classe)
       classificar1 <- validClassification(treino_valido1, id_conj_treino1, id_conj_treino_antigo1, data1, n_classes, min_exem_por_classe)
-      conj_treino1 <- conj_treino
-      conj_treino_antigo1 <- conj_treino_antigo
+      #cat("TREINO_VALIDO1: ", treino_valido1, "CLASSIFICAR1: ", classificar1, "\n")
+      
+      if (mudou_conj_treino){
+        conj_treino1 <- conj_treino
+        conj_treino_antigo1 <- conj_treino_antigo
+        
+      }
+      mudou_conj_treino <<- FALSE
       
       if(classificar1) {
+          print("PASSOU NO CALCULO DA NOVA TAXA DE CONFIANCA")
           #caculo para nava taxa de confianca
           acc_local1 <- calcLocalAcc(base_rotulados_ini1,conj_treino1)
           thrConf1 <- newConfidence(acc_local1, limiar1, thrConf1)
@@ -834,10 +843,16 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
       treino_valido <<- FALSE
       treino_valido2 <- validTraining(data2, id_conj_treino2, n_classes, min_exem_por_classe)
       classificar2 <- validClassification(treino_valido2, id_conj_treino2, id_conj_treino_antigo2, data2, n_classes, min_exem_por_classe)
-      conj_treino2 <- conj_treino
-      conj_treino_antigo2 <- conj_treino_antigo
+      #cat("TREINO_VALIDO2: ", treino_valido2, "CLASSIFICAR2: ", classificar2, "\n")
       
+      if (mudou_conj_treino){
+        conj_treino2 <- conj_treino
+        conj_treino_antigo2 <- conj_treino_antigo
+      }
+      
+      mudou_conj_treino <<- FALSE
       if(classificar2) {
+        print("PASSOU NO CALCULO DA NOVA TAXA DE CONFIANCA")
         acc_local2 <- calcLocalAcc(base_rotulados_ini2,conj_treino2)
         thrConf2 <- newConfidence(acc_local2, limiar2, thrConf2)
       }
@@ -1087,10 +1102,12 @@ validClassification <- function(treino_valido_i, id_conj_treino,
     conj_treino <<- data[id_conj_treino, ]
     id_conj_treino_antigo <<- c()
     classificar <- TRUE
+    mudou_conj_treino <<- TRUE
   } else if (length(id_conj_treino_antigo) >= 1) {
     conj_treino <<- rbind(data[id_conj_treino, ], data[id_conj_treino_antigo, ])
     id_conj_treino1 <- c(id_conj_treino, id_conj_treino_antigo)
     validTraining(data, id_conj_treino1, N_classes, min_exem_por_classe)
+    mudou_conj_treino <<- TRUE
     if (treino_valido) {
       classificar <- TRUE
     } else {
@@ -1115,11 +1132,11 @@ validClassification <- function(treino_valido_i, id_conj_treino,
 #' @return a boolean to say if the training is valid.
 #'
 validTraining <- function(data, id_conj_treino, Nclasses, min_exem_por_classe) {
-  exemplos_classe <- ddply(data[id_conj_treino, ], ~class, summarise,
-                                    number_of_distinct_orders = length(class))
+  exemplos_classe <- ddply(data[id_conj_treino, ], ~class, summarise,number_of_distinct_orders = length(class))
+  
   treino_valido <- FALSE
-  if (NROW(exemplos_classe) == Nclasses) {
-    for (x in 1:NROW(exemplos_classe)) {
+  if ((NROW(exemplos_classe)-1) == Nclasses) {
+    for (x in 1:(NROW(exemplos_classe)-1)) {
       if (exemplos_classe$number_of_distinct_orders[x] >= min_exem_por_classe) {
         treino_valido <- TRUE
       } else {
