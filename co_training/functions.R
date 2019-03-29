@@ -663,8 +663,9 @@ coTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
     #cat("IT", it, "\n")
     
     if ((it>1)&&(qtd_add>0)){
-      thrConf1 <- (thrConf1 + conf_media1 + (qtd_add/nrow(data1[-sup1])))/3
-      thrConf2 <- (thrConf2 + conf_media2 + (qtd_add/nrow(data2[-sup2])))/3
+      #foi acrescentado a virgula na parte data1[-sup1,] nas linhas abaixo
+      thrConf1 <- (thrConf1 + conf_media1 + (qtd_add/nrow(data1[-sup1,])))/3
+      thrConf2 <- (thrConf2 + conf_media2 + (qtd_add/nrow(data2[-sup2,])))/3
     }
     
     conf_media <- 0
@@ -730,8 +731,12 @@ coTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
       new_data1 <- as.character(probPreds2[probPreds2_ordenado[1:qtd_add], 1])
       new_data2 <- as.character(probPreds1[probPreds1_ordenado[1:qtd_add], 1])
       
-      conf_media1 <- mean(probPreds1[new_samples1,2])
-      conf_media2 <- mean(probPreds2[new_samples2,2])
+      #o problema que new_samples é um vetor com id
+      #para pegar a media dos rotulados precisa da linha
+      # conf_media1 <- mean(probPreds1[new_samples1,2]) 
+      # conf_media2 <- mean(probPreds2[new_samples2,2])
+      conf_media1 <- mean(probPreds1[probPreds1_ordenado[1:qtd_add],2])
+      conf_media2 <- mean(probPreds2[probPreds2_ordenado[1:qtd_add],2])
       
       sup1 <- c(sup1, new_samples2)
       sup2 <- c(sup2, new_samples1)
