@@ -948,7 +948,7 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
       new_data2 <- data2[(1:N)[-sup2][new_samples1], as.character(form[[2]])]
       
       
-      
+      #new_data possui as classes dos novos exemplos na mesma ordem do probpreds ordenado e do new_samples
       if (add_rot_superv) { #condicao so sera satisfeita se for o FLexConC2
         add_rot_superv <- FALSE
         #new_data <- as.character(prob_preds_superv[new_samples, 1])
@@ -957,17 +957,21 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
         
       } else {
         #new_data <- as.character(prob_preds[new_samples, 1])
+        #data1[(1:N)[-sup1][new_samples2], as.character(form[[2]])] <- as.character(probPreds2[probPreds2_ordenado[1:qtd_add], 1])
         new_data1 <- as.character(probPreds2[probPreds2_ordenado[1:qtd_add], 1])
         new_data2 <- as.character(probPreds1[probPreds1_ordenado[1:qtd_add], 1])
       }
       
-      conf_media1 <- mean(probPreds1[new_samples1,2])
-      conf_media2 <- mean(probPreds2[new_samples2,2])
+      data1[(1:N)[-sup1][new_samples2], as.character(form[[2]])] <- new_data1
+      data2[(1:N)[-sup2][new_samples1], as.character(form[[2]])] <- new_data2
+      
+      conf_media1 <- mean(probPreds1[probPreds1_ordenado[1:qtd_add],2])
+      conf_media2 <- mean(probPreds2[probPreds2_ordenado[1:qtd_add],2])
       
       id_conj_treino_antigo <- appendVectors(id_conj_treino_antigo, id_conj_treino)
-      id_conj_treino <- new_samples1 #(1:N)[-sup1][new_samples1]
+      id_conj_treino <- new_samples1 
       # id_conj_treino_antigo2 <- appendVectors(id_conj_treino_antigo2, id_conj_treino2)
-      # id_conj_treino2 <- new_samples2 #(1:N)[-sup1][new_samples1]
+      # id_conj_treino2 <- new_samples2 
       
       sup1 <- c(sup1, new_samples2)
       sup2 <- c(sup2, new_samples1)
