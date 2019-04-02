@@ -367,6 +367,13 @@ getAcc <- function(matrix, all) {
   return (acc)
 }
 
+getID <- function(base, sup){ #pegar o ID real no data
+  base_local <- base
+  base_local$id <- seq(1,nrow(base_local))
+  base_local <- base_local[-sup,]
+  return(base_local$id)
+}
+
 getDatabase <- function(pos) {
   databases <- c("iris", "bupa", "segment", "waveform-5000", "phishingData",
                  "mushroom", "pima", "vehicle", "wilt",
@@ -873,6 +880,11 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
     probPreds1 <- generateProbPreds(predFunc, model1, data1, sup1)
     probPreds2 <- generateProbPreds(predFunc, model2, data2, sup2)
     
+    id_data1 <- getID(data1,sup1)
+    id_data2 <- getID(data2,sup2)
+    probPreds1$id <- id_data1
+    probPreds2$id <- id_data2
+    
     #Switch para verificar qual metodo vai ser utilizado
     if(it == 1) {
       prob_preds1_1_it <<- probPreds1
@@ -962,8 +974,8 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
         new_data2 <- as.character(probPreds1[probPreds1_ordenado[1:qtd_add], 1])
       }
       
-      data1[(1:N)[-sup1][new_samples2], as.character(form[[2]])] <- new_data1
-      data2[(1:N)[-sup2][new_samples1], as.character(form[[2]])] <- new_data2
+      data1[(1:N)[new_samples2], as.character(form[[2]])] <- new_data1
+      data2[(1:N)[new_samples1], as.character(form[[2]])] <- new_data2
       
       conf_media1 <- mean(probPreds1[probPreds1_ordenado[1:qtd_add],2])
       conf_media2 <- mean(probPreds2[probPreds2_ordenado[1:qtd_add],2])
@@ -976,6 +988,8 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
       sup1 <- c(sup1, new_samples2)
       sup2 <- c(sup2, new_samples1)
       
+      id_data1 <- cleanVector(id_data1)
+      id_data2 <- cleanVector(id_data2)
       #variavel acertou sempre vai ser 0 nao existe em momento algum a alteraçao de acertou
       acertou_g_o <<- c(acertou_g_o, acertou)
     }
