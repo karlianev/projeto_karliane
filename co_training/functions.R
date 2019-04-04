@@ -567,9 +567,14 @@ coTrainingOriginal <- function (learner, predFunc, data1, data2, metodo, k_fixo 
     
     model1 <- generateModel(learner, form, data1, sup1)
     model2 <- generateModel(learner, form, data2, sup2)
-    probPreds1 <- generateProbPreds(predFunc, model1, data1, sup1)
-    probPreds2 <- generateProbPreds(predFunc, model2, data2, sup2)
-
+    probPreds1 <- generateProbPreds(predFunc, model1, data1, sup2)
+    probPreds2 <- generateProbPreds(predFunc, model2, data2, sup1)
+    
+    id_data1 <- getID(data1,sup2)
+    id_data2 <- getID(data2,sup1)
+    probPreds1$id <- id_data1
+    probPreds2$id <- id_data2
+    
     if (k_fixo) { 
       #NAO VAMOS USAR ESSE K
       #quanidade de atributos = ao valor de K definido no inicio da funcao
@@ -682,9 +687,13 @@ coTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
     probPreds1 <- generateProbPreds(predFunc, model1, data1, sup2)
     probPreds2 <- generateProbPreds(predFunc, model2, data2, sup1)
     
+    id_data1 <- getID(data1,sup2)
+    id_data2 <- getID(data2,sup1)
+    probPreds1$id <- id_data1
+    probPreds2$id <- id_data2
     
-    indices1 <- row.names(probPreds1)   # pega o id de cada exemplo 
-    indices2 <- row.names(probPreds2)   # pega o id de cada exemplo 
+    # indices1 <- row.names(probPreds1)   # pega o id de cada exemplo 
+    # indices2 <- row.names(probPreds2)   # pega o id de cada exemplo 
     if (votacao){
       moda1 <- storageFashion(probPreds1, moda1) # Armazena a moda das classes
       moda2 <- storageFashion(probPreds2, moda2) # Armazena a moda das classes
