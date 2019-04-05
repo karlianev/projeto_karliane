@@ -9,6 +9,10 @@ appendVectors <- function(v1, v2) {
   return (c(v1, v2))
 }
 
+appendDataFrame <- function(v1, v2) {
+  return (rbind(v1, v2))
+}
+
 #o valor de K do k-nn igual a raiz da quantidade de exemplos da base de dados
 attKValue <- function(database) {
   listas <- list(control = Weka_control(K = as.integer(sqrt(nrow(database))), X = TRUE))
@@ -797,9 +801,9 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
   conj_treino <<- cleanVector(conj_treino) 
   conj_treino_antigo <<- cleanVector(conj_treino) 
   conj_treino_local1 <- cleanVector(conj_treino_local1)
-  conj_treino_antigo_local1 <- cleanVector(conj_treino_antigo_local1)
+  conj_treino_antigo1 <- cleanVector(conj_treino_antigo1)
   conj_treino_local2 <- cleanVector(conj_treino_local2)
-  conj_treino_antigo_local2 <- cleanVector(conj_treino_antigo_local2)
+  conj_treino_antigo2 <- cleanVector(conj_treino_antigo2)
   
   #sup1 = posicao do exemplo em data1
   sup1 <- which(!is.na(data1[, as.character(form[[2]])])) #exemplos inicialmente rotulados (posição no vetor)
@@ -843,15 +847,15 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
       
       #gerando nova taxa de confiança para data1  
       treino_valido <- validTraining(conj_treino_local1, n_classes, min_exem_por_classe)
-      classificar <- validClassification(treino_valido, conj_treino_antigo_local1, 
+      classificar <- validClassification(treino_valido, conj_treino_antigo1, 
                                           conj_treino_local1, n_classes, min_exem_por_classe)
       #cat("TREINO_VALIDO1: ", treino_valido1, "CLASSIFICAR1: ", classificar1, "\n")
       
       if (mudou_conj_treino){
         conj_treino_local1 <- conj_treino
-        conj_treino_antigo_local1 <- conj_treino_antigo
-        conj_treino <- cleanVector(conj_treino)
-        conj_treino_antigo <- cleanVector(conj_treino_antigo)
+        conj_treino_antigo1 <- conj_treino_antigo
+        conj_treino <<- cleanVector(conj_treino)
+        conj_treino_antigo <<- cleanVector(conj_treino_antigo)
       }
       mudou_conj_treino <<- FALSE
       
@@ -866,14 +870,14 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
       
       #gerando nova taxa de confiança para data2
       treino_valido <- validTraining(conj_treino_local2, n_classes, min_exem_por_classe)
-      classificar <- validClassification(treino_valido, conj_treino_antigo_local2, 
+      classificar <- validClassification(treino_valido, conj_treino_antigo2, 
                                          conj_treino_local2, n_classes, min_exem_por_classe)
       
       if (mudou_conj_treino){
         conj_treino_local2 <- conj_treino
-        conj_treino_antigo_local2 <- conj_treino_antigo
-        conj_treino <- cleanVector(conj_treino)
-        conj_treino_antigo <- cleanVector(conj_treino_antigo)
+        conj_treino_antigo2 <- conj_treino_antigo
+        conj_treino <<- cleanVector(conj_treino)
+        conj_treino_antigo <<- cleanVector(conj_treino_antigo)
       }
       mudou_conj_treino <<- FALSE
       
@@ -993,11 +997,11 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
       conf_media1 <- mean(probPreds1[probPreds1_ordenado[1:qtd_add],2])
       conf_media2 <- mean(probPreds2[probPreds2_ordenado[1:qtd_add],2])
       
-      conj_treino_antigo1 <- appendVectors(conj_treino_antigo_local1, conj_treino_local1)
+      conj_treino_antigo1 <- appendDataFrame(conj_treino_antigo1, conj_treino_local1)
       conj_treino_local1 <- data1[(1:N)[new_samples1],]
       conj_treino_local1[,as.character(form[[2]])] <- new_data2
 
-      conj_treino_antigo2 <- appendVectors(conj_treino_antigo_local2, conj_treino_local2)
+      conj_treino_antigo2 <- appendDataFrame(conj_treino_antigo2, conj_treino_local2)
       conj_treino_local2 <- data2[(1:N)[new_samples2],]
       conj_treino_local2[,as.character(form[[2]])] <- new_data1
       
@@ -1171,9 +1175,9 @@ validClassification <- function(treino_valido_i, conj_treino_antigo_local,
     mudou_conj_treino <<- TRUE
   } else if (!is.null(nrow(conj_treino_antigo_local))) {
     conj_treino <<- rbind(conj_treino_local, conj_treino_antigo_local)
-    validTraining(conj_treino, N_classes, min_exem_por_classe)
+    treino_valido_i <- validTraining(conj_treino, N_classes, min_exem_por_classe)
     mudou_conj_treino <<- TRUE
-    if (treino_valido) {
+    if (treino_valido_i) {
       classificar <- TRUE
     } else {
       classificar <- FALSE
@@ -1217,8 +1221,8 @@ validTraining <- function(data, Nclasses, min_exem_por_classe) {
   exemplos_classe <- ddply(data, ~class, summarise,number_of_distinct_orders = length(class))
   
   treino_valido <- FALSE
-  if ((NROW(exemplos_classe)-1) == Nclasses) {
-    for (x in 1:(NROW(exemplos_classe)-1)) {
+  if (NROW(exemplos_classe) == Nclasses) {
+    for (x in 1:(NROW(exemplos_classe))) {
       if (exemplos_classe$number_of_distinct_orders[x] >= min_exem_por_classe) {
         treino_valido <- TRUE
       } else {
