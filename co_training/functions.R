@@ -300,16 +300,22 @@ flexConC1 <- function(prob_preds_1_it, prob_preds, thr_conf, moda, it) {
   #   rotulados <- data.frame(id = prob_preds[new_samples, 3],
   #                           cl = prob_preds[new_samples, 1])
   # } else {
+
+  # os exemplos possuem a mesma classe na iteracao atual e na primeira iteracao e
+  # as taxas de confianca na iteracao atual e na primera iteracao sao maiores que o thrconf
   rotulados <- classCheck(prob_preds_1_it, prob_preds, thr_conf)
   len_rotulados <- getLength(rotulados$id)
   if (len_rotulados == 0) {
+    # exemplos possuem as mesmas classes e uma das confiancas é maior que o thrConf
     rotulados <- confidenceCheck(prob_preds_1_it, prob_preds, thr_conf)
     len_rotulados <- getLength(rotulados$id)
     if (len_rotulados == 0) {
+      #as classes sao diferentes, mas as duas confiancas sao maiores que thrConf      
       rotulados <- differentClassesCheck(prob_preds_1_it, prob_preds,
                                          thr_conf, moda)
       len_rotulados <- getLength(rotulados$id)
       if(len_rotulados == 0) {
+        #as classes sao diferentes, mas pelo menos uma das confiancas sao maiores que thrConf      
         rotulados <- differentConfidencesCheck(prob_preds_1_it, prob_preds,
                                                thr_conf, moda)
       }
@@ -810,10 +816,10 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
   sup2 <- which(!is.na(data2[, as.character(form[[2]])])) #exemplos inicialmente rotulados (posição no vetor)
   #FlexConC1
   if ((method == "5") || (method == "6")) {
-    moda1 <- matrix(data = rep(0,length(base_original$class)),ncol = length(unique(base_original$class)), nrow = NROW(base_original), byrow = TRUE, 
-                  dimnames = list(row.names(base_original),unique(base_original$class)))
-    moda2 <- matrix(data = rep(0,length(base_original$class)),ncol = length(unique(base_original$class)), nrow = NROW(base_original), byrow = TRUE, 
-                  dimnames = list(row.names(base_original),unique(base_original$class)))
+    moda1 <- matrix(data = rep(0,length(data1$class)),ncol = length(unique(base_original$class)), nrow = NROW(data1), byrow = TRUE, 
+                  dimnames = list(row.names(data1),unique(base_original$class)))
+    moda2 <- matrix(data = rep(0,length(data2$class)),ncol = length(unique(base_original$class)), nrow = NROW(data2), byrow = TRUE, 
+                  dimnames = list(row.names(data2),unique(base_original$class)))
   }
   
   add_rot_superv <- FALSE #so utilizada pelo FlexConC2
@@ -860,7 +866,6 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
       mudou_conj_treino <<- FALSE
       
       if(classificar) {
-          print("PASSOU NO CALCULO DA NOVA TAXA DE CONFIANCA")
           #caculo para nava taxa de confianca
           acc_local1 <- calcLocalAcc(base_rotulados_ini1,conj_treino_local1)
           thrConf1 <- newConfidence(acc_local1, limiar1, thrConf1)
@@ -882,7 +887,6 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
       mudou_conj_treino <<- FALSE
       
       if(classificar) {
-        print("PASSOU NO CALCULO DA NOVA TAXA DE CONFIANCA")
         #caculo para nava taxa de confianca
         acc_local2 <- calcLocalAcc(base_rotulados_ini2,conj_treino_local2)
         thrConf2 <- newConfidence(acc_local2, limiar2, thrConf2)
@@ -948,18 +952,27 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
     #co-training adaptado para funcionar igual ao self-training de Felipe
     qtd_add <- min(length(new_samples1), length(new_samples2))
     
-    
-    #criando os vetores em ordem decrescente pela confianca
-    probPreds1_ordenado <- order(probPreds1$p, decreasing = T)
-    probPreds2_ordenado <- order(probPreds2$p, decreasing = T)
-    
-    if (qtd_add > 0) { #verifica a qtd de exemplos rotulados é maior q 0
-      new_samples1 <- probPreds1[probPreds1_ordenado[1:qtd_add], 3]
-      new_samples2 <- probPreds2[probPreds2_ordenado[1:qtd_add], 3]
+    if (qtd_add>0){
+      if (it==1){
+        #criando os vetores em ordem decrescente pela confianca
+        probPreds1_ordenado <- order(probPreds1$p, decreasing = T)
+        probPreds2_ordenado <- order(probPreds2$p, decreasing = T)
+        new_samples1 <- probPreds1[probPreds1_ordenado[1:qtd_add], 3]
+        new_samples2 <- probPreds2[probPreds2_ordenado[1:qtd_add], 3]
+      }else{
+        probPreds1_new <- probPreds1[new_samples1,]
+        probPreds1_ordenado <-  order(probPreds1_new$p, decreasing = T)
+        probPreds2_new <- probPreds2[new_samples2,]
+        probPreds2_ordenado <-  order(probPreds2_new$p, decreasing = T)
+        new_samples1 <- probPreds1_new[probPreds1_ordenado[1:qtd_add],3]
+        new_samples2 <- probPreds2_new[probPreds2_ordenado[1:qtd_add],3]
+      }
     } else {
       new_samples1 <- cleanVector(new_samples1)
       new_samples2 <- cleanVector(new_samples2)
     }
+    
+    
     if (verbose) {
       it_g_o <<- c(it_g_o, it)
       bd_g_o <<- c(bd_g_o, bd_nome)
@@ -1051,7 +1064,7 @@ searchClass <- function(i, moda) {
 storageFashion <- function(prob_preds, moda) {
   dist_classes <- unique(base_original$class)
   for (x in 1:NROW(prob_preds)) {
-    id <- as.character(prob_preds[x, ncol(prob_preds)])
+    id <- as.numeric(prob_preds[x, ncol(prob_preds)])
     for (y in 1:(length(dist_classes))) {
       if (as.character(prob_preds[x, 1]) == as.character(dist_classes[y])) {
         moda[id, dist_classes[y]] <- moda[id, dist_classes[y]] + 1
@@ -1075,7 +1088,7 @@ storagePred <- function(predic, iterac) {
 storageSum <- function(prob_preds, moda) {
   dist_classes <- unique(base_original$class)
   for (x in 1:NROW(prob_preds)) {
-    id <- as.character(prob_preds[x, ncol(prob_preds)])
+    id <- as.numeric(prob_preds[x, ncol(prob_preds)])
     for (y in 1:length(dist_classes)) {
       if (as.character(prob_preds[x, 1]) == as.character(dist_classes[y])) {
         moda[id, dist_classes[y]] <- moda[id, dist_classes[y]] + prob_preds[x, 2]
