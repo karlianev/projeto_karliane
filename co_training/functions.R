@@ -757,6 +757,11 @@ coTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
       new_data1 <- as.character(probPreds2[probPreds2_ordenado[1:qtd_add], 1])
       new_data2 <- as.character(probPreds1[probPreds1_ordenado[1:qtd_add], 1])
       
+      
+      data1[(1:N)[new_samples1], as.character(form[[2]])] <- new_data1
+      data2[(1:N)[new_samples2], as.character(form[[2]])] <- new_data2
+      
+      
       #o problema que new_samples é um vetor com id
       #para pegar a media dos rotulados precisa da linha
       # conf_media1 <- mean(probPreds1[new_samples1,2]) 
