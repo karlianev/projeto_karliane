@@ -924,19 +924,14 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
       new_samples1 <- rotulados1$id #substitui a posição no vetor pelo id do exemplo
       new_samples2 <- rotulados2$id #substitui a posição no vetor pelo id do exemplo
     } else {
-      if(method == 5){
-          moda1 <- storageSum(probPreds1, moda1)
-          moda2 <- storageSum(probPreds2, moda2)
-          # retorna o id do exemplo
-          rot1  <- flexConC1(prob_preds1_1_it, probPreds1, thrConf1, moda1, it)
-          new_samples1 <- rot1$id
-          rot2 <- flexConC1(prob_preds2_1_it, probPreds2, thrConf2, moda2, it)
-          new_samples2 <- rot2$id
-          probPreds1[new_samples1,1] <- rot1$cl
-          probPreds2[new_samples2,1] <- rot2$cl
-       }else if(method == 6){
-          moda1 <- storageFashion(probPreds1, moda1)
-          moda2 <- storageFashion(probPreds2, moda2)
+      if ((method==5) || (method==6)){
+        if(method == 5){
+            moda1 <- storageSum(probPreds1, moda1)
+            moda2 <- storageSum(probPreds2, moda2)
+         }else if(method == 6){
+            moda1 <- storageFashion(probPreds1, moda1)
+            moda2 <- storageFashion(probPreds2, moda2)
+         }  
           # retorna o id do exemplo
           rot1  <- flexConC1(prob_preds1_1_it, probPreds1, thrConf1, moda1, it)
           new_samples1 <- rot1$id
@@ -945,16 +940,17 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
           probPreds1[new_samples1,1] <- rot1$cl
           probPreds2[new_samples2,1] <- rot2$cl
         }else if(method == 7){
-          model_superv1 <- generateModel(learner, form, data1, sup1)
-          model_superv2 <- generateModel(learner, form, data2, sup2)
-          
-          prob_preds_superv1 <- generateProbPreds(predFunc, model_superv1,
-                                                  data1, sup1)
-          prob_preds_superv2 <- generateProbPreds(predFunc, model_superv2,
-                                                  data2, sup2)
+          # model_superv1 <- generateModel(learner, form, data1, sup1)
+          # model_superv2 <- generateModel(learner, form, data2, sup2)
+          # 
+          # prob_preds_superv1 <- generateProbPreds(predFunc, model_superv1,
+          #                                         data1, sup2)
+          # prob_preds_superv2 <- generateProbPreds(predFunc, model_superv2,
+          #                                         data2, sup1)
+
           # não tenho certeza, ACHO q retorna a posição no vertor
-          new_samples1 <- flexConC2(probPreds1, prob_preds_superv1, thrConf1)
-          new_samples2 <- flexConC2(probPreds2, prob_preds_superv2, thrConf2)
+          new_samples1 <- flexConC2(probPreds1, prob_preds1_1_it, thrConf1)
+          new_samples2 <- flexConC2(probPreds2, prob_preds2_1_it, thrConf2)
         }
     }
     
@@ -1006,10 +1002,15 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
       #new_data possui as classes dos novos exemplos na mesma ordem do probpreds ordenado e do new_samples
       if (add_rot_superv) { #condicao so sera satisfeita se for o FLexConC2
         add_rot_superv <- FALSE
-        #new_data <- as.character(prob_preds_superv[new_samples, 1])
-        new_data1 <- as.character(prob_preds_superv1[probPreds2_ordenado[1:qtd_add], 1])
-        new_data2 <- as.character(prob_preds_superv2[probPreds1_ordenado[1:qtd_add], 1])
-        
+
+        id_novos1 <- probpreds1[probPreds1_ordenado[1:qtd_add], 3]
+        new_rot1 <- which(id_novos1==prob_preds1_1_it[,3])
+        new_data1 <- as.character(prob_preds1_1_it[new_rot1, 1])
+
+        id_novos2 <- probpreds2[probPreds2_ordenado[1:qtd_add], 3]
+        new_rot2 <- which(id_novos2==prob_preds2_1_it[,3])
+        new_data2 <- as.character(prob_preds2_1_it[new_rot2, 1])
+
       } else {
         #new_data <- as.character(prob_preds[new_samples, 1])
         #data1[(1:N)[-sup1][new_samples2], as.character(form[[2]])] <- as.character(probPreds2[probPreds2_ordenado[1:qtd_add], 1])
