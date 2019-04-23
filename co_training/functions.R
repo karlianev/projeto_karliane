@@ -58,7 +58,7 @@ classCheck <- function(data_1_it, data_x_it, thr_conf) {
           && (data_x_it[indice, 2] >= thr_conf)) {
         pos <- pos + 1
         xid[pos] <- indice
-        ycl[pos] <- data_x_it[indice, 1]
+        ycl[pos] <- as.character(data_x_it[indice, 1])
       }
     }
   }
@@ -96,7 +96,7 @@ confidenceCheck <- function(data_1_it, data_x_it, thr_conf) {
           || (data_x_it[indice, 2] >= thr_conf)) {
         pos <- pos + 1
         xid[pos] <- indice
-        ycl[pos] <- data_x_it[indice, 1]
+        ycl[pos] <- as.character(data_x_it[indice, 1])
       }
     }
   }
@@ -151,7 +151,7 @@ differentClassesCheck <- function(data_1_it, data_x_it, thr_conf, moda) {
           && (data_x_it[indice, 2] >= thr_conf)) {
         pos <- pos + 1
         xid[pos] <- indice
-        ycl[pos] <- searchClass(xid[pos], moda)
+        ycl[pos] <- as.character(searchClass(xid[pos], moda))
       }
     }
   }
@@ -173,7 +173,7 @@ differentConfidencesCheck <- function(data_1_it, data_x_it, thr_conf, moda) {
           || (data_x_it[indice, 2] >= thr_conf)) {
         pos <- pos + 1
         xid[pos] <- indice
-        ycl[pos] <- searchClass(xid[pos], moda)
+        ycl[pos] <- as.character(searchClass(xid[pos], moda))
       }
     }
   }
@@ -321,8 +321,8 @@ flexConC1 <- function(prob_preds_1_it, prob_preds, thr_conf, moda, it) {
       }
     }
   }
-  new_samples <- rotulados$id
-  return (new_samples)
+  #new_samples <- rotulados$id
+  return (rotulados)
 }
 
 
@@ -925,17 +925,25 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
       new_samples2 <- rotulados2$id #substitui a posição no vetor pelo id do exemplo
     } else {
       if(method == 5){
-        moda1 <- storageSum(probPreds1, moda1)
-        moda2 <- storageSum(probPreds2, moda2)
-        # retorna o id do exemplo
-        new_samples1 <- flexConC1(prob_preds1_1_it, probPreds1, thrConf1, moda1, it)
-        new_samples2 <- flexConC1(prob_preds2_1_it, probPreds2, thrConf2, moda2, it)
+          moda1 <- storageSum(probPreds1, moda1)
+          moda2 <- storageSum(probPreds2, moda2)
+          # retorna o id do exemplo
+          rot1  <- flexConC1(prob_preds1_1_it, probPreds1, thrConf1, moda1, it)
+          new_samples1 <- rot1$id
+          rot2 <- flexConC1(prob_preds2_1_it, probPreds2, thrConf2, moda2, it)
+          new_samples2 <- rot2$id
+          probPreds1[new_samples1,1] <- rot1$cl
+          probPreds2[new_samples2,1] <- rot2$cl
        }else if(method == 6){
           moda1 <- storageFashion(probPreds1, moda1)
           moda2 <- storageFashion(probPreds2, moda2)
           # retorna o id do exemplo
-          new_samples1 <- flexConC1(prob_preds1_1_it, probPreds1, thrConf1, moda1, it)
-          new_samples2 <- flexConC1(prob_preds2_1_it, probPreds2, thrConf2, moda2, it)
+          rot1  <- flexConC1(prob_preds1_1_it, probPreds1, thrConf1, moda1, it)
+          new_samples1 <- rot1$id
+          rot2 <- flexConC1(prob_preds2_1_it, probPreds2, thrConf2, moda2, it)
+          new_samples2 <- rot2$id
+          probPreds1[new_samples1,1] <- rot1$cl
+          probPreds2[new_samples2,1] <- rot2$cl
         }else if(method == 7){
           model_superv1 <- generateModel(learner, form, data1, sup1)
           model_superv2 <- generateModel(learner, form, data2, sup2)
