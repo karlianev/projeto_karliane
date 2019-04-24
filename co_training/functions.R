@@ -159,6 +159,28 @@ differentClassesCheck <- function(data_1_it, data_x_it, thr_conf, moda) {
   return (examples)
 }
 
+# Check in both matrixes if both confidences values are higger than thr_conf
+# The class of this samples is select observing the sum of the confidences or choose the most voted class
+differentClassesCheckC2 <- function(data_1_it, data_x_it, thr_conf, moda) {
+  pos <- 0
+  xid <- cleanVector(xid)
+  ycl <- cleanVector(ycl)
+  lvls <- match(data_x_it$id, data_1_it$id)
+  for (indice in 1:length(lvls)) {
+    if ((as.character(data_1_it[lvls[indice], 1])
+         != as.character(data_x_it[indice, 1]))) {
+      if ((data_1_it[lvls[indice], 2] >= thr_conf)
+          && (data_x_it[indice, 2] >= thr_conf)) {
+        pos <- pos + 1
+        xid[pos] <- indice
+#        ycl[pos] <- as.character(searchClass(xid[pos], moda))
+      }
+    }
+  }
+  #examples <- data.frame(id = xid, cl = ycl)
+  return (xid)
+}
+
 # Check in both matrixes if one of confidences values are higger than thr_conf
 # The class of this samples is select observing the sum of the confidences or choose the most voted class
 differentConfidencesCheck <- function(data_1_it, data_x_it, thr_conf, moda) {
@@ -179,6 +201,28 @@ differentConfidencesCheck <- function(data_1_it, data_x_it, thr_conf, moda) {
   }
   examples <- data.frame(id = xid, cl = ycl)
   return (examples)
+}
+
+# Check in both matrixes if one of confidences values are higger than thr_conf
+# The class of this samples is select observing the sum of the confidences or choose the most voted class
+differentConfidencesCheckC2 <- function(data_1_it, data_x_it, thr_conf) {
+  pos <- 0
+  xid <- cleanVector(xid)
+  ycl <- cleanVector(ycl)
+  lvls <- match(data_x_it$id, data_1_it$id)
+  for (indice in 1:length(lvls)) {
+    if ((as.character(data_1_it[lvls[indice], 1])
+         != as.character(data_x_it[indice, 1]))) {
+      if ((data_1_it[lvls[indice], 2] >= thr_conf)
+          || (data_x_it[indice, 2] >= thr_conf)) {
+        pos <- pos + 1
+        xid[pos] <- indice
+        #ycl[pos] <- as.character(searchClass(xid[pos], moda))
+      }
+    }
+  }
+  #examples <- data.frame(id = xid, cl = ycl)
+  return (xid)
 }
 
 f <- function(m, d) { #arg 2 - ?rvore de decis?o
@@ -326,30 +370,58 @@ flexConC1 <- function(prob_preds_1_it, prob_preds, thr_conf, moda, it) {
 }
 
 
-
-# FlexCon-C2 funtion
-flexConC2 <- function(prob_preds, prob_preds_superv, thr_conf) {
-  prob_preds <- convertProbPreds(prob_preds)
-  prob_preds_superv <- convertProbPreds(prob_preds_superv)
-  prob_preds_con <- (prob_preds[, 2] >= thr_conf)
-  prob_preds_superv_con <- (prob_preds_superv[, 2] >= thr_conf)
-  prob_preds_cl <- prob_preds[, 1]
-  prob_preds_superv_cl <-  prob_preds_superv[, 1]
-  new_samples <- which((prob_preds_con & prob_preds_superv_con)
-                       & (prob_preds_cl == prob_preds_superv_cl))
-  if (length(new_samples) == 0) {
-    new_samples <- which((prob_preds_con | prob_preds_superv_con)
-                         & (prob_preds_cl == prob_preds_superv_cl))
-    if (length(new_samples) == 0) {
-      new_samples <- which((prob_preds_con & prob_preds_superv_con)
-                           & (prob_preds_cl != prob_preds_superv_cl))
-      if (length(new_samples)) {
+flexConC2 <- function(prob_preds_1_it, prob_preds, thr_conf) {
+  # os exemplos possuem a mesma classe na iteracao atual e na primeira iteracao e
+  # as taxas de confianca na iteracao atual e na primera iteracao sao maiores que o thrconf
+  rotulados <- classCheck(prob_preds_1_it, prob_preds, thr_conf)
+  len_rotulados <- getLength(rotulados$id)
+  if (len_rotulados == 0) {
+    # exemplos possuem as mesmas classes e uma das confiancas é maior que o thrConf
+    rotulados <- confidenceCheck(prob_preds_1_it, prob_preds, thr_conf)
+    len_rotulados <- getLength(rotulados$id)
+    if (len_rotulados == 0) {
+      #as classes sao diferentes, mas as duas confiancas sao maiores que thrConf      
+      rotulados <- differentClassesCheckC2(prob_preds_1_it, prob_preds,
+                                         thr_conf)
+      len_rotulados <- getLength(rotulados$id)
+      add_rot_superv <<- TRUE
+      if(len_rotulados == 0) {
+        #as classes sao diferentes, mas pelo menos uma das confiancas sao maiores que thrConf      
+        rotulados <- differentConfidencesCheckC2(prob_preds_1_it, prob_preds,
+                                               thr_conf)
         add_rot_superv <<- TRUE
       }
     }
   }
-  return(new_samples)
+  #new_samples <- rotulados$id
+  return (rotulados)
 }
+
+#ESSA FUNCAO ESTA ERRADA PQ COMPARA 2 DATA FRAMES DE TAMANHOS DIFERENTES E O WHICH RETORNA
+#A QUANTIDADE DE EXEMPLOS DO MAIOR DATA FRAME
+# # FlexCon-C2 funtion
+# flexConC2 <- function(prob_preds, prob_preds_superv, thr_conf) {
+#   prob_preds <- convertProbPreds(prob_preds)
+#   prob_preds_superv <- convertProbPreds(prob_preds_superv)
+#   prob_preds_con <- (prob_preds[, 2] >= thr_conf)
+#   prob_preds_superv_con <- (prob_preds_superv[, 2] >= thr_conf)
+#   prob_preds_cl <- prob_preds[, 1]
+#   prob_preds_superv_cl <-  prob_preds_superv[, 1]
+#   new_samples <- which((prob_preds_con & prob_preds_superv_con)
+#                        & (prob_preds_cl == prob_preds_superv_cl))
+#   if (length(new_samples) == 0) {
+#     new_samples <- which((prob_preds_con | prob_preds_superv_con)
+#                          & (prob_preds_cl == prob_preds_superv_cl))
+#     if (length(new_samples) == 0) {
+#       new_samples <- which((prob_preds_con & prob_preds_superv_con)
+#                            & (prob_preds_cl != prob_preds_superv_cl))
+#       if (length(new_samples)) {
+#         add_rot_superv <<- TRUE
+#       }
+#     }
+#   }
+#   return(new_samples)
+# }
 
 func <- function(m, d) { #arg1 - naive
   p <- predict(m, d, type = "raw")
