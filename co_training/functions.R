@@ -173,12 +173,12 @@ differentClassesCheckC2 <- function(data_1_it, data_x_it, thr_conf, moda) {
           && (data_x_it[indice, 2] >= thr_conf)) {
         pos <- pos + 1
         xid[pos] <- indice
-#        ycl[pos] <- as.character(searchClass(xid[pos], moda))
+        ycl[pos] <- as.character(data_1_it[lvls[indice], 1])
       }
     }
   }
-  #examples <- data.frame(id = xid, cl = ycl)
-  return (xid)
+  examples <- data.frame(id = xid, cl = ycl)
+  return (examples)
 }
 
 # Check in both matrixes if one of confidences values are higger than thr_conf
@@ -217,12 +217,12 @@ differentConfidencesCheckC2 <- function(data_1_it, data_x_it, thr_conf) {
           || (data_x_it[indice, 2] >= thr_conf)) {
         pos <- pos + 1
         xid[pos] <- indice
-        #ycl[pos] <- as.character(searchClass(xid[pos], moda))
+        ycl[pos] <- as.character(data_1_it[lvls[indice], 1])
       }
     }
   }
-  #examples <- data.frame(id = xid, cl = ycl)
-  return (xid)
+  examples <- data.frame(id = xid, cl = ycl)
+  return (examples)
 }
 
 f <- function(m, d) { #arg 2 - ?rvore de decis?o
@@ -383,13 +383,20 @@ flexConC2 <- function(prob_preds_1_it, prob_preds, thr_conf) {
       #as classes sao diferentes, mas as duas confiancas sao maiores que thrConf      
       rotulados <- differentClassesCheckC2(prob_preds_1_it, prob_preds,
                                          thr_conf)
-      len_rotulados <- getLength(rotulados$id)
-      add_rot_superv <<- TRUE
+      len_rotulados <- getLength(rotulados)
+      if (len_rotulados!=0){
+        add_rot_superv <<- TRUE
+      } 
+        
       if(len_rotulados == 0) {
         #as classes sao diferentes, mas pelo menos uma das confiancas sao maiores que thrConf      
         rotulados <- differentConfidencesCheckC2(prob_preds_1_it, prob_preds,
                                                thr_conf)
-        add_rot_superv <<- TRUE
+        len_rotulados <- getLength(rotulados)
+        if (len_rotulados!=0){
+          add_rot_superv <<- TRUE
+        } 
+        
       }
     }
   }
@@ -980,6 +987,7 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
     
     id_data1 <- getID(data1,sup2)
     id_data2 <- getID(data2,sup1)
+    #O id no probpreds passa a ser a posicao em data, ou seja, na base de treinamento completa (karliane)
     probPreds1$id <- id_data1
     probPreds2$id <- id_data2
     
@@ -1000,30 +1008,22 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
         if(method == 5){
             moda1 <- storageSum(probPreds1, moda1)
             moda2 <- storageSum(probPreds2, moda2)
-         }else if(method == 6){
+        }else if(method == 6){
             moda1 <- storageFashion(probPreds1, moda1)
             moda2 <- storageFashion(probPreds2, moda2)
-         }  
+        }  
           # retorna o id do exemplo
-          rot1  <- flexConC1(prob_preds1_1_it, probPreds1, thrConf1, moda1, it)
-          new_samples1 <- rot1$id
-          rot2 <- flexConC1(prob_preds2_1_it, probPreds2, thrConf2, moda2, it)
-          new_samples2 <- rot2$id
-          probPreds1[new_samples1,1] <- rot1$cl
-          probPreds2[new_samples2,1] <- rot2$cl
-        }else if(method == 7){
-          # model_superv1 <- generateModel(learner, form, data1, sup1)
-          # model_superv2 <- generateModel(learner, form, data2, sup2)
-          # 
-          # prob_preds_superv1 <- generateProbPreds(predFunc, model_superv1,
-          #                                         data1, sup2)
-          # prob_preds_superv2 <- generateProbPreds(predFunc, model_superv2,
-          #                                         data2, sup1)
-
-          # não tenho certeza, ACHO q retorna a posição no vertor
-          new_samples1 <- flexConC2(probPreds1, prob_preds1_1_it, thrConf1)
-          new_samples2 <- flexConC2(probPreds2, prob_preds2_1_it, thrConf2)
-        }
+        rot1  <- flexConC1(prob_preds1_1_it, probPreds1, thrConf1, moda1, it)
+        rot2 <- flexConC1(prob_preds2_1_it, probPreds2, thrConf2, moda2, it)
+      }else if(method == 7){
+        rot1 <- flexConC2(prob_preds1_1_it, probPreds1, thrConf1)
+        rot2 <- flexConC2(prob_preds2_1_it, probPreds2, thrConf2)
+            
+      }
+        new_samples1 <- rot1$id  #posicao no probpreds
+        new_samples2 <- rot2$id  #posicao no probpreds
+        probPreds1[new_samples1,1] <- rot1$cl
+        probPreds2[new_samples2,1] <- rot2$cl
     }
     
     
@@ -1038,15 +1038,15 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
         #criando os vetores em ordem decrescente pela confianca
         probPreds1_ordenado <- order(probPreds1$p, decreasing = T)
         probPreds2_ordenado <- order(probPreds2$p, decreasing = T)
-        new_samples1 <- probPreds1[probPreds1_ordenado[1:qtd_add], 3]
-        new_samples2 <- probPreds2[probPreds2_ordenado[1:qtd_add], 3]
+        new_samples1 <- probPreds1[probPreds1_ordenado[1:qtd_add], 3] #posicao em data
+        new_samples2 <- probPreds2[probPreds2_ordenado[1:qtd_add], 3] #posicao em data
       }else{
         probPreds1_new <- probPreds1[new_samples1,]
-        probPreds1_ordenado <-  order(probPreds1_new$p, decreasing = T)
         probPreds2_new <- probPreds2[new_samples2,]
+        probPreds1_ordenado <-  order(probPreds1_new$p, decreasing = T)
         probPreds2_ordenado <-  order(probPreds2_new$p, decreasing = T)
-        new_samples1 <- probPreds1_new[probPreds1_ordenado[1:qtd_add],3]
-        new_samples2 <- probPreds2_new[probPreds2_ordenado[1:qtd_add],3]
+        new_samples1 <- probPreds1_new[probPreds1_ordenado[1:qtd_add],3] #posicao em data
+        new_samples2 <- probPreds2_new[probPreds2_ordenado[1:qtd_add],3] #posicao em data
       }
     } else {
       new_samples1 <- cleanVector(new_samples1)
@@ -1067,8 +1067,8 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
       #local onde add as novas tuplas classificas nessa interacao
       #Para o FlexConCS deve colocar uma condicao para verificar
       #   a Proporcao é mantida
-      new_data1 <- data1[(1:N)[-sup1][new_samples2], as.character(form[[2]])]
-      new_data2 <- data2[(1:N)[-sup2][new_samples1], as.character(form[[2]])]
+      new_data1 <- data1[(1:N)[new_samples2], as.character(form[[2]])]
+      new_data2 <- data2[(1:N)[new_samples1], as.character(form[[2]])]
       
       
       #new_data possui as classes dos novos exemplos na mesma ordem do probpreds ordenado e do new_samples
