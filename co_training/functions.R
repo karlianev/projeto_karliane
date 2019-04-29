@@ -472,7 +472,7 @@ getDatabase <- function(pos) {
                  "mammographic-mass", "mfeat-karhunen", "musk",
                  "ozone-onehr", "pendigits", "planning-relax", "seeds",
                  "semeion", "spectf-heart", "tic-tac-toe", "twonorm",
-                 "hill-valley-with-noise", "balance-scale", "car")
+                 "hill-valley-with-noise", "balance-scale", "car","lung-cancer")
 
 # haberman deixou de rodar e foi retirada
 #    databases <- c("iris", "bupa", "segment", "waveform-5000", "phishingData",
@@ -750,12 +750,15 @@ coTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
   verbose <- T
   N <- NROW(data1)
   it <- 0
+  #POSICAO DOS EXEMPLOS NA BASE DE TREINAMENTO
   sup1 <- which(!is.na(data1[, as.character(form[[2]])])) #exemplos inicialmente rotulados
   sup2 <- which(!is.na(data2[, as.character(form[[2]])])) #exemplos inicialmente rotulados
-  moda1 <- matrix(data = rep(0,length(base_original$class)),ncol = length(unique(base_original$class)), nrow = NROW(base_original), byrow = TRUE, 
-                   dimnames = list(row.names(base_original),unique(base_original$class)))
-  moda2 <- matrix(data = rep(0,length(base_original$class)),ncol = length(unique(base_original$class)), nrow = NROW(base_original), byrow = TRUE, 
-                  dimnames = list(row.names(base_original),unique(base_original$class)))
+  
+  moda1 <- matrix(data = rep(0,length(data1$class)),ncol = length(unique(base_original$class)), nrow = NROW(data1), byrow = TRUE, 
+                  dimnames = list(seq(1,nrow(data1)),unique(base_original$class)))
+  moda2 <- matrix(data = rep(0,length(data2$class)),ncol = length(unique(base_original$class)), nrow = NROW(data2), byrow = TRUE, 
+                  dimnames = list(seq(1,nrow(data1)),unique(base_original$class)))
+  
   repeat {
     new_samples1 <- cleanVector(new_samples1)
     new_samples2 <- cleanVector(new_samples2)
@@ -800,8 +803,8 @@ coTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
                               cl = probPreds1[new_samples1, 1])
       rotulados2 <- data.frame(id = probPreds2[new_samples2, 3],
                               cl = probPreds2[new_samples2, 1])
-      new_samples1 <- rotulados1$id
-      new_samples2 <- rotulados2$id
+      new_samples1 <- rotulados1$id #posicao do exemplo na base de treinamento
+      new_samples2 <- rotulados2$id #posicao do exemplo na base de treinamento
     } else {
       new_samples1 <- flexConC1(prob_preds1_1_it, probPreds1, thrConf1, moda1, it)
       new_samples2 <- flexConC1(prob_preds2_1_it, probPreds2, thrConf2, moda2, it)
@@ -815,8 +818,8 @@ coTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
     probPreds2_ordenado <- order(probPreds2$p, decreasing = T)
     
     if (qtd_add > 0) {
-      new_samples1 <- probPreds1[probPreds1_ordenado[1:qtd_add], 3]
-      new_samples2 <- probPreds2[probPreds2_ordenado[1:qtd_add], 3]
+      new_samples1 <- probPreds1[probPreds1_ordenado[1:qtd_add], 3] #id da base de treinamento
+      new_samples2 <- probPreds2[probPreds2_ordenado[1:qtd_add], 3] #id da base de treinamento
     } else {
       new_samples1 <- cleanVector(new_samples1)
       new_samples2 <- cleanVector(new_samples2)
@@ -830,12 +833,18 @@ coTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
       tx_g_o <<- c(tx_g_o, taxa)
     }
     if ((length(new_samples1)) && (length(new_samples2))) {
-      new_data1 <- data1[(1:N)[-sup1][new_samples2], as.character(form[[2]])]
-      new_data2 <- data2[(1:N)[-sup2][new_samples1], as.character(form[[2]])]
-      
-      new_data1 <- as.character(probPreds2[probPreds2_ordenado[1:qtd_add], 1])
-      new_data2 <- as.character(probPreds1[probPreds1_ordenado[1:qtd_add], 1])
-      
+#!!!!!    ATENÇÃO   !!!!!!!
+#!!!! ESTÁ DANDO ERRO AQUI, ACREDITO Q ESTÁ TENTANDO PEGAR ALGUM EXEMPLO Q NÃO EXISTE!!!!!
+      new_data1 <- data1[(1:N)[new_samples2], as.character(form[[2]])]
+      new_data2 <- data2[(1:N)[new_samples1], as.character(form[[2]])]
+
+#!!!!!!!ACHO QUE ESTÁ ERRADO!!!!!!!!!!      
+#!!!!!!!NÃO NECESSARIAMENTE OS MELHORES EXEMPLOS DO PROBPREDS1 SÃO OS MESMOS DE PROBPREDS2
+      # new_data1 <- as.character(probPreds2[probPreds2_ordenado[1:qtd_add], 1])
+      # new_data2 <- as.character(probPreds1[probPreds1_ordenado[1:qtd_add], 1])
+#!!!!!!!AO MEU VER O CORRETO É ASSIM:      
+      new_data1 <- as.character(probPreds1[probPreds1_ordenado[1:qtd_add], 1])
+      new_data2 <- as.character(probPreds2[probPreds2_ordenado[1:qtd_add], 1])
       
       data1[(1:N)[new_samples1], as.character(form[[2]])] <- new_data1
       data2[(1:N)[new_samples2], as.character(form[[2]])] <- new_data2
@@ -901,9 +910,9 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
   #FlexConC1
   if ((method == "5") || (method == "6")) {
     moda1 <- matrix(data = rep(0,length(data1$class)),ncol = length(unique(base_original$class)), nrow = NROW(data1), byrow = TRUE, 
-                  dimnames = list(row.names(data1),unique(base_original$class)))
+                    dimnames = list(seq(1,nrow(data1)),unique(base_original$class)))
     moda2 <- matrix(data = rep(0,length(data2$class)),ncol = length(unique(base_original$class)), nrow = NROW(data2), byrow = TRUE, 
-                  dimnames = list(row.names(data2),unique(base_original$class)))
+                    dimnames = list(seq(1,nrow(data1)),unique(base_original$class)))
   }
   
   add_rot_superv <- FALSE #so utilizada pelo FlexConC2
@@ -1086,6 +1095,9 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
       } else {
         #new_data <- as.character(prob_preds[new_samples, 1])
         #data1[(1:N)[-sup1][new_samples2], as.character(form[[2]])] <- as.character(probPreds2[probPreds2_ordenado[1:qtd_add], 1])
+
+        #!!!!!!!!!!!!!!     ATENÇÃO     !!!!!!!!!!!!!!!!!
+        #!!!!VARIAVEL AJUSTADA NO FLEXCON, SE FUNCIONAR PRECISA AJUSTAR AQUI TBM!!!
         new_data1 <- as.character(probPreds2[probPreds2_ordenado[1:qtd_add], 1])
         new_data2 <- as.character(probPreds1[probPreds1_ordenado[1:qtd_add], 1])
       }
