@@ -703,14 +703,23 @@ coTrainingOriginal <- function (learner, predFunc, data1, data2, metodo, k_fixo 
       new_data1 <- data1[(1:N)[new_samples2], as.character(form[[2]])]
       new_data2 <- data2[(1:N)[new_samples1], as.character(form[[2]])]
 
-#!!!!!!!!!!!!! E EU ACREDITO Q AS LINHAS  ABAIXO NÃO ESTÃO CORRETAS    !!!!!!!!!!!!!!!!!!!!      
-      new_data1 <- as.character(probPreds2[probPreds2_ordenado[1:qtd_add], 1])
-      new_data2 <- as.character(probPreds1[probPreds1_ordenado[1:qtd_add], 1])
+      #!!!!!    ATENÇÃO   !!!!!!!
+      #!!!!! FALTA DEBUGAR PARA SABER SE REALMENTE FUNCIONA !!!!!!!
+      new_data1 <- data1[(1:N)[new_samples2], as.character(form[[2]])]
+      new_data2 <- data2[(1:N)[new_samples1], as.character(form[[2]])]
       
-#!!!!!!!!!!! FALTA INCLUIR O RÓTULO NOS EXEMPLOS !!!!!!!!!!!!!!!!!!!!
-#!!!!!!!!!!! DA FORMA COMO ESTÁ O MODELO É CRIANDO !!!!!!!!!!!!!!!!!!
-#!!!!!!!!!!! USANDO EXEMPLOS SEM RÓTULO !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      #!!!!!!!ACHO QUE ESTÁ ERRADO!!!!!!!!!!      
+      #!!!!!!!NÃO NECESSARIAMENTE OS MELHORES EXEMPLOS DO PROBPREDS1 SÃO OS MESMOS DE PROBPREDS2
+      # new_data1 <- as.character(probPreds2[probPreds2_ordenado[1:qtd_add], 1])
+      # new_data2 <- as.character(probPreds1[probPreds1_ordenado[1:qtd_add], 1])
+      #!!!!!!!AO MEU VER O CORRETO É ASSIM:      
+      new_data1 <- as.character(probPreds1[probPreds1_ordenado[1:qtd_add], 1])
+      new_data2 <- as.character(probPreds2[probPreds2_ordenado[1:qtd_add], 1])
       
+      data1[(1:N)[new_samples2], as.character(form[[2]])] <- new_data2
+      data2[(1:N)[new_samples1], as.character(form[[2]])] <- new_data1
+      
+
       
       #acertou <- 0
       #acerto <- (treinamento[(1:N)[-sup][new_samples], as.character(form[2])] == new_data)
@@ -839,7 +848,7 @@ coTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
     }
     if ((length(new_samples1)) && (length(new_samples2))) {
 #!!!!!    ATENÇÃO   !!!!!!!
-#!!!! ESTÁ DANDO ERRO AQUI, ACREDITO Q ESTÁ TENTANDO PEGAR ALGUM EXEMPLO Q NÃO EXISTE!!!!!
+#!!!!! FALTA DEBUGAR PARA SABER SE REALMENTE FUNCIONA !!!!!!!
       new_data1 <- data1[(1:N)[new_samples2], as.character(form[[2]])]
       new_data2 <- data2[(1:N)[new_samples1], as.character(form[[2]])]
 
