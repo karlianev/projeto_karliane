@@ -1,3 +1,4 @@
+
 #' Função chega o SO utilizado e seta o diretório
 #' This function check the OS and change work directory
 setWorkspace <- function() {
@@ -74,8 +75,8 @@ setWorkspace <- function() {
   todas_acc_co_v2 <- cleanVector(todas_acc_co_v2)
 
   cl <- as.integer(args)
-  ini_bd <- 16#whichDB(join(c("co_training", classifiers[cl], "visao2")))
-  for(i in ini_bd:16) { #bases de dados #Iris=1
+  ini_bd <- whichDB(join(c("co_training", classifiers[cl], "visao2")))
+  for(i in ini_bd:30) { #bases de dados #Iris=1
     base_original <- getDatabase(i)
     k_NN <- attKValue(base_original)
     qtd_exem_por_classe <- ddply(base_original, ~class, summarise,
@@ -129,7 +130,7 @@ setWorkspace <- function() {
         todas_acc_co_v2 <- appendVectors(todas_acc_co_v2, acc_co_v2)
       }
     data_arquivo_o <- data.frame(bd_g_o, tx_g_o, it_g_o, thrConf1_g_o, thrConf2_g_o,
-                                 nr_added_exs_g_o, acertou_g_o)
+                                 nr_added_exs_g_o)#, acertou_g_o)
     outputArchive(cr, as.character(classifiers[cl]), nome_acc = "media", method=method, medias_c1_s, medias_c1_v,
                    medias_c2, medias_self) 
     outputArchive(cr, as.character(classifiers[cl]), nome_acc = "visao1", method=method, medias_c1_s, medias_c1_v,
@@ -140,6 +141,8 @@ setWorkspace <- function() {
     writeArchive(paste(c("resultado", classifiers[cl],"metodo", method, "095.csv"), collapse = "_"), data_arquivo_o, row = F, col = F)
     # write.csv(data_arquivo_o, paste(c("resultado", classifiers[cl],"metodo", method, "095.csv"),
     #                                 collapse = "_"), row.names = FALSE)
+    
+    #write.csv2(base2,"base2.csv",row.names=T,col.names = T,sep = ";",dec = ",")
     
     # medias_c1_s <- cleanVector(medias_c1_s)
     # medias_c1_v <- cleanVector(medias_c1_v)

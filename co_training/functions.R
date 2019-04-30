@@ -676,15 +676,20 @@ coTrainingOriginal <- function (learner, predFunc, data1, data2, metodo, k_fixo 
     }
     else {
       #co-training adaptado para funcionar igual ao self-training de Felipe
-      qtd_add <- min(length(which(probPreds1[, 2] > thrConf)), length(which(probPreds2[, 2] > thrConf)))
+      qtd_add <- min(length(which(probPreds1[, 2] >= thrConf)), length(which(probPreds2[, 2] >= thrConf)))
     }
     #criando os vetores em ordem decrescente pela confianca
     probPreds1_ordenado <- order(probPreds1$p, decreasing = T)
     probPreds2_ordenado <- order(probPreds2$p, decreasing = T)
 
     if (qtd_add > 0) {
-      new_samples1 <- probPreds1[probPreds1_ordenado[1:qtd_add], 3]
-      new_samples2 <- probPreds2[probPreds2_ordenado[1:qtd_add], 3]
+      new_samples1 <- probPreds1[probPreds1_ordenado[1:qtd_add], -2]
+      new_samples2 <- probPreds2[probPreds2_ordenado[1:qtd_add], -2]
+      data1[(1:N)[new_samples2$id], as.character(form[[2]])] <- new_samples2$cl
+      data2[(1:N)[new_samples1$id], as.character(form[[2]])] <- new_samples1$cl
+      sup1 <- c(sup1, new_samples2$id)
+      sup2 <- c(sup2, new_samples1$id)
+      
     } else {
       new_samples1 <- cleanVector(new_samples1)
       new_samples2 <- cleanVector(new_samples2)
@@ -699,47 +704,22 @@ coTrainingOriginal <- function (learner, predFunc, data1, data2, metodo, k_fixo 
       nr_added_exs_g_o <<- c(nr_added_exs_g_o, qtd_add)
       tx_g_o <<- c(tx_g_o, taxa)
     }
-    if ((length(new_samples1)) && (length(new_samples2))) {
-      new_data1 <- data1[(1:N)[new_samples2], as.character(form[[2]])]
-      new_data2 <- data2[(1:N)[new_samples1], as.character(form[[2]])]
-
-      #!!!!!    ATENÇÃO   !!!!!!!
-      #!!!!! FALTA DEBUGAR PARA SABER SE REALMENTE FUNCIONA !!!!!!!
-      new_data1 <- data1[(1:N)[new_samples2], as.character(form[[2]])]
-      new_data2 <- data2[(1:N)[new_samples1], as.character(form[[2]])]
-      
-      #!!!!!!!ACHO QUE ESTÁ ERRADO!!!!!!!!!!      
-      #!!!!!!!NÃO NECESSARIAMENTE OS MELHORES EXEMPLOS DO PROBPREDS1 SÃO OS MESMOS DE PROBPREDS2
-      # new_data1 <- as.character(probPreds2[probPreds2_ordenado[1:qtd_add], 1])
-      # new_data2 <- as.character(probPreds1[probPreds1_ordenado[1:qtd_add], 1])
-      #!!!!!!!AO MEU VER O CORRETO É ASSIM:      
-      new_data1 <- as.character(probPreds1[probPreds1_ordenado[1:qtd_add], 1])
-      new_data2 <- as.character(probPreds2[probPreds2_ordenado[1:qtd_add], 1])
-      
-      data1[(1:N)[new_samples2], as.character(form[[2]])] <- new_data2
-      data2[(1:N)[new_samples1], as.character(form[[2]])] <- new_data1
-      
-
-      
-      #acertou <- 0
-      #acerto <- (treinamento[(1:N)[-sup][new_samples], as.character(form[2])] == new_data)
-      
-      #acertou <- length(which(acerto == T))
-
-      sup1 <- c(sup1, new_samples2)
-      sup2 <- c(sup2, new_samples1)
-      
-
-      acertou_g_o <<- c(acertou_g_o, acertou)
-    }
-    else {
-      acertou <- 0
-      acertou_g_o <<- c(acertou_g_o, acertou)
-      break
-    }
-    
+     # if (qtd_add>0) {
+    #   #acertou <- 0
+    #   #acerto <- (treinamento[(1:N)[-sup][new_samples], as.character(form[2])] == new_data)
+    #   
+    #   #acertou <- length(which(acerto == T))
+    # 
+       # acertou_g_o <<- c(acertou_g_o, acertou)
+     # }
+     # else {
+     #   acertou <- 0
+     #   acertou_g_o <<- c(acertou_g_o, acertou)
+     #   break
+     # }
+    # 
     if (metodo ==3){#gradativo
-      if(length(new_samples1)==0){ #se o 1 for zero o 2 tbm ser?
+      if(qtd_add==0){ #se o 1 for zero o 2 tbm ser?
         thrConf<-min(max(probPreds1[,2]), max(probPreds2[,2]))
       }
       
@@ -771,7 +751,7 @@ coTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
   moda1 <- matrix(data = rep(0,length(data1$class)),ncol = length(unique(base_original$class)), nrow = NROW(data1), byrow = TRUE, 
                   dimnames = list(seq(1,nrow(data1)),unique(base_original$class)))
   moda2 <- matrix(data = rep(0,length(data2$class)),ncol = length(unique(base_original$class)), nrow = NROW(data2), byrow = TRUE, 
-                  dimnames = list(seq(1,nrow(data1)),unique(base_original$class)))
+                  dimnames = list(seq(1,nrow(data2)),unique(base_original$class)))
   
   repeat {
     new_samples1 <- cleanVector(new_samples1)
