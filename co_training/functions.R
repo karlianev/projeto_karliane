@@ -700,13 +700,18 @@ coTrainingOriginal <- function (learner, predFunc, data1, data2, metodo, k_fixo 
       tx_g_o <<- c(tx_g_o, taxa)
     }
     if ((length(new_samples1)) && (length(new_samples2))) {
-      new_data1 <- data1[(1:N)[-sup1][new_samples2], as.character(form[[2]])]
-      new_data2 <- data2[(1:N)[-sup2][new_samples1], as.character(form[[2]])]
-      
+      new_data1 <- data1[(1:N)[new_samples2], as.character(form[[2]])]
+      new_data2 <- data2[(1:N)[new_samples1], as.character(form[[2]])]
+
+#!!!!!!!!!!!!! E EU ACREDITO Q AS LINHAS  ABAIXO NÃO ESTÃO CORRETAS    !!!!!!!!!!!!!!!!!!!!      
       new_data1 <- as.character(probPreds2[probPreds2_ordenado[1:qtd_add], 1])
       new_data2 <- as.character(probPreds1[probPreds1_ordenado[1:qtd_add], 1])
       
-    
+#!!!!!!!!!!! FALTA INCLUIR O RÓTULO NOS EXEMPLOS !!!!!!!!!!!!!!!!!!!!
+#!!!!!!!!!!! DA FORMA COMO ESTÁ O MODELO É CRIANDO !!!!!!!!!!!!!!!!!!
+#!!!!!!!!!!! USANDO EXEMPLOS SEM RÓTULO !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      
+      
       #acertou <- 0
       #acerto <- (treinamento[(1:N)[-sup][new_samples], as.character(form[2])] == new_data)
       
@@ -846,8 +851,8 @@ coTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
       new_data1 <- as.character(probPreds1[probPreds1_ordenado[1:qtd_add], 1])
       new_data2 <- as.character(probPreds2[probPreds2_ordenado[1:qtd_add], 1])
       
-      data1[(1:N)[new_samples1], as.character(form[[2]])] <- new_data1
-      data2[(1:N)[new_samples2], as.character(form[[2]])] <- new_data2
+      data1[(1:N)[new_samples2], as.character(form[[2]])] <- new_data2
+      data2[(1:N)[new_samples1], as.character(form[[2]])] <- new_data1
       
       
       #o problema que new_samples é um vetor com id
