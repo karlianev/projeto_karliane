@@ -744,6 +744,7 @@ coTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
   verbose <- T
   N <- NROW(data1)
   it <- 0
+  cobertura <- 0
   #POSICAO DOS EXEMPLOS NA BASE DE TREINAMENTO
   sup1 <- which(!is.na(data1[, as.character(form[[2]])])) #exemplos inicialmente rotulados
   sup2 <- which(!is.na(data2[, as.character(form[[2]])])) #exemplos inicialmente rotulados
@@ -762,8 +763,8 @@ coTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
     
     if ((it>1)&&(qtd_add>0)){
       #foi acrescentado a virgula na parte data1[-sup1,] nas linhas abaixo
-      thrConf1 <- (thrConf1 + conf_media1 + (qtd_add/nrow(data1[-sup1,])))/3
-      thrConf2 <- (thrConf2 + conf_media2 + (qtd_add/nrow(data2[-sup2,])))/3
+      thrConf1 <- (thrConf1 + conf_media1 + cobertura)/3
+      thrConf2 <- (thrConf2 + conf_media2 + cobertura)/3
     }
     
     conf_media <- 0
@@ -791,32 +792,69 @@ coTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
     if(it == 1) {
       prob_preds1_1_it <<- probPreds1
       prob_preds2_1_it <<- probPreds2
-      new_samples1 <- which(probPreds1[ , 2] >= thrConf1)
-      new_samples2 <- which(probPreds2[ , 2] >= thrConf2)
-      rotulados1 <- data.frame(id = probPreds1[new_samples1, 3],
-                              cl = probPreds1[new_samples1, 1])
-      rotulados2 <- data.frame(id = probPreds2[new_samples2, 3],
-                              cl = probPreds2[new_samples2, 1])
-      new_samples1 <- rotulados1$id #posicao do exemplo na base de treinamento
-      new_samples2 <- rotulados2$id #posicao do exemplo na base de treinamento
+      novos1 <- which(probPreds1[ , 2] >= thrConf1)
+      novos2 <- which(probPreds2[ , 2] >= thrConf2)
+      cl_novos1 <- probPreds1[novos1, 1]
+      cl_novos2 <- probPreds2[novos2, 1]
+      new_samples1 <- data.frame(id=novos1, 
+                                 cl = cl_novos1)
+      new_samples2 <- data.frame(id=novos2, 
+                                 cl = cl_novos2)
+
+      # new_samples1 <- which(probPreds1[ , 2] >= thrConf1)
+      # new_samples2 <- which(probPreds2[ , 2] >= thrConf2)
+      # rotulados1 <- data.frame(id = probPreds1[new_samples1, 3],
+      #                         cl = probPreds1[new_samples1, 1])
+      # rotulados2 <- data.frame(id = probPreds2[new_samples2, 3],
+      #                         cl = probPreds2[new_samples2, 1])
+      # new_samples1 <- rotulados1$id #posicao do exemplo na base de treinamento
+      # new_samples2 <- rotulados2$id #posicao do exemplo na base de treinamento
+      
     } else {
+      #retorna a posicao do exemplo no probpreds e a classe a ser atribuida
       new_samples1 <- flexConC1(prob_preds1_1_it, probPreds1, thrConf1, moda1, it)
       new_samples2 <- flexConC1(prob_preds2_1_it, probPreds2, thrConf2, moda2, it)
+      probPreds1[new_samples1$id,1] <- new_samples1$cl
+      probPreds2[new_samples2$id,1] <- new_samples2$cl
     }
+    
+    
     #co-training adaptado para funcionar igual ao self-training de Felipe
-    qtd_add <- min(length(new_samples1), length(new_samples2))
-
-
+    qtd_add <- min(nrow(new_samples1), nrow(new_samples2))
+    
+    #criando um probpreds apenas com os novos exemplos e ordenando-os pela confiança
+    probPreds1_new_samples1 <- probPreds1[new_samples1$id,] #o id do new_samples é a prosição no probpreds
+    probPreds2_new_samples2 <- probPreds2[new_samples2$id,] #o id do new_samples é a prosição no probpreds
+    
+    probPreds1_ordenado <- order(probPreds1_new_samples1$p, decreasing = T)
+    probPreds2_ordenado <- order(probPreds2_new_samples2$p, decreasing = T)
+    
     #criando os vetores em ordem decrescente pela confianca
-    probPreds1_ordenado <- order(probPreds1$p, decreasing = T)
-    probPreds2_ordenado <- order(probPreds2$p, decreasing = T)
+    # probPreds1_ordenado <- order(probPreds1$p, decreasing = T)
+    # probPreds2_ordenado <- order(probPreds2$p, decreasing = T)
     
     if (qtd_add > 0) {
-      new_samples1 <- probPreds1[probPreds1_ordenado[1:qtd_add], 3] #id da base de treinamento
-      new_samples2 <- probPreds2[probPreds2_ordenado[1:qtd_add], 3] #id da base de treinamento
+      new_samples1 <- probPreds1[probPreds1_ordenado[1:qtd_add], -2] #id da base de treinamento
+      new_samples2 <- probPreds2[probPreds2_ordenado[1:qtd_add], -2] #id da base de treinamento
+      data1[(1:N)[new_samples2$id], as.character(form[[2]])] <- new_samples2$cl
+      data2[(1:N)[new_samples1$id], as.character(form[[2]])] <- new_samples1$cl
+      cobertura <- qtd_add/nrow(data1[-sup1,]) #é igual para as duas visoes
+
+      sup1 <- c(sup1, new_samples2$id)
+      sup2 <- c(sup2, new_samples1$id)
+      conf_media1 <- mean(probPreds1[probPreds1_ordenado[1:qtd_add],2])
+      conf_media2 <- mean(probPreds2[probPreds2_ordenado[1:qtd_add],2])
+      # acertou_g_o <<- c(acertou_g_o, acertou)
     } else {
       new_samples1 <- cleanVector(new_samples1)
       new_samples2 <- cleanVector(new_samples2)
+      # acertou <- 0
+      # acertou_g_o <<- c(acertou_g_o, acertou)
+      if (length(new_samples1) == 0) { #se o 1 for zero o 2 tbm ser?
+        thrConf1 <- max(probPreds1[,2])
+        thrConf2 <- max(probPreds2[,2])
+      }
+      
     }
     if (verbose) {
       it_g_o <<- c(it_g_o, it)
@@ -826,46 +864,6 @@ coTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
       nr_added_exs_g_o <<- c(nr_added_exs_g_o, qtd_add)
       tx_g_o <<- c(tx_g_o, taxa)
     }
-    if ((length(new_samples1)) && (length(new_samples2))) {
-#!!!!!    ATENÇÃO   !!!!!!!
-#!!!!! FALTA DEBUGAR PARA SABER SE REALMENTE FUNCIONA !!!!!!!
-      new_data1 <- data1[(1:N)[new_samples2], as.character(form[[2]])]
-      new_data2 <- data2[(1:N)[new_samples1], as.character(form[[2]])]
-
-#!!!!!!!ACHO QUE ESTÁ ERRADO!!!!!!!!!!      
-#!!!!!!!NÃO NECESSARIAMENTE OS MELHORES EXEMPLOS DO PROBPREDS1 SÃO OS MESMOS DE PROBPREDS2
-      # new_data1 <- as.character(probPreds2[probPreds2_ordenado[1:qtd_add], 1])
-      # new_data2 <- as.character(probPreds1[probPreds1_ordenado[1:qtd_add], 1])
-#!!!!!!!AO MEU VER O CORRETO É ASSIM:      
-      new_data1 <- as.character(probPreds1[probPreds1_ordenado[1:qtd_add], 1])
-      new_data2 <- as.character(probPreds2[probPreds2_ordenado[1:qtd_add], 1])
-      
-      data1[(1:N)[new_samples2], as.character(form[[2]])] <- new_data2
-      data2[(1:N)[new_samples1], as.character(form[[2]])] <- new_data1
-      
-      
-      #o problema que new_samples é um vetor com id
-      #para pegar a media dos rotulados precisa da linha
-      # conf_media1 <- mean(probPreds1[new_samples1,2]) 
-      # conf_media2 <- mean(probPreds2[new_samples2,2])
-      conf_media1 <- mean(probPreds1[probPreds1_ordenado[1:qtd_add],2])
-      conf_media2 <- mean(probPreds2[probPreds2_ordenado[1:qtd_add],2])
-      
-      sup1 <- c(sup1, new_samples2)
-      sup2 <- c(sup2, new_samples1)
-      
-      
-      acertou_g_o <<- c(acertou_g_o, acertou)
-    }
-    else {
-      acertou <- 0
-      acertou_g_o <<- c(acertou_g_o, acertou)
-      if (length(new_samples1) == 0) { #se o 1 for zero o 2 tbm ser?
-        thrConf1 <- max(probPreds1[,2])
-        thrConf2 <- max(probPreds2[,2])
-      }
-    }
-      
     if ((it == maxIts) || ((length(sup1) / N) >= 1)) {
       break
     }
@@ -1015,7 +1013,7 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
             moda1 <- storageFashion(probPreds1, moda1)
             moda2 <- storageFashion(probPreds2, moda2)
         }  
-          # retorna o id do exemplo
+          # retorna a posicao do exemplo no probpreds
         rot1  <- flexConC1(prob_preds1_1_it, probPreds1, thrConf1, moda1, it)
         rot2 <- flexConC1(prob_preds2_1_it, probPreds2, thrConf2, moda2, it)
       }else if(method == 7){
