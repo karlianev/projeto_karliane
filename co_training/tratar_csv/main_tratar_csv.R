@@ -13,7 +13,7 @@ setWorkspaceLocalR <- function() {
 }
 setWorkspaceLocalR()
 source("functions.R")
-metodo <- 2 #1=original, 2=limiar, 3=gradativo 4=FlexCon 5=FlexCon-C1(s) 6=FlexCon-C1(v) 7=FlexCon-C2
+metodo <- 3 #1=original, 2=limiar, 3=gradativo 4=FlexCon 5=FlexCon-C1(s) 6=FlexCon-C1(v) 7=FlexCon-C2
 
 if (metodo==1){
   nome_diretorio <- "metodo_1_original_completo"
@@ -33,7 +33,7 @@ if (metodo==1){
 
 
 setWorkspace(nome_diretorio)
-nome_arquivo <- "co_training_naiveBayes_media_metodo_2_5.CSV"
+nome_arquivo <- "co_training_rpartXse_media_metodo_3_5.CSV"
 #é necessario alterar o csv acrescentando um nome de coluna
 #atribui os dados a uma matriz
 dados <- as.matrix(read.csv(nome_arquivo))
@@ -70,6 +70,7 @@ while (pos <= (nrow(dados)/10)) {
   pos <- pos + 1
   base <- base +10
 }#fim while
+
 write.csv(MatrizMedias, paste(c("media_fold", nome_arquivo), sep = "", collapse = "_", row.names(FALSE)))
 write.csv(MatrizMaximo, paste(c("maximo_fold", nome_arquivo), sep = "", collapse = "_", row.names(FALSE)))
 write.csv(MatrizMinimo, paste(c("minimo_fold", nome_arquivo), sep = "", collapse = "_", row.names(FALSE)))
