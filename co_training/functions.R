@@ -843,16 +843,16 @@ coTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
     if (qtd_add > 0) {
       probPreds1_ordenado <- order(new_samples1$p, decreasing = T)
       probPreds2_ordenado <- order(new_samples2$p, decreasing = T)
-      new_samples1 <- new_samples1[probPreds1_ordenado[1:qtd_add], -2] #id da base de treinamento
-      new_samples2 <- new_samples2[probPreds2_ordenado[1:qtd_add], -2] #id da base de treinamento
+      new_samples1 <- new_samples1[probPreds1_ordenado[1:qtd_add], ] #id da base de treinamento
+      new_samples2 <- new_samples2[probPreds2_ordenado[1:qtd_add], ] #id da base de treinamento
       data1[(1:N)[new_samples2$id], as.character(form[[2]])] <- new_samples2$cl
       data2[(1:N)[new_samples1$id], as.character(form[[2]])] <- new_samples1$cl
       cobertura <- qtd_add/nrow(data1[-sup1,]) #é igual para as duas visoes
 
       sup1 <- c(sup1, new_samples2$id)
       sup2 <- c(sup2, new_samples1$id)
-      conf_media1 <- mean(probPreds1[probPreds1_ordenado[1:qtd_add],2])
-      conf_media2 <- mean(probPreds2[probPreds2_ordenado[1:qtd_add],2])
+      conf_media1 <- mean(new_samples1[probPreds1_ordenado[1:qtd_add],2])
+      conf_media2 <- mean(new_samples2[probPreds2_ordenado[1:qtd_add],2])
       # acertou_g_o <<- c(acertou_g_o, acertou)
     } else {
       new_samples1 <- cleanVector(new_samples1)
