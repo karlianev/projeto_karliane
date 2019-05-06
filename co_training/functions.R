@@ -58,7 +58,7 @@ classCheck <- function(data_1_it, data_x_it, thr_conf) {
       if ((data_1_it[lvls[indice], 2] >= thr_conf)
           && (data_x_it[indice, 2] >= thr_conf)) {
         pos <- pos + 1
-        xid[pos] <- indice
+        xid[pos] <- data_x_it[indice, 3]
         ycl[pos] <- as.character(data_x_it[indice, 1])
         zp[pos] <- data_x_it[indice, 2]
       }
@@ -98,7 +98,7 @@ confidenceCheck <- function(data_1_it, data_x_it, thr_conf) {
       if ((data_1_it[lvls[indice], 2] >= thr_conf)
           || (data_x_it[indice, 2] >= thr_conf)) {
         pos <- pos + 1
-        xid[pos] <- indice
+        xid[pos] <- data_x_it[indice, 3]
         ycl[pos] <- as.character(data_x_it[indice, 1])
         zp[pos] <- data_x_it[indice, 2]
       }
@@ -155,7 +155,7 @@ differentClassesCheck <- function(data_1_it, data_x_it, thr_conf, moda) {
       if ((data_1_it[lvls[indice], 2] >= thr_conf)
           && (data_x_it[indice, 2] >= thr_conf)) {
         pos <- pos + 1
-        xid[pos] <- indice
+        xid[pos] <- data_x_it[indice, 3]
         ycl[pos] <- as.character(searchClass(xid[pos], moda))
         zp[pos] <- data_x_it[indice, 2]
       }
@@ -179,7 +179,7 @@ differentClassesCheckC2 <- function(data_1_it, data_x_it, thr_conf, moda) {
       if ((data_1_it[lvls[indice], 2] >= thr_conf)
           && (data_x_it[indice, 2] >= thr_conf)) {
         pos <- pos + 1
-        xid[pos] <- indice
+        xid[pos] <- data_x_it[indice, 3]
         ycl[pos] <- as.character(data_1_it[lvls[indice], 1])
         zp[pos] <- data_x_it[indice, 2]
       }
@@ -203,7 +203,7 @@ differentConfidencesCheck <- function(data_1_it, data_x_it, thr_conf, moda) {
       if ((data_1_it[lvls[indice], 2] >= thr_conf)
           || (data_x_it[indice, 2] >= thr_conf)) {
         pos <- pos + 1
-        xid[pos] <- indice
+        xid[pos] <- data_x_it[indice, 3]
         ycl[pos] <- as.character(searchClass(xid[pos], moda))
         zp[pos] <- data_x_it[indice, 2]
       }
@@ -227,7 +227,7 @@ differentConfidencesCheckC2 <- function(data_1_it, data_x_it, thr_conf) {
       if ((data_1_it[lvls[indice], 2] >= thr_conf)
           || (data_x_it[indice, 2] >= thr_conf)) {
         pos <- pos + 1
-        xid[pos] <- indice
+        xid[pos] <- data_x_it[indice, 3]
         ycl[pos] <- as.character(data_1_it[lvls[indice], 1])
         zp[pos] <- data_x_it[indice, 2]
       }
@@ -835,14 +835,14 @@ coTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
     # probPreds1_new_samples1 <- probPreds1[new_samples1$id,] #o id do new_samples é a prosição no probpreds
     # probPreds2_new_samples2 <- probPreds2[new_samples2$id,] #o id do new_samples é a prosição no probpreds
     
-    probPreds1_ordenado <- order(new_samples1$p, decreasing = T)
-    probPreds2_ordenado <- order(new_samples2$p, decreasing = T)
     
     #criando os vetores em ordem decrescente pela confianca
     # probPreds1_ordenado <- order(probPreds1$p, decreasing = T)
     # probPreds2_ordenado <- order(probPreds2$p, decreasing = T)
     
     if (qtd_add > 0) {
+      probPreds1_ordenado <- order(new_samples1$p, decreasing = T)
+      probPreds2_ordenado <- order(new_samples2$p, decreasing = T)
       new_samples1 <- new_samples1[probPreds1_ordenado[1:qtd_add], -2] #id da base de treinamento
       new_samples2 <- new_samples2[probPreds2_ordenado[1:qtd_add], -2] #id da base de treinamento
       data1[(1:N)[new_samples2$id], as.character(form[[2]])] <- new_samples2$cl
