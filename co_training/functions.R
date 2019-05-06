@@ -48,8 +48,9 @@ calcLocalAcc <- function(base_rotulados_ini, conj_treino) {
 classCheck <- function(data_1_it, data_x_it, thr_conf) {
   examples <- cleanVector(examples)
   pos <- 0
-  xid <- cleanVector(xid)
+  xid <- cleanVector(xid) 
   ycl <- cleanVector(ycl)
+  zp <- cleanVector(zp) #confianca na predicao
   lvls <- match(data_x_it$id, data_1_it$id)
   for (indice in 1:length(lvls)) {
     if ((as.character(data_1_it[lvls[indice], 1])
@@ -59,10 +60,11 @@ classCheck <- function(data_1_it, data_x_it, thr_conf) {
         pos <- pos + 1
         xid[pos] <- indice
         ycl[pos] <- as.character(data_x_it[indice, 1])
+        zp[pos] <- data_x_it[indice, 2]
       }
     }
   }
-  examples <- data.frame(id = xid, cl = ycl)
+  examples <- data.frame(cl = ycl, p = zp, id = xid)
   return (examples)
 }
 
@@ -88,6 +90,7 @@ confidenceCheck <- function(data_1_it, data_x_it, thr_conf) {
   pos <- 0
   xid <- cleanVector(xid)
   ycl <- cleanVector(ycl)
+  zp <- cleanVector(zp)
   lvls <- match(data_x_it$id, data_1_it$id)
   for (indice in 1:length(lvls)) {
     if ((as.character(data_1_it[lvls[indice], 1])
@@ -97,10 +100,11 @@ confidenceCheck <- function(data_1_it, data_x_it, thr_conf) {
         pos <- pos + 1
         xid[pos] <- indice
         ycl[pos] <- as.character(data_x_it[indice, 1])
+        zp[pos] <- data_x_it[indice, 2]
       }
     }
   }
-  examples <- data.frame(id = xid, cl = ycl)
+  examples <- data.frame(cl = ycl, p = zp, id = xid)
   return (examples)
 }
 
@@ -143,6 +147,7 @@ differentClassesCheck <- function(data_1_it, data_x_it, thr_conf, moda) {
   pos <- 0
   xid <- cleanVector(xid)
   ycl <- cleanVector(ycl)
+  zp <- cleanVector(zp)
   lvls <- match(data_x_it$id, data_1_it$id)
   for (indice in 1:length(lvls)) {
     if ((as.character(data_1_it[lvls[indice], 1])
@@ -152,10 +157,11 @@ differentClassesCheck <- function(data_1_it, data_x_it, thr_conf, moda) {
         pos <- pos + 1
         xid[pos] <- indice
         ycl[pos] <- as.character(searchClass(xid[pos], moda))
+        zp[pos] <- data_x_it[indice, 2]
       }
     }
   }
-  examples <- data.frame(id = xid, cl = ycl)
+  examples <- data.frame(cl = ycl, p = zp, id = xid)
   return (examples)
 }
 
@@ -165,6 +171,7 @@ differentClassesCheckC2 <- function(data_1_it, data_x_it, thr_conf, moda) {
   pos <- 0
   xid <- cleanVector(xid)
   ycl <- cleanVector(ycl)
+  zp <- cleanVector(zp)
   lvls <- match(data_x_it$id, data_1_it$id)
   for (indice in 1:length(lvls)) {
     if ((as.character(data_1_it[lvls[indice], 1])
@@ -174,10 +181,11 @@ differentClassesCheckC2 <- function(data_1_it, data_x_it, thr_conf, moda) {
         pos <- pos + 1
         xid[pos] <- indice
         ycl[pos] <- as.character(data_1_it[lvls[indice], 1])
+        zp[pos] <- data_x_it[indice, 2]
       }
     }
   }
-  examples <- data.frame(id = xid, cl = ycl)
+  examples <- data.frame(cl = ycl, p = zp, id = xid)
   return (examples)
 }
 
@@ -187,6 +195,7 @@ differentConfidencesCheck <- function(data_1_it, data_x_it, thr_conf, moda) {
   pos <- 0
   xid <- cleanVector(xid)
   ycl <- cleanVector(ycl)
+  zp <- cleanVector(zp)
   lvls <- match(data_x_it$id, data_1_it$id)
   for (indice in 1:length(lvls)) {
     if ((as.character(data_1_it[lvls[indice], 1])
@@ -196,10 +205,11 @@ differentConfidencesCheck <- function(data_1_it, data_x_it, thr_conf, moda) {
         pos <- pos + 1
         xid[pos] <- indice
         ycl[pos] <- as.character(searchClass(xid[pos], moda))
+        zp[pos] <- data_x_it[indice, 2]
       }
     }
   }
-  examples <- data.frame(id = xid, cl = ycl)
+  examples <- data.frame(cl = ycl, p = zp, id = xid)
   return (examples)
 }
 
@@ -209,6 +219,7 @@ differentConfidencesCheckC2 <- function(data_1_it, data_x_it, thr_conf) {
   pos <- 0
   xid <- cleanVector(xid)
   ycl <- cleanVector(ycl)
+  zp <- cleanVector(zp)
   lvls <- match(data_x_it$id, data_1_it$id)
   for (indice in 1:length(lvls)) {
     if ((as.character(data_1_it[lvls[indice], 1])
@@ -218,10 +229,11 @@ differentConfidencesCheckC2 <- function(data_1_it, data_x_it, thr_conf) {
         pos <- pos + 1
         xid[pos] <- indice
         ycl[pos] <- as.character(data_1_it[lvls[indice], 1])
+        zp[pos] <- data_x_it[indice, 2]
       }
     }
   }
-  examples <- data.frame(id = xid, cl = ycl)
+  examples <- data.frame(cl = ycl, p = zp, id = xid)
   return (examples)
 }
 
@@ -794,12 +806,8 @@ coTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
       prob_preds2_1_it <<- probPreds2
       novos1 <- which(probPreds1[ , 2] >= thrConf1)
       novos2 <- which(probPreds2[ , 2] >= thrConf2)
-      cl_novos1 <- probPreds1[novos1, 1]
-      cl_novos2 <- probPreds2[novos2, 1]
-      new_samples1 <- data.frame(id=novos1, 
-                                 cl = cl_novos1)
-      new_samples2 <- data.frame(id=novos2, 
-                                 cl = cl_novos2)
+      new_samples1 <- probPreds1[novos1,]
+      new_samples2 <- probPreds2[novos2,]
 
       # new_samples1 <- which(probPreds1[ , 2] >= thrConf1)
       # new_samples2 <- which(probPreds2[ , 2] >= thrConf2)
@@ -814,8 +822,9 @@ coTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
       #retorna a posicao do exemplo no probpreds e a classe a ser atribuida
       new_samples1 <- flexConC1(prob_preds1_1_it, probPreds1, thrConf1, moda1, it)
       new_samples2 <- flexConC1(prob_preds2_1_it, probPreds2, thrConf2, moda2, it)
-      probPreds1[new_samples1$id,1] <- new_samples1$cl
-      probPreds2[new_samples2$id,1] <- new_samples2$cl
+
+      # probPreds1[new_samples1$id,1] <- new_samples1$cl
+      # probPreds2[new_samples2$id,1] <- new_samples2$cl
     }
     
     
@@ -823,19 +832,19 @@ coTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
     qtd_add <- min(nrow(new_samples1), nrow(new_samples2))
     
     #criando um probpreds apenas com os novos exemplos e ordenando-os pela confiança
-    probPreds1_new_samples1 <- probPreds1[new_samples1$id,] #o id do new_samples é a prosição no probpreds
-    probPreds2_new_samples2 <- probPreds2[new_samples2$id,] #o id do new_samples é a prosição no probpreds
+    # probPreds1_new_samples1 <- probPreds1[new_samples1$id,] #o id do new_samples é a prosição no probpreds
+    # probPreds2_new_samples2 <- probPreds2[new_samples2$id,] #o id do new_samples é a prosição no probpreds
     
-    probPreds1_ordenado <- order(probPreds1_new_samples1$p, decreasing = T)
-    probPreds2_ordenado <- order(probPreds2_new_samples2$p, decreasing = T)
+    probPreds1_ordenado <- order(new_samples1$p, decreasing = T)
+    probPreds2_ordenado <- order(new_samples2$p, decreasing = T)
     
     #criando os vetores em ordem decrescente pela confianca
     # probPreds1_ordenado <- order(probPreds1$p, decreasing = T)
     # probPreds2_ordenado <- order(probPreds2$p, decreasing = T)
     
     if (qtd_add > 0) {
-      new_samples1 <- probPreds1[probPreds1_ordenado[1:qtd_add], -2] #id da base de treinamento
-      new_samples2 <- probPreds2[probPreds2_ordenado[1:qtd_add], -2] #id da base de treinamento
+      new_samples1 <- new_samples1[probPreds1_ordenado[1:qtd_add], -2] #id da base de treinamento
+      new_samples2 <- new_samples2[probPreds2_ordenado[1:qtd_add], -2] #id da base de treinamento
       data1[(1:N)[new_samples2$id], as.character(form[[2]])] <- new_samples2$cl
       data2[(1:N)[new_samples1$id], as.character(form[[2]])] <- new_samples1$cl
       cobertura <- qtd_add/nrow(data1[-sup1,]) #é igual para as duas visoes
