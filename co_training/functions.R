@@ -855,15 +855,16 @@ coTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
       conf_media2 <- mean(new_samples2[probPreds2_ordenado[1:qtd_add],2])
       # acertou_g_o <<- c(acertou_g_o, acertou)
     } else {
-      new_samples1 <- cleanVector(new_samples1)
-      new_samples2 <- cleanVector(new_samples2)
       # acertou <- 0
       # acertou_g_o <<- c(acertou_g_o, acertou)
-      if (length(new_samples1) == 0) { #se o 1 for zero o 2 tbm ser?
+      if (nrow(new_samples1) == 0) { #se o 1 for zero o 2 tbm ser?
         thrConf1 <- max(probPreds1[,2])
+      }
+      if (nrow(new_samples2) == 0) { #se o 1 for zero o 2 tbm ser?
         thrConf2 <- max(probPreds2[,2])
       }
-      
+      new_samples1 <- cleanVector(new_samples1)
+      new_samples2 <- cleanVector(new_samples2)
     }
     if (verbose) {
       it_g_o <<- c(it_g_o, it)
