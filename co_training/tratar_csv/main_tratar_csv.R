@@ -1,5 +1,5 @@
 #Este script ler o csv com a acuracia media dos dois classificadores para os 10 folds (co-training) e 
-#faz a media, maximo e minimo gerando um novo csv onde cada base de dados terá apenas uma acurácia
+#faz a media, maximo e minimo gerando um novo csv onde cada base de dados ter? apenas uma acur?cia
 
 setWorkspaceLocalR <- function() {
   mySystem <- Sys.info()
@@ -33,8 +33,8 @@ if (metodo==1){
 
 
 setWorkspace(nome_diretorio)
-nome_arquivo <- "co_training_rpartXse_media_metodo_3_5.CSV"
-#é necessario alterar o csv acrescentando um nome de coluna
+nome_arquivo <- "co_training_JRip_media_metodo_3_5.CSV"
+#? necessario alterar o csv acrescentando um nome de coluna
 #atribui os dados a uma matriz
 dados <- as.matrix(read.csv(nome_arquivo))
 

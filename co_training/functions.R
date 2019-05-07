@@ -851,8 +851,8 @@ coTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
 
       sup1 <- c(sup1, new_samples2$id)
       sup2 <- c(sup2, new_samples1$id)
-      conf_media1 <- mean(new_samples1[probPreds1_ordenado[1:qtd_add],2])
-      conf_media2 <- mean(new_samples2[probPreds2_ordenado[1:qtd_add],2])
+      conf_media1 <- mean(new_samples1$p)
+      conf_media2 <- mean(new_samples2$p)
       # acertou_g_o <<- c(acertou_g_o, acertou)
     } else {
       # acertou <- 0
@@ -917,7 +917,7 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
                     dimnames = list(seq(1,nrow(data1)),unique(base_original$class)))
   }
   
-  add_rot_superv <- FALSE #so utilizada pelo FlexConC2
+  # add_rot_superv <- FALSE #so utilizada pelo FlexConC2
   #variaveis de uma verificacao 
   
   #so basta uma base pois ambas tem a mesma qtd de instancias por classe
@@ -1006,14 +1006,21 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
     if(it == 1) {
       prob_preds1_1_it <<- probPreds1
       prob_preds2_1_it <<- probPreds2
-      new_samples1 <- which(probPreds1[ , 2] >= thrConf1) #(posição no vetor)
-      new_samples2 <- which(probPreds2[ , 2] >= thrConf2) #(posição no vetor)
-      rotulados1 <- data.frame(id = probPreds1[new_samples1, 3],
-                               cl = probPreds1[new_samples1, 1])
-      rotulados2 <- data.frame(id = probPreds2[new_samples2, 3],
-                               cl = probPreds2[new_samples2, 1])
-      new_samples1 <- rotulados1$id #substitui a posição no vetor pelo id do exemplo
-      new_samples2 <- rotulados2$id #substitui a posição no vetor pelo id do exemplo
+      novos1 <- which(probPreds1[ , 2] >= thrConf1)
+      novos2 <- which(probPreds2[ , 2] >= thrConf2)
+      new_samples1 <- probPreds1[novos1,]
+      new_samples2 <- probPreds2[novos2,]
+      
+      # prob_preds1_1_it <<- probPreds1
+      # prob_preds2_1_it <<- probPreds2
+      # new_samples1 <- which(probPreds1[ , 2] >= thrConf1) #(posição no vetor)
+      # new_samples2 <- which(probPreds2[ , 2] >= thrConf2) #(posição no vetor)
+      # rotulados1 <- data.frame(id = probPreds1[new_samples1, 3],
+      #                          cl = probPreds1[new_samples1, 1])
+      # rotulados2 <- data.frame(id = probPreds2[new_samples2, 3],
+      #                          cl = probPreds2[new_samples2, 1])
+      # new_samples1 <- rotulados1$id #substitui a posição no vetor pelo id do exemplo
+      # new_samples2 <- rotulados2$id #substitui a posição no vetor pelo id do exemplo
     } else {
       if ((method==5) || (method==6)){
         if(method == 5){
@@ -1024,42 +1031,66 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
             moda2 <- storageFashion(probPreds2, moda2)
         }  
           # retorna a posicao do exemplo no probpreds
-        rot1  <- flexConC1(prob_preds1_1_it, probPreds1, thrConf1, moda1, it)
-        rot2 <- flexConC1(prob_preds2_1_it, probPreds2, thrConf2, moda2, it)
+        new_samples1  <- flexConC1(prob_preds1_1_it, probPreds1, thrConf1, moda1, it)
+        new_samples2 <- flexConC1(prob_preds2_1_it, probPreds2, thrConf2, moda2, it)
+        # rot1  <- flexConC1(prob_preds1_1_it, probPreds1, thrConf1, moda1, it)
+        # rot2 <- flexConC1(prob_preds2_1_it, probPreds2, thrConf2, moda2, it)
       }else if(method == 7){
-        rot1 <- flexConC2(prob_preds1_1_it, probPreds1, thrConf1)
-        rot2 <- flexConC2(prob_preds2_1_it, probPreds2, thrConf2)
+        new_samples1 <- flexConC2(prob_preds1_1_it, probPreds1, thrConf1)
+        new_samples2 <- flexConC2(prob_preds2_1_it, probPreds2, thrConf2)
+        # rot1 <- flexConC2(prob_preds1_1_it, probPreds1, thrConf1)
+        # rot2 <- flexConC2(prob_preds2_1_it, probPreds2, thrConf2)
             
       }
-        new_samples1 <- rot1$id  #posicao no probpreds
-        new_samples2 <- rot2$id  #posicao no probpreds
-        probPreds1[new_samples1,1] <- rot1$cl
-        probPreds2[new_samples2,1] <- rot2$cl
+        # new_samples1 <- rot1$id  #posicao no probpreds
+        # new_samples2 <- rot2$id  #posicao no probpreds
+        # probPreds1[new_samples1,1] <- rot1$cl
+        # probPreds2[new_samples2,1] <- rot2$cl
     }
-    
-    
-    # indices1 <- row.names(probPreds1)   # pega o id de cada exemplo 
-    # indices2 <- row.names(probPreds2)   # pega o id de cada exemplo 
-
-    #co-training adaptado para funcionar igual ao self-training de Felipe
-    qtd_add <- min(length(new_samples1), length(new_samples2))
+    # qtd_add <- min(length(new_samples1), length(new_samples2))
+    qtd_add <- min(nrow(new_samples1), nrow(new_samples2))
     
     if (qtd_add>0){
-      if (it==1){
-        #criando os vetores em ordem decrescente pela confianca
-        probPreds1_ordenado <- order(probPreds1$p, decreasing = T)
-        probPreds2_ordenado <- order(probPreds2$p, decreasing = T)
-        new_samples1 <- probPreds1[probPreds1_ordenado[1:qtd_add], 3] #posicao em data
-        new_samples2 <- probPreds2[probPreds2_ordenado[1:qtd_add], 3] #posicao em data
-      }else{
-        probPreds1_new <- probPreds1[new_samples1,]
-        probPreds2_new <- probPreds2[new_samples2,]
-        probPreds1_ordenado <-  order(probPreds1_new$p, decreasing = T)
-        probPreds2_ordenado <-  order(probPreds2_new$p, decreasing = T)
-        new_samples1 <- probPreds1_new[probPreds1_ordenado[1:qtd_add],3] #posicao em data
-        new_samples2 <- probPreds2_new[probPreds2_ordenado[1:qtd_add],3] #posicao em data
-      }
+      probPreds1_ordenado <- order(new_samples1$p, decreasing = T)
+      probPreds2_ordenado <- order(new_samples2$p, decreasing = T)
+      new_samples1 <- new_samples1[probPreds1_ordenado[1:qtd_add], ] #id da base de treinamento
+      new_samples2 <- new_samples2[probPreds2_ordenado[1:qtd_add], ] #id da base de treinamento
+      data1[(1:N)[new_samples2$id], as.character(form[[2]])] <- new_samples2$cl
+      data2[(1:N)[new_samples1$id], as.character(form[[2]])] <- new_samples1$cl
+
+      conj_treino_antigo1 <- appendDataFrame(conj_treino_antigo1, conj_treino_local1)
+      conj_treino_local1 <- data1[(1:N)[new_samples1$id],]
+      #conj_treino_local1[,as.character(form[[2]])] <- new_data2
+      
+      conj_treino_antigo2 <- appendDataFrame(conj_treino_antigo2, conj_treino_local2)
+      conj_treino_local2 <- data2[(1:N)[new_samples2$id],]
+      #conj_treino_local2[,as.character(form[[2]])] <- new_data1
+      
+      sup1 <- c(sup1, new_samples2$id)
+      sup2 <- c(sup2, new_samples1$id)
+
+      # if (it==1){
+      #   #criando os vetores em ordem decrescente pela confianca
+      #   probPreds1_ordenado <- order(probPreds1$p, decreasing = T)
+      #   probPreds2_ordenado <- order(probPreds2$p, decreasing = T)
+      #   new_samples1 <- probPreds1[probPreds1_ordenado[1:qtd_add], 3] #posicao em data
+      #   new_samples2 <- probPreds2[probPreds2_ordenado[1:qtd_add], 3] #posicao em data
+      # }else{
+      #   probPreds1_new <- probPreds1[new_samples1,]
+      #   probPreds2_new <- probPreds2[new_samples2,]
+      #   probPreds1_ordenado <-  order(probPreds1_new$p, decreasing = T)
+      #   probPreds2_ordenado <-  order(probPreds2_new$p, decreasing = T)
+      #   new_samples1 <- probPreds1_new[probPreds1_ordenado[1:qtd_add],3] #posicao em data
+      #   new_samples2 <- probPreds2_new[probPreds2_ordenado[1:qtd_add],3] #posicao em data
+      # }
     } else {
+      if (nrow(new_samples1) == 0) { #se o 1 for zero o 2 tbm ser?
+        thrConf1 <- max(probPreds1[,2])
+      }
+      if (nrow(new_samples2) == 0) { #se o 1 for zero o 2 tbm ser?
+        thrConf2 <- max(probPreds2[,2])
+      }
+      
       new_samples1 <- cleanVector(new_samples1)
       new_samples2 <- cleanVector(new_samples2)
     }
@@ -1073,68 +1104,68 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
       nr_added_exs_g_o <<- c(nr_added_exs_g_o, qtd_add)
       tx_g_o <<- c(tx_g_o, taxa)
     }
-    if ((length(new_samples1)) && (length(new_samples2))) {
-      
-      #local onde add as novas tuplas classificas nessa interacao
-      #Para o FlexConCS deve colocar uma condicao para verificar
-      #   a Proporcao é mantida
-      new_data1 <- data1[(1:N)[new_samples2], as.character(form[[2]])]
-      new_data2 <- data2[(1:N)[new_samples1], as.character(form[[2]])]
-      
-      
-      #new_data possui as classes dos novos exemplos na mesma ordem do probpreds ordenado e do new_samples
-      if (add_rot_superv) { #condicao so sera satisfeita se for o FLexConC2
-        add_rot_superv <- FALSE
-
-        id_novos1 <- probpreds1[probPreds1_ordenado[1:qtd_add], 3]
-        new_rot1 <- which(id_novos1==prob_preds1_1_it[,3])
-        new_data1 <- as.character(prob_preds1_1_it[new_rot1, 1])
-
-        id_novos2 <- probpreds2[probPreds2_ordenado[1:qtd_add], 3]
-        new_rot2 <- which(id_novos2==prob_preds2_1_it[,3])
-        new_data2 <- as.character(prob_preds2_1_it[new_rot2, 1])
-
-      } else {
-        #new_data <- as.character(prob_preds[new_samples, 1])
-        #data1[(1:N)[-sup1][new_samples2], as.character(form[[2]])] <- as.character(probPreds2[probPreds2_ordenado[1:qtd_add], 1])
-
-        #!!!!!!!!!!!!!!     ATENÇÃO     !!!!!!!!!!!!!!!!!
-        #!!!!VARIAVEL AJUSTADA NO FLEXCON, SE FUNCIONAR PRECISA AJUSTAR AQUI TBM!!!
-        new_data1 <- as.character(probPreds2[probPreds2_ordenado[1:qtd_add], 1])
-        new_data2 <- as.character(probPreds1[probPreds1_ordenado[1:qtd_add], 1])
-      }
-      
-      data1[(1:N)[new_samples2], as.character(form[[2]])] <- new_data1
-      data2[(1:N)[new_samples1], as.character(form[[2]])] <- new_data2
-      
-      conf_media1 <- mean(probPreds1[probPreds1_ordenado[1:qtd_add],2])
-      conf_media2 <- mean(probPreds2[probPreds2_ordenado[1:qtd_add],2])
-      
-      conj_treino_antigo1 <- appendDataFrame(conj_treino_antigo1, conj_treino_local1)
-      conj_treino_local1 <- data1[(1:N)[new_samples1],]
-      conj_treino_local1[,as.character(form[[2]])] <- new_data2
-
-      conj_treino_antigo2 <- appendDataFrame(conj_treino_antigo2, conj_treino_local2)
-      conj_treino_local2 <- data2[(1:N)[new_samples2],]
-      conj_treino_local2[,as.character(form[[2]])] <- new_data1
-      
-
-      sup1 <- c(sup1, new_samples2)
-      sup2 <- c(sup2, new_samples1)
-      
-      id_data1 <- cleanVector(id_data1)
-      id_data2 <- cleanVector(id_data2)
-      #variavel acertou sempre vai ser 0 nao existe em momento algum a alteraçao de acertou
-      acertou_g_o <<- c(acertou_g_o, acertou)
-    }
-    else {
-      acertou <- 0
-      acertou_g_o <<- c(acertou_g_o, acertou)
-      if (length(new_samples1) == 0) { #se o 1 for zero o 2 tbm ser?
-        thrConf1 <- max(probPreds1[,2])
-        thrConf2 <- max(probPreds2[,2])
-      }
-    }
+    # if ((length(new_samples1)) && (length(new_samples2))) {
+    #   
+    #   #local onde add as novas tuplas classificas nessa interacao
+    #   #Para o FlexConCS deve colocar uma condicao para verificar
+    #   #   a Proporcao é mantida
+    #   new_data1 <- data1[(1:N)[new_samples2], as.character(form[[2]])]
+    #   new_data2 <- data2[(1:N)[new_samples1], as.character(form[[2]])]
+    #   
+    #   
+    #   #new_data possui as classes dos novos exemplos na mesma ordem do probpreds ordenado e do new_samples
+    #   if (add_rot_superv) { #condicao so sera satisfeita se for o FLexConC2
+    #     add_rot_superv <- FALSE
+    # 
+    #     id_novos1 <- probpreds1[probPreds1_ordenado[1:qtd_add], 3]
+    #     new_rot1 <- which(id_novos1==prob_preds1_1_it[,3])
+    #     new_data1 <- as.character(prob_preds1_1_it[new_rot1, 1])
+    # 
+    #     id_novos2 <- probpreds2[probPreds2_ordenado[1:qtd_add], 3]
+    #     new_rot2 <- which(id_novos2==prob_preds2_1_it[,3])
+    #     new_data2 <- as.character(prob_preds2_1_it[new_rot2, 1])
+    # 
+    #   } else {
+    #     #new_data <- as.character(prob_preds[new_samples, 1])
+    #     #data1[(1:N)[-sup1][new_samples2], as.character(form[[2]])] <- as.character(probPreds2[probPreds2_ordenado[1:qtd_add], 1])
+    # 
+    #     #!!!!!!!!!!!!!!     ATENÇÃO     !!!!!!!!!!!!!!!!!
+    #     #!!!!VARIAVEL AJUSTADA NO FLEXCON, SE FUNCIONAR PRECISA AJUSTAR AQUI TBM!!!
+    #     new_data1 <- as.character(probPreds2[probPreds2_ordenado[1:qtd_add], 1])
+    #     new_data2 <- as.character(probPreds1[probPreds1_ordenado[1:qtd_add], 1])
+    #   }
+    #   
+    #   data1[(1:N)[new_samples2], as.character(form[[2]])] <- new_data1
+    #   data2[(1:N)[new_samples1], as.character(form[[2]])] <- new_data2
+    #   
+    #   conf_media1 <- mean(probPreds1[probPreds1_ordenado[1:qtd_add],2])
+    #   conf_media2 <- mean(probPreds2[probPreds2_ordenado[1:qtd_add],2])
+    #   
+    #   conj_treino_antigo1 <- appendDataFrame(conj_treino_antigo1, conj_treino_local1)
+    #   conj_treino_local1 <- data1[(1:N)[new_samples1],]
+    #   conj_treino_local1[,as.character(form[[2]])] <- new_data2
+    # 
+    #   conj_treino_antigo2 <- appendDataFrame(conj_treino_antigo2, conj_treino_local2)
+    #   conj_treino_local2 <- data2[(1:N)[new_samples2],]
+    #   conj_treino_local2[,as.character(form[[2]])] <- new_data1
+    #   
+    # 
+    #   sup1 <- c(sup1, new_samples2)
+    #   sup2 <- c(sup2, new_samples1)
+    #   
+    #   id_data1 <- cleanVector(id_data1)
+    #   id_data2 <- cleanVector(id_data2)
+    #   #variavel acertou sempre vai ser 0 nao existe em momento algum a alteraçao de acertou
+    #   acertou_g_o <<- c(acertou_g_o, acertou)
+    # }
+    # else {
+    #   acertou <- 0
+    #   acertou_g_o <<- c(acertou_g_o, acertou)
+    #   if (length(new_samples1) == 0) { #se o 1 for zero o 2 tbm ser?
+    #     thrConf1 <- max(probPreds1[,2])
+    #     thrConf2 <- max(probPreds2[,2])
+    #   }
+    # }
     #condicao de para do repeat
     if ((it == maxIts) || ((length(sup1) / N) >= 1)) {
       break
