@@ -771,8 +771,7 @@ coTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
     new_samples2 <- cleanVector(new_samples2)
     acertou <- 0
     it <- it + 1
-    #cat("IT", it, "\n")
-    
+
     if ((it>1)&&(qtd_add>0)){
       #foi acrescentado a virgula na parte data1[-sup1,] nas linhas abaixo
       thrConf1 <- (thrConf1 + conf_media1 + cobertura)/3
@@ -791,8 +790,6 @@ coTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
     probPreds1$id <- id_data1
     probPreds2$id <- id_data2
     
-    # indices1 <- row.names(probPreds1)   # pega o id de cada exemplo 
-    # indices2 <- row.names(probPreds2)   # pega o id de cada exemplo 
     if (votacao){
       moda1 <- storageFashion(probPreds1, moda1) # Armazena a moda das classes
       moda2 <- storageFashion(probPreds2, moda2) # Armazena a moda das classes
@@ -808,38 +805,15 @@ coTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
       novos2 <- which(probPreds2[ , 2] >= thrConf2)
       new_samples1 <- probPreds1[novos1,]
       new_samples2 <- probPreds2[novos2,]
-
-      # new_samples1 <- which(probPreds1[ , 2] >= thrConf1)
-      # new_samples2 <- which(probPreds2[ , 2] >= thrConf2)
-      # rotulados1 <- data.frame(id = probPreds1[new_samples1, 3],
-      #                         cl = probPreds1[new_samples1, 1])
-      # rotulados2 <- data.frame(id = probPreds2[new_samples2, 3],
-      #                         cl = probPreds2[new_samples2, 1])
-      # new_samples1 <- rotulados1$id #posicao do exemplo na base de treinamento
-      # new_samples2 <- rotulados2$id #posicao do exemplo na base de treinamento
-      
     } else {
       #retorna a posicao do exemplo no probpreds e a classe a ser atribuida
       new_samples1 <- flexConC1(prob_preds1_1_it, probPreds1, thrConf1, moda1, it)
       new_samples2 <- flexConC1(prob_preds2_1_it, probPreds2, thrConf2, moda2, it)
-
-      # probPreds1[new_samples1$id,1] <- new_samples1$cl
-      # probPreds2[new_samples2$id,1] <- new_samples2$cl
     }
     
     
     #co-training adaptado para funcionar igual ao self-training de Felipe
     qtd_add <- min(nrow(new_samples1), nrow(new_samples2))
-    
-    #criando um probpreds apenas com os novos exemplos e ordenando-os pela confiança
-    # probPreds1_new_samples1 <- probPreds1[new_samples1$id,] #o id do new_samples é a prosição no probpreds
-    # probPreds2_new_samples2 <- probPreds2[new_samples2$id,] #o id do new_samples é a prosição no probpreds
-    
-    
-    #criando os vetores em ordem decrescente pela confianca
-    # probPreds1_ordenado <- order(probPreds1$p, decreasing = T)
-    # probPreds2_ordenado <- order(probPreds2$p, decreasing = T)
-    
     if (qtd_add > 0) {
       probPreds1_ordenado <- order(new_samples1$p, decreasing = T)
       probPreds2_ordenado <- order(new_samples2$p, decreasing = T)
@@ -851,12 +825,9 @@ coTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
 
       sup1 <- c(sup1, new_samples2$id)
       sup2 <- c(sup2, new_samples1$id)
-      conf_media1 <- mean(new_samples1$p)
-      conf_media2 <- mean(new_samples2$p)
-      # acertou_g_o <<- c(acertou_g_o, acertou)
+      conf_media1 <- mean(probPreds1$p)
+      conf_media2 <- mean(probPreds2$p)
     } else {
-      # acertou <- 0
-      # acertou_g_o <<- c(acertou_g_o, acertou)
       if (nrow(new_samples1) == 0) { #se o 1 for zero o 2 tbm ser?
         thrConf1 <- max(probPreds1[,2])
       }
@@ -1059,11 +1030,11 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
       data2[(1:N)[new_samples1$id], as.character(form[[2]])] <- new_samples1$cl
 
       conj_treino_antigo1 <- appendDataFrame(conj_treino_antigo1, conj_treino_local1)
-      conj_treino_local1 <- data1[(1:N)[new_samples1$id],]
+      conj_treino_local1 <- data1[(1:N)[new_samples2$id],]
       #conj_treino_local1[,as.character(form[[2]])] <- new_data2
       
       conj_treino_antigo2 <- appendDataFrame(conj_treino_antigo2, conj_treino_local2)
-      conj_treino_local2 <- data2[(1:N)[new_samples2$id],]
+      conj_treino_local2 <- data2[(1:N)[new_samples1$id],]
       #conj_treino_local2[,as.character(form[[2]])] <- new_data1
       
       sup1 <- c(sup1, new_samples2$id)
