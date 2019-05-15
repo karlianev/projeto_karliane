@@ -484,7 +484,7 @@ getDatabase <- function(pos) {
                  "mammographic-mass", "mfeat-karhunen", "musk",
                  "ozone-onehr", "pendigits", "planning-relax", "seeds",
                  "semeion", "spectf-heart", "tic-tac-toe", "twonorm",
-                 "hill-valley-with-noise", "balance-scale", "car","lung-cancer")
+                 "hill-valley-with-noise", "balance-scale", "car")
 
 # haberman deixou de rodar e foi retirada
 #    databases <- c("iris", "bupa", "segment", "waveform-5000", "phishingData",
