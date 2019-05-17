@@ -13,7 +13,7 @@ setWorkspaceLocalR <- function() {
 }
 setWorkspaceLocalR()
 source("functions.R")
-metodo <- 1 #1=original, 2=limiar, 3=gradativo 4=FlexCon 5=FlexCon-C1(s) 6=FlexCon-C1(v) 7=FlexCon-C2
+metodo <- 4 #1=original, 2=limiar, 3=gradativo 4=FlexCon 5=FlexCon-C1(s) 6=FlexCon-C1(v) 7=FlexCon-C2
 
 if (metodo==1){
   nome_diretorio <- "metodo_1_original_completo"
@@ -33,7 +33,7 @@ if (metodo==1){
 
 
 setWorkspace(nome_diretorio)
-nome_arquivo <- "co_training_IBk_media_metodo_1_5.CSV"
+nome_arquivo <- "co_training_rpartXse_media_metodo_4_5_voto.CSV"
 #? necessario alterar o csv acrescentando um nome de coluna
 #atribui os dados a uma matriz
 dados <- as.matrix(read.csv(nome_arquivo))

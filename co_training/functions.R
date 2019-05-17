@@ -734,10 +734,16 @@ coTrainingOriginal <- function (learner, predFunc, data1, data2, metodo, k_fixo 
       if(qtd_add==0){ #se o 1 for zero o 2 tbm ser?
         thrConf<-min(max(probPreds1[,2]), max(probPreds2[,2]))
       }
-      
     }
-    if ((it == maxIts) || ((length(sup1) / N) >= 1) || ((length(sup2) / N) >= 1) ) {
-      break
+    
+    if (method ==2){
+      if ((it == maxIts) || (qtd_add == 0)){
+        break
+      }
+    }else{
+      if ((it == maxIts) || ((length(sup1) / N) >= 1) || ((length(sup2) / N) >= 1) ) {
+        break
+      }
     }
   }
   model <- list(model1, model2)
