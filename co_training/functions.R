@@ -735,16 +735,26 @@ coTrainingOriginal <- function (learner, predFunc, data1, data2, metodo, k_fixo 
         thrConf<-min(max(probPreds1[,2]), max(probPreds2[,2]))
       }
     }
-    
-    if (method ==2){
-      if ((it == maxIts) || (qtd_add == 0)){
-        break
-      }
+
+    if ((it == maxIts) || ((length(sup1) / N) >= 1) || ((length(sup2) / N) >= 1) ) {
+      break
     }else{
-      if ((it == maxIts) || ((length(sup1) / N) >= 1) || ((length(sup2) / N) >= 1) ) {
-        break
+      if ((method ==2) & (qtd_add == 0)){
+          break
       }
     }
+    
+
+    
+    # if (method ==2){
+    #   if ((it == maxIts) || (qtd_add == 0) || ((length(sup1) / N) >= 1) || ((length(sup2) / N) >= 1) ){
+    #     break
+    #   }
+    # }else{
+    #   if ((it == maxIts) || ((length(sup1) / N) >= 1) || ((length(sup2) / N) >= 1) ) {
+    #     break
+    #   }
+    # }
   }
   model <- list(model1, model2)
   return (model)

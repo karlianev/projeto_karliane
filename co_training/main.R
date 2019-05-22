@@ -51,7 +51,7 @@ setWorkspace <- function() {
 #PARA RODAR NO RSTUDIO COMENTA A PARTE ACIMA E DESCOMENTA A DE BAIXO
 
   args <- 4 #classificador 1 = naive, 2=rpartxse, 3=ripper, 4=ibk
-  method <<- 5 # 1 = co-training original (k=10%)  
+  method <<- 2 # 1 = co-training original (k=10%)  
                # 2 = co-training baseado no metodo de Felipe (k=limiar)
                # 3 = co-training gradativo (k=limiar que diminui 5% a cada iteracao)
                # 4 = co-training FlexCon SETAR A VARIAVEL VOTACAO
@@ -123,6 +123,7 @@ setWorkspace <- function() {
           
           source('training.R')
         }
+        
         medias_c1_s <- appendVectors(medias_c1_s, acc_c1_s)
         medias_c1_v <- appendVectors(medias_c1_v, acc_c1_v)
         medias_c2 <- appendVectors(medias_c2, acc_c2)
@@ -130,30 +131,30 @@ setWorkspace <- function() {
         todas_acc_co_v1 <- appendVectors(todas_acc_co_v1, acc_co_v1)
         todas_acc_co_v2 <- appendVectors(todas_acc_co_v2, acc_co_v2)
       }
-    data_arquivo_o <- data.frame(bd_g_o, tx_g_o, it_g_o, thrConf1_g_o, thrConf2_g_o,
-                                 nr_added_exs_g_o)#, acertou_g_o)
-    outputArchive(cr, as.character(classifiers[cl]), nome_acc = "media", method=method, medias_c1_s, medias_c1_v,
-                   medias_c2, medias_self) 
-    outputArchive(cr, as.character(classifiers[cl]), nome_acc = "visao1", method=method, medias_c1_s, medias_c1_v,
-                   medias_c2, todas_acc_co_v1) 
-    outputArchive(cr, as.character(classifiers[cl]), nome_acc = "visao2", method=method, medias_c1_s, medias_c1_v,
-                  medias_c2, todas_acc_co_v2) 
     
-    writeArchive(paste(c("resultado", classifiers[cl],"metodo", method, "095.csv"), collapse = "_"), data_arquivo_o, row = F, col = F)
-    # write.csv(data_arquivo_o, paste(c("resultado", classifiers[cl],"metodo", method, "095.csv"),
-    #                                 collapse = "_"), row.names = FALSE)
-    
-    #write.csv2(base2,"base2.csv",row.names=T,col.names = T,sep = ";",dec = ",")
-    
-    # medias_c1_s <- cleanVector(medias_c1_s)
-    # medias_c1_v <- cleanVector(medias_c1_v)
-    # medias_c2 <- cleanVector(medias_c2)
-    medias_self <- cleanVector(medias_self)
-    todas_acc_co_v1 <- cleanVector(todas_acc_co_v1)
-    todas_acc_co_v2 <- cleanVector(todas_acc_co_v2)
+      data_arquivo_o <- data.frame(bd_g_o, tx_g_o, it_g_o, thrConf1_g_o, thrConf2_g_o,
+                                   nr_added_exs_g_o)#, acertou_g_o)
+      outputArchive(cr, as.character(classifiers[cl]), nome_acc = "media", method=method, medias_c1_s, medias_c1_v,
+                     medias_c2, medias_self) 
+      outputArchive(cr, as.character(classifiers[cl]), nome_acc = "visao1", method=method, medias_c1_s, medias_c1_v,
+                     medias_c2, todas_acc_co_v1) 
+      outputArchive(cr, as.character(classifiers[cl]), nome_acc = "visao2", method=method, medias_c1_s, medias_c1_v,
+                    medias_c2, todas_acc_co_v2) 
+      
+      writeArchive(paste(c("resultado", classifiers[cl],"metodo", method, "095.csv"), collapse = "_"), data_arquivo_o, row = F, col = F)
+      
+      
+      
+      # write.csv(data_arquivo_o, paste(c("resultado", classifiers[cl],"metodo", method, "095.csv"),
+      #                                 collapse = "_"), row.names = FALSE)
+      
+      #write.csv2(base2,"base2.csv",row.names=T,col.names = T,sep = ";",dec = ",")
+      
+      # medias_c1_s <- cleanVector(medias_c1_s)
+      # medias_c1_v <- cleanVector(medias_c1_v)
+      # medias_c2 <- cleanVector(medias_c2)
+      medias_self <- cleanVector(medias_self)
+      todas_acc_co_v1 <- cleanVector(todas_acc_co_v1)
+      todas_acc_co_v2 <- cleanVector(todas_acc_co_v2)
     }
-    # if(ini_cr != 2) {
-    #   ini_cr = 2
-    # }
   }
-# }
