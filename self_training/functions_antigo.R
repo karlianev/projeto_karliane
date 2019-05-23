@@ -9,10 +9,6 @@ appendVectors <- function(v1, v2) {
   return (c(v1, v2))
 }
 
-appendDataFrame <- function(v1, v2) {
-  return (rbind(v1, v2))
-}
-
 #o valor de K do k-nn igual a raiz da quantidade de exemplos da base de dados
 attKValue <- function(database) {
   listas <- list(control = Weka_control(K = as.integer(sqrt(nrow(database))), X = TRUE))
@@ -20,21 +16,20 @@ attKValue <- function(database) {
 }
 
 # Calculate the acc value of the training samples
-#add parametro para passar as 2 visoes do co-training
-calcLocalAcc <- function(base_rotulados_ini, conj_treino) {
-  if (args == 1) { #esta dando erro nessa linha variavel c nao existe
+calcLocalAcc <- function() {
+  if (c == 1) {
     classificador <- naiveBayes(as.factor(class) ~ ., conj_treino)
     matriz <- table(predict(classificador, base_rotulados_ini),
                     base_rotulados_ini$class)
-  } else if (args == 2) {
+  } else if (c == 2) {
     classificador <- rpartXse(as.factor(class) ~ ., conj_treino)
     matriz <- table(predict(classificador, base_rotulados_ini, type="class"),
                     base_rotulados_ini$class)
-  } else if (args == 3) {
+  } else if (c == 3) {
     classificador <- JRip(as.factor(class) ~ ., conj_treino)
     matriz <- table(predict(classificador, base_rotulados_ini),
                     base_rotulados_ini$class)
-  } else if (args == 4) {
+  } else if (c == 4) {
     classificador <- IBk(as.factor(class) ~ ., conj_treino)
     matriz <- table(predict(classificador, base_rotulados_ini),
                     base_rotulados_ini$class)
@@ -48,9 +43,8 @@ calcLocalAcc <- function(base_rotulados_ini, conj_treino) {
 classCheck <- function(data_1_it, data_x_it, thr_conf) {
   examples <- cleanVector(examples)
   pos <- 0
-  xid <- cleanVector(xid) 
+  xid <- cleanVector(xid)
   ycl <- cleanVector(ycl)
-  zp <- cleanVector(zp) #confianca na predicao
   lvls <- match(data_x_it$id, data_1_it$id)
   for (indice in 1:length(lvls)) {
     if ((as.character(data_1_it[lvls[indice], 1])
@@ -58,13 +52,12 @@ classCheck <- function(data_1_it, data_x_it, thr_conf) {
       if ((data_1_it[lvls[indice], 2] >= thr_conf)
           && (data_x_it[indice, 2] >= thr_conf)) {
         pos <- pos + 1
-        xid[pos] <- data_x_it[indice, 3]
-        ycl[pos] <- as.character(data_x_it[indice, 1])
-        zp[pos] <- data_x_it[indice, 2]
+        xid[pos] <- indice
+        ycl[pos] <- data_x_it[indice, 1]
       }
     }
   }
-  examples <- data.frame(cl = ycl, p = zp, id = xid)
+  examples <- data.frame(id = xid, cl = ycl)
   return (examples)
 }
 
@@ -90,7 +83,6 @@ confidenceCheck <- function(data_1_it, data_x_it, thr_conf) {
   pos <- 0
   xid <- cleanVector(xid)
   ycl <- cleanVector(ycl)
-  zp <- cleanVector(zp)
   lvls <- match(data_x_it$id, data_1_it$id)
   for (indice in 1:length(lvls)) {
     if ((as.character(data_1_it[lvls[indice], 1])
@@ -98,13 +90,12 @@ confidenceCheck <- function(data_1_it, data_x_it, thr_conf) {
       if ((data_1_it[lvls[indice], 2] >= thr_conf)
           || (data_x_it[indice, 2] >= thr_conf)) {
         pos <- pos + 1
-        xid[pos] <- data_x_it[indice, 3]
-        ycl[pos] <- as.character(data_x_it[indice, 1])
-        zp[pos] <- data_x_it[indice, 2]
+        xid[pos] <- indice
+        ycl[pos] <- data_x_it[indice, 1]
       }
     }
   }
-  examples <- data.frame(cl = ycl, p = zp, id = xid)
+  examples <- data.frame(id = xid, cl = ycl)
   return (examples)
 }
 
@@ -147,7 +138,6 @@ differentClassesCheck <- function(data_1_it, data_x_it, thr_conf, moda) {
   pos <- 0
   xid <- cleanVector(xid)
   ycl <- cleanVector(ycl)
-  zp <- cleanVector(zp)
   lvls <- match(data_x_it$id, data_1_it$id)
   for (indice in 1:length(lvls)) {
     if ((as.character(data_1_it[lvls[indice], 1])
@@ -155,37 +145,12 @@ differentClassesCheck <- function(data_1_it, data_x_it, thr_conf, moda) {
       if ((data_1_it[lvls[indice], 2] >= thr_conf)
           && (data_x_it[indice, 2] >= thr_conf)) {
         pos <- pos + 1
-        xid[pos] <- data_x_it[indice, 3]
-        ycl[pos] <- as.character(searchClass(xid[pos], moda))
-        zp[pos] <- data_x_it[indice, 2]
+        xid[pos] <- indice
+        ycl[pos] <- searchClass(xid[pos], moda)
       }
     }
   }
-  examples <- data.frame(cl = ycl, p = zp, id = xid)
-  return (examples)
-}
-
-# Check in both matrixes if both confidences values are higger than thr_conf
-# The class of this samples is select observing the sum of the confidences or choose the most voted class
-differentClassesCheckC2 <- function(data_1_it, data_x_it, thr_conf, moda) {
-  pos <- 0
-  xid <- cleanVector(xid)
-  ycl <- cleanVector(ycl)
-  zp <- cleanVector(zp)
-  lvls <- match(data_x_it$id, data_1_it$id)
-  for (indice in 1:length(lvls)) {
-    if ((as.character(data_1_it[lvls[indice], 1])
-         != as.character(data_x_it[indice, 1]))) {
-      if ((data_1_it[lvls[indice], 2] >= thr_conf)
-          && (data_x_it[indice, 2] >= thr_conf)) {
-        pos <- pos + 1
-        xid[pos] <- data_x_it[indice, 3]
-        ycl[pos] <- as.character(data_1_it[lvls[indice], 1])
-        zp[pos] <- data_x_it[indice, 2]
-      }
-    }
-  }
-  examples <- data.frame(cl = ycl, p = zp, id = xid)
+  examples <- data.frame(id = xid, cl = ycl)
   return (examples)
 }
 
@@ -195,7 +160,6 @@ differentConfidencesCheck <- function(data_1_it, data_x_it, thr_conf, moda) {
   pos <- 0
   xid <- cleanVector(xid)
   ycl <- cleanVector(ycl)
-  zp <- cleanVector(zp)
   lvls <- match(data_x_it$id, data_1_it$id)
   for (indice in 1:length(lvls)) {
     if ((as.character(data_1_it[lvls[indice], 1])
@@ -203,37 +167,12 @@ differentConfidencesCheck <- function(data_1_it, data_x_it, thr_conf, moda) {
       if ((data_1_it[lvls[indice], 2] >= thr_conf)
           || (data_x_it[indice, 2] >= thr_conf)) {
         pos <- pos + 1
-        xid[pos] <- data_x_it[indice, 3]
-        ycl[pos] <- as.character(searchClass(xid[pos], moda))
-        zp[pos] <- data_x_it[indice, 2]
+        xid[pos] <- indice
+        ycl[pos] <- searchClass(xid[pos], moda)
       }
     }
   }
-  examples <- data.frame(cl = ycl, p = zp, id = xid)
-  return (examples)
-}
-
-# Check in both matrixes if one of confidences values are higger than thr_conf
-# The class of this samples is select observing the sum of the confidences or choose the most voted class
-differentConfidencesCheckC2 <- function(data_1_it, data_x_it, thr_conf) {
-  pos <- 0
-  xid <- cleanVector(xid)
-  ycl <- cleanVector(ycl)
-  zp <- cleanVector(zp)
-  lvls <- match(data_x_it$id, data_1_it$id)
-  for (indice in 1:length(lvls)) {
-    if ((as.character(data_1_it[lvls[indice], 1])
-         != as.character(data_x_it[indice, 1]))) {
-      if ((data_1_it[lvls[indice], 2] >= thr_conf)
-          || (data_x_it[indice, 2] >= thr_conf)) {
-        pos <- pos + 1
-        xid[pos] <- data_x_it[indice, 3]
-        ycl[pos] <- as.character(data_1_it[lvls[indice], 1])
-        zp[pos] <- data_x_it[indice, 2]
-      }
-    }
-  }
-  examples <- data.frame(cl = ycl, p = zp, id = xid)
+  examples <- data.frame(id = xid, cl = ycl)
   return (examples)
 }
 
@@ -266,10 +205,10 @@ flexConC <- function(learner, pred_func, min_exem_por_classe, limiar, method) {
   n_instancias_por_classe <- ddply(data, ~class, summarise,
                                    number_of_distinct_orders = length(class))
   n_classes <- NROW(n_instancias_por_classe) - 1
-  qtd_exemplos_rot <- 0 #qtd rotulados na interacao
-  total_rot <- 0 #qtd soma de todos rotulados
-  conj_treino <<- cleanVector(conj_treino) #nao vi utilizacao
-  treino_valido <<- FALSE #algum verificador do treinamento
+  qtd_exemplos_rot <- 0
+  total_rot <- 0
+  conj_treino <<- cleanVector(conj_treino)
+  treino_valido <<- FALSE
   classificar <- TRUE
   sup <- which(!is.na(data[, as.character(form[[2]])]))
   id_conj_treino <- cleanVector(id_conj_treino)
@@ -356,91 +295,48 @@ flexConC1 <- function(prob_preds_1_it, prob_preds, thr_conf, moda, it) {
   #   rotulados <- data.frame(id = prob_preds[new_samples, 3],
   #                           cl = prob_preds[new_samples, 1])
   # } else {
-
-  # os exemplos possuem a mesma classe na iteracao atual e na primeira iteracao e
-  # as taxas de confianca na iteracao atual e na primera iteracao sao maiores que o thrconf
   rotulados <- classCheck(prob_preds_1_it, prob_preds, thr_conf)
   len_rotulados <- getLength(rotulados$id)
   if (len_rotulados == 0) {
-    # exemplos possuem as mesmas classes e uma das confiancas é maior que o thrConf
     rotulados <- confidenceCheck(prob_preds_1_it, prob_preds, thr_conf)
     len_rotulados <- getLength(rotulados$id)
     if (len_rotulados == 0) {
-      #as classes sao diferentes, mas as duas confiancas sao maiores que thrConf      
       rotulados <- differentClassesCheck(prob_preds_1_it, prob_preds,
                                          thr_conf, moda)
       len_rotulados <- getLength(rotulados$id)
       if(len_rotulados == 0) {
-        #as classes sao diferentes, mas pelo menos uma das confiancas sao maiores que thrConf      
         rotulados <- differentConfidencesCheck(prob_preds_1_it, prob_preds,
                                                thr_conf, moda)
       }
     }
   }
-  #new_samples <- rotulados$id
-  return (rotulados)
+  new_samples <- rotulados$id
+  return (new_samples)
 }
 
-
-flexConC2 <- function(prob_preds_1_it, prob_preds, thr_conf) {
-  # os exemplos possuem a mesma classe na iteracao atual e na primeira iteracao e
-  # as taxas de confianca na iteracao atual e na primera iteracao sao maiores que o thrconf
-  rotulados <- classCheck(prob_preds_1_it, prob_preds, thr_conf)
-  len_rotulados <- getLength(rotulados$id)
-  if (len_rotulados == 0) {
-    # exemplos possuem as mesmas classes e uma das confiancas é maior que o thrConf
-    rotulados <- confidenceCheck(prob_preds_1_it, prob_preds, thr_conf)
-    len_rotulados <- getLength(rotulados$id)
-    if (len_rotulados == 0) {
-      #as classes sao diferentes, mas as duas confiancas sao maiores que thrConf      
-      rotulados <- differentClassesCheckC2(prob_preds_1_it, prob_preds,
-                                         thr_conf)
-      len_rotulados <- getLength(rotulados)
-      if (len_rotulados!=0){
+# FlexCon-C2 funtion
+flexConC2 <- function(prob_preds, prob_preds_superv, thr_conf) {
+  prob_preds <- convertProbPreds(prob_preds)
+  prob_preds_superv <- convertProbPreds(prob_preds_superv)
+  prob_preds_con <- (prob_preds[, 2] >= thr_conf)
+  prob_preds_superv_con <- (prob_preds_superv[, 2] >= thr_conf)
+  prob_preds_cl <- prob_preds[, 1]
+  prob_preds_superv_cl <-  prob_preds_superv[, 1]
+  new_samples <- which((prob_preds_con & prob_preds_superv_con)
+                       & (prob_preds_cl == prob_preds_superv_cl))
+  if (length(new_samples) == 0) {
+    new_samples <- which((prob_preds_con | prob_preds_superv_con)
+                         & (prob_preds_cl == prob_preds_superv_cl))
+    if (length(new_samples) == 0) {
+      new_samples <- which((prob_preds_con & prob_preds_superv_con)
+                           & (prob_preds_cl != prob_preds_superv_cl))
+      if (length(new_samples)) {
         add_rot_superv <<- TRUE
-      } 
-        
-      if(len_rotulados == 0) {
-        #as classes sao diferentes, mas pelo menos uma das confiancas sao maiores que thrConf      
-        rotulados <- differentConfidencesCheckC2(prob_preds_1_it, prob_preds,
-                                               thr_conf)
-        len_rotulados <- getLength(rotulados)
-        if (len_rotulados!=0){
-          add_rot_superv <<- TRUE
-        } 
-        
       }
     }
   }
-  #new_samples <- rotulados$id
-  return (rotulados)
+  return(new_samples)
 }
-
-#ESSA FUNCAO ESTA ERRADA PQ COMPARA 2 DATA FRAMES DE TAMANHOS DIFERENTES E O WHICH RETORNA
-#A QUANTIDADE DE EXEMPLOS DO MAIOR DATA FRAME
-# # FlexCon-C2 funtion
-# flexConC2 <- function(prob_preds, prob_preds_superv, thr_conf) {
-#   prob_preds <- convertProbPreds(prob_preds)
-#   prob_preds_superv <- convertProbPreds(prob_preds_superv)
-#   prob_preds_con <- (prob_preds[, 2] >= thr_conf)
-#   prob_preds_superv_con <- (prob_preds_superv[, 2] >= thr_conf)
-#   prob_preds_cl <- prob_preds[, 1]
-#   prob_preds_superv_cl <-  prob_preds_superv[, 1]
-#   new_samples <- which((prob_preds_con & prob_preds_superv_con)
-#                        & (prob_preds_cl == prob_preds_superv_cl))
-#   if (length(new_samples) == 0) {
-#     new_samples <- which((prob_preds_con | prob_preds_superv_con)
-#                          & (prob_preds_cl == prob_preds_superv_cl))
-#     if (length(new_samples) == 0) {
-#       new_samples <- which((prob_preds_con & prob_preds_superv_con)
-#                            & (prob_preds_cl != prob_preds_superv_cl))
-#       if (length(new_samples)) {
-#         add_rot_superv <<- TRUE
-#       }
-#     }
-#   }
-#   return(new_samples)
-# }
 
 func <- function(m, d) { #arg1 - naive
   p <- predict(m, d, type = "raw")
@@ -466,13 +362,6 @@ generateProbPreds <- function(pred_func, model, data, sup) {
 getAcc <- function(matrix, all) {
   acc <- ((sum(diag(matrix)) / all) * 100)
   return (acc)
-}
-
-getID <- function(base, sup){ #pegar o ID real no data
-  base_local <- base
-  base_local$id <- seq(1,nrow(base_local))
-  base_local <- base_local[-sup,]
-  return(base_local$id)
 }
 
 getDatabase <- function(pos) {
@@ -572,12 +461,11 @@ newBase <- function(base_rotulada, ids_treino_rot){
 }
 
 # Return the new confidence value changed by the cr value
-#cr=5 nem umas das condiçoes vao ser aceitas
-newConfidence <- function(acc_local, limiar, tx_conf) { 
-  if ((acc_local > (limiar + 1)) && ((tx_conf - cr/100) > 0.0)) {
-    tx_conf <- tx_conf - cr/100
-  } else if ((acc_local < (limiar - 1)) && ((tx_conf + cr/100) <= 1)) {
-    tx_conf <- tx_conf + cr/100
+newConfidence <- function(acc_local, limiar, tx_conf) {
+  if ((acc_local > (limiar + 1)) && ((tx_conf - cr) > 0.0)) {
+    tx_conf <- tx_conf - cr
+  } else if ((acc_local < (limiar - 1)) && ((tx_conf + cr) <= 1)) {
+    txConf <- tx_conf + cr
   }
   return (tx_conf)
 }
@@ -668,14 +556,9 @@ coTrainingOriginal <- function (learner, predFunc, data1, data2, metodo, k_fixo 
     
     model1 <- generateModel(learner, form, data1, sup1)
     model2 <- generateModel(learner, form, data2, sup2)
-    probPreds1 <- generateProbPreds(predFunc, model1, data1, sup2)
-    probPreds2 <- generateProbPreds(predFunc, model2, data2, sup1)
-    
-    id_data1 <- getID(data1,sup2)
-    id_data2 <- getID(data2,sup1)
-    probPreds1$id <- id_data1
-    probPreds2$id <- id_data2
-    
+    probPreds1 <- generateProbPreds(predFunc, model1, data1, sup1)
+    probPreds2 <- generateProbPreds(predFunc, model2, data2, sup2)
+
     if (k_fixo) { 
       #NAO VAMOS USAR ESSE K
       #quanidade de atributos = ao valor de K definido no inicio da funcao
@@ -688,20 +571,15 @@ coTrainingOriginal <- function (learner, predFunc, data1, data2, metodo, k_fixo 
     }
     else {
       #co-training adaptado para funcionar igual ao self-training de Felipe
-      qtd_add <- min(length(which(probPreds1[, 2] >= thrConf)), length(which(probPreds2[, 2] >= thrConf)))
+      qtd_add <- min(length(which(probPreds1[, 2] > thrConf)), length(which(probPreds2[, 2] > thrConf)))
     }
     #criando os vetores em ordem decrescente pela confianca
     probPreds1_ordenado <- order(probPreds1$p, decreasing = T)
     probPreds2_ordenado <- order(probPreds2$p, decreasing = T)
 
     if (qtd_add > 0) {
-      new_samples1 <- probPreds1[probPreds1_ordenado[1:qtd_add], -2]
-      new_samples2 <- probPreds2[probPreds2_ordenado[1:qtd_add], -2]
-      data1[(1:N)[new_samples2$id], as.character(form[[2]])] <- new_samples2$cl
-      data2[(1:N)[new_samples1$id], as.character(form[[2]])] <- new_samples1$cl
-      sup1 <- c(sup1, new_samples2$id)
-      sup2 <- c(sup2, new_samples1$id)
-      
+      new_samples1 <- probPreds1[probPreds1_ordenado[1:qtd_add], 3]
+      new_samples2 <- probPreds2[probPreds2_ordenado[1:qtd_add], 3]
     } else {
       new_samples1 <- cleanVector(new_samples1)
       new_samples2 <- cleanVector(new_samples2)
@@ -716,18 +594,39 @@ coTrainingOriginal <- function (learner, predFunc, data1, data2, metodo, k_fixo 
       nr_added_exs_g_o <<- c(nr_added_exs_g_o, qtd_add)
       tx_g_o <<- c(tx_g_o, taxa)
     }
+    if ((length(new_samples1)) && (length(new_samples2))) {
+      new_data1 <- data1[(1:N)[-sup1][new_samples2], as.character(form[[2]])]
+      new_data2 <- data2[(1:N)[-sup2][new_samples1], as.character(form[[2]])]
+      
+      new_data1 <- as.character(probPreds2[probPreds2_ordenado[1:qtd_add], 1])
+      new_data2 <- as.character(probPreds1[probPreds1_ordenado[1:qtd_add], 1])
+      
+    
+      #acertou <- 0
+      #acerto <- (treinamento[(1:N)[-sup][new_samples], as.character(form[2])] == new_data)
+      
+      #acertou <- length(which(acerto == T))
+
+      sup1 <- c(sup1, new_samples2)
+      sup2 <- c(sup2, new_samples1)
+      
+
+      acertou_g_o <<- c(acertou_g_o, acertou)
+    }
+    else {
+      acertou <- 0
+      acertou_g_o <<- c(acertou_g_o, acertou)
+      break
+    }
+    
     if (metodo ==3){#gradativo
-      if(qtd_add==0){ #se o 1 for zero o 2 tbm ser?
+      if(length(new_samples1)==0){ #se o 1 for zero o 2 tbm ser?
         thrConf<-min(max(probPreds1[,2]), max(probPreds2[,2]))
       }
+      
     }
-
     if ((it == maxIts) || ((length(sup1) / N) >= 1) || ((length(sup2) / N) >= 1) ) {
       break
-    }else{
-      if ((method ==2) & (qtd_add == 0)){
-          break
-      }
     }
   }
   model <- list(model1, model2)
@@ -746,40 +645,34 @@ coTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
   verbose <- T
   N <- NROW(data1)
   it <- 0
-  cobertura <- 0
-  #POSICAO DOS EXEMPLOS NA BASE DE TREINAMENTO
   sup1 <- which(!is.na(data1[, as.character(form[[2]])])) #exemplos inicialmente rotulados
   sup2 <- which(!is.na(data2[, as.character(form[[2]])])) #exemplos inicialmente rotulados
-  
-  moda1 <- matrix(data = rep(0,length(data1$class)),ncol = length(unique(base_original$class)), nrow = NROW(data1), byrow = TRUE, 
-                  dimnames = list(seq(1,nrow(data1)),unique(base_original$class)))
-  moda2 <- matrix(data = rep(0,length(data2$class)),ncol = length(unique(base_original$class)), nrow = NROW(data2), byrow = TRUE, 
-                  dimnames = list(seq(1,nrow(data2)),unique(base_original$class)))
-  
+  moda1 <- matrix(data = rep(0,length(base_original$class)),ncol = length(unique(base_original$class)), nrow = NROW(base_original), byrow = TRUE, 
+                   dimnames = list(row.names(base_original),unique(base_original$class)))
+  moda2 <- matrix(data = rep(0,length(base_original$class)),ncol = length(unique(base_original$class)), nrow = NROW(base_original), byrow = TRUE, 
+                  dimnames = list(row.names(base_original),unique(base_original$class)))
   repeat {
     new_samples1 <- cleanVector(new_samples1)
     new_samples2 <- cleanVector(new_samples2)
     acertou <- 0
     it <- it + 1
-
+    #cat("IT", it, "\n")
+    
     if ((it>1)&&(qtd_add>0)){
-      #foi acrescentado a virgula na parte data1[-sup1,] nas linhas abaixo
-      thrConf1 <- (thrConf1 + conf_media1 + cobertura)/3
-      thrConf2 <- (thrConf2 + conf_media2 + cobertura)/3
+      thrConf1 <- (thrConf1 + conf_media1 + (qtd_add/nrow(data1[-sup1])))/3
+      thrConf2 <- (thrConf2 + conf_media2 + (qtd_add/nrow(data2[-sup2])))/3
     }
     
     conf_media <- 0
     
     model1 <- generateModel(learner, form, data1, sup1)
     model2 <- generateModel(learner, form, data2, sup2)
-    probPreds1 <- generateProbPreds(predFunc, model1, data1, sup2)
-    probPreds2 <- generateProbPreds(predFunc, model2, data2, sup1)
+    probPreds1 <- generateProbPreds(predFunc, model1, data1, sup1)
+    probPreds2 <- generateProbPreds(predFunc, model2, data2, sup2)
     
-    id_data1 <- getID(data1,sup2)
-    id_data2 <- getID(data2,sup1)
-    probPreds1$id <- id_data1
-    probPreds2$id <- id_data2
     
+    indices1 <- row.names(probPreds1)   # pega o id de cada exemplo 
+    indices2 <- row.names(probPreds2)   # pega o id de cada exemplo 
     if (votacao){
       moda1 <- storageFashion(probPreds1, moda1) # Armazena a moda das classes
       moda2 <- storageFashion(probPreds2, moda2) # Armazena a moda das classes
@@ -791,39 +684,30 @@ coTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
     if(it == 1) {
       prob_preds1_1_it <<- probPreds1
       prob_preds2_1_it <<- probPreds2
-      novos1 <- which(probPreds1[ , 2] >= thrConf1)
-      novos2 <- which(probPreds2[ , 2] >= thrConf2)
-      new_samples1 <- probPreds1[novos1,]
-      new_samples2 <- probPreds2[novos2,]
+      new_samples1 <- which(probPreds1[ , 2] >= thrConf1)
+      new_samples2 <- which(probPreds2[ , 2] >= thrConf2)
+      rotulados1 <- data.frame(id = probPreds1[new_samples1, 3],
+                              cl = probPreds1[new_samples1, 1])
+      rotulados2 <- data.frame(id = probPreds2[new_samples2, 3],
+                              cl = probPreds2[new_samples2, 1])
+      new_samples1 <- rotulados1$id
+      new_samples2 <- rotulados2$id
     } else {
-      #retorna a posicao do exemplo no probpreds e a classe a ser atribuida
       new_samples1 <- flexConC1(prob_preds1_1_it, probPreds1, thrConf1, moda1, it)
       new_samples2 <- flexConC1(prob_preds2_1_it, probPreds2, thrConf2, moda2, it)
     }
-    
-    
     #co-training adaptado para funcionar igual ao self-training de Felipe
-    qtd_add <- min(nrow(new_samples1), nrow(new_samples2))
+    qtd_add <- min(length(new_samples1), length(new_samples2))
+
+
+    #criando os vetores em ordem decrescente pela confianca
+    probPreds1_ordenado <- order(probPreds1$p, decreasing = T)
+    probPreds2_ordenado <- order(probPreds2$p, decreasing = T)
+    
     if (qtd_add > 0) {
-      probPreds1_ordenado <- order(new_samples1$p, decreasing = T)
-      probPreds2_ordenado <- order(new_samples2$p, decreasing = T)
-      new_samples1 <- new_samples1[probPreds1_ordenado[1:qtd_add], ] #id da base de treinamento
-      new_samples2 <- new_samples2[probPreds2_ordenado[1:qtd_add], ] #id da base de treinamento
-      data1[(1:N)[new_samples2$id], as.character(form[[2]])] <- new_samples2$cl
-      data2[(1:N)[new_samples1$id], as.character(form[[2]])] <- new_samples1$cl
-      cobertura <- qtd_add/nrow(data1[-sup1,]) #é igual para as duas visoes
-
-      sup1 <- c(sup1, new_samples2$id)
-      sup2 <- c(sup2, new_samples1$id)
-      conf_media1 <- mean(probPreds1$p)
-      conf_media2 <- mean(probPreds2$p)
+      new_samples1 <- probPreds1[probPreds1_ordenado[1:qtd_add], 3]
+      new_samples2 <- probPreds2[probPreds2_ordenado[1:qtd_add], 3]
     } else {
-      if (nrow(new_samples1) == 0) { #se o 1 for zero o 2 tbm ser?
-        thrConf1 <- max(probPreds1[,2])
-      }
-      if (nrow(new_samples2) == 0) { #se o 1 for zero o 2 tbm ser?
-        thrConf2 <- max(probPreds2[,2])
-      }
       new_samples1 <- cleanVector(new_samples1)
       new_samples2 <- cleanVector(new_samples2)
     }
@@ -835,308 +719,37 @@ coTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
       nr_added_exs_g_o <<- c(nr_added_exs_g_o, qtd_add)
       tx_g_o <<- c(tx_g_o, taxa)
     }
-    if ((it == maxIts) || ((length(sup1) / N) >= 1)) {
-      break
+    if ((length(new_samples1)) && (length(new_samples2))) {
+      new_data1 <- data1[(1:N)[-sup1][new_samples2], as.character(form[[2]])]
+      new_data2 <- data2[(1:N)[-sup2][new_samples1], as.character(form[[2]])]
+      
+      new_data1 <- as.character(probPreds2[probPreds2_ordenado[1:qtd_add], 1])
+      new_data2 <- as.character(probPreds1[probPreds1_ordenado[1:qtd_add], 1])
+      
+      conf_media1 <- mean(probPreds1[new_samples1,2])
+      conf_media2 <- mean(probPreds2[new_samples2,2])
+      
+      sup1 <- c(sup1, new_samples2)
+      sup2 <- c(sup2, new_samples1)
+      
+      
+      acertou_g_o <<- c(acertou_g_o, acertou)
     }
-  }
-  model <- list(model1, model2)
-  return (model)
-}
-
-# Function co-Training FlexConC
-#@param metodo  5- FlexConC1s
-#               6- FlexConC1v
-#               7- FlexConC2
-coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2, method, min_exem_por_classe){#inicializar vatacao?
-  #inicializacao das variaveis
-  conf_media <- 0
-  form <- as.formula(paste(classe,'~', '.'))
-  #taxa de confianca inicial das duas visao
-  thrConf1 <- 0.95
-  thrConf2 <- 0.95
-  #numero maximo de interacao
-  maxIts <- 100 
-  verbose <- T #não sei o pq
-  #num de linhas da base a ser treinada
-  N <- NROW(data1)
-  it <- 0 #iniciando a variavel da interacao
-  conj_treino <<- cleanVector(conj_treino) 
-  conj_treino_antigo <<- cleanVector(conj_treino) 
-  conj_treino_local1 <- cleanVector(conj_treino_local1)
-  conj_treino_antigo1 <- cleanVector(conj_treino_antigo1)
-  conj_treino_local2 <- cleanVector(conj_treino_local2)
-  conj_treino_antigo2 <- cleanVector(conj_treino_antigo2)
-  
-  #sup1 = posicao do exemplo em data1
-  sup1 <- which(!is.na(data1[, as.character(form[[2]])])) #exemplos inicialmente rotulados (posição no vetor)
-  sup2 <- which(!is.na(data2[, as.character(form[[2]])])) #exemplos inicialmente rotulados (posição no vetor)
-  #FlexConC1
-  if ((method == "5") || (method == "6")) {
-    moda1 <- matrix(data = rep(0,length(data1$class)),ncol = length(unique(base_original$class)), nrow = NROW(data1), byrow = TRUE, 
-                    dimnames = list(seq(1,nrow(data1)),unique(base_original$class)))
-    moda2 <- matrix(data = rep(0,length(data2$class)),ncol = length(unique(base_original$class)), nrow = NROW(data2), byrow = TRUE, 
-                    dimnames = list(seq(1,nrow(data1)),unique(base_original$class)))
-  }
-  
-  # add_rot_superv <- FALSE #so utilizada pelo FlexConC2
-  #variaveis de uma verificacao 
-  
-  #so basta uma base pois ambas tem a mesma qtd de instancias por classe
-  n_instancias_por_classe <- ddply(data1, ~class, summarise,
-                                   number_of_distinct_orders = length(class))
-  n_classes <- NROW(n_instancias_por_classe) - 1
-  
-  treino_valido <<- FALSE 
-  # treino_valido1 <- FALSE 
-  # treino_valido2 <- FALSE 
-  
-  classificar <- TRUE
-  # classificar1 <- TRUE
-  # classificar2 <- TRUE
-
-  mudou_conj_treino <<- FALSE  
-  #laco de repeticao igual ao da funcao coTrainingFlexCon
-  repeat {
-    new_samples1 <- cleanVector(new_samples1)
-    new_samples2 <- cleanVector(new_samples2)
-    acertou <- 0
-    it <- it + 1
-    #cat("IT", it, "\n")
-    
-    #condicao para calcular a nova taxa de confianca
-    if ((it>1)&&(qtd_add>0)){
-      qtd_add = 0
-      
-      #gerando nova taxa de confiança para data1  
-      treino_valido <- validTraining(conj_treino_local1, n_classes, min_exem_por_classe)
-      classificar <- validClassification(treino_valido, conj_treino_antigo1, 
-                                          conj_treino_local1, n_classes, min_exem_por_classe)
-      #cat("TREINO_VALIDO1: ", treino_valido1, "CLASSIFICAR1: ", classificar1, "\n")
-      
-      if (mudou_conj_treino){
-        conj_treino_local1 <- conj_treino
-        conj_treino_antigo1 <- conj_treino_antigo
-        conj_treino <<- cleanVector(conj_treino)
-        conj_treino_antigo <<- cleanVector(conj_treino_antigo)
-      }
-      mudou_conj_treino <<- FALSE
-      
-      if(classificar) {
-          #caculo para nava taxa de confianca
-          acc_local1 <- calcLocalAcc(base_rotulados_ini1,conj_treino_local1)
-          thrConf1 <- newConfidence(acc_local1, limiar1, thrConf1)
-          
-      }
-      
-      
-      #gerando nova taxa de confiança para data2
-      treino_valido <- validTraining(conj_treino_local2, n_classes, min_exem_por_classe)
-      classificar <- validClassification(treino_valido, conj_treino_antigo2, 
-                                         conj_treino_local2, n_classes, min_exem_por_classe)
-      
-      if (mudou_conj_treino){
-        conj_treino_local2 <- conj_treino
-        conj_treino_antigo2 <- conj_treino_antigo
-        conj_treino <<- cleanVector(conj_treino)
-        conj_treino_antigo <<- cleanVector(conj_treino_antigo)
-      }
-      mudou_conj_treino <<- FALSE
-      
-      if(classificar) {
-        #caculo para nava taxa de confianca
-        acc_local2 <- calcLocalAcc(base_rotulados_ini2,conj_treino_local2)
-        thrConf2 <- newConfidence(acc_local2, limiar2, thrConf2)
-        
-      }
-    }
-    
-    # conf_media <- 0
-    
-    model1 <- generateModel(learner, form, data1, sup1)
-    model2 <- generateModel(learner, form, data2, sup2)
-    probPreds1 <- generateProbPreds(predFunc, model1, data1, sup2)
-    probPreds2 <- generateProbPreds(predFunc, model2, data2, sup1)
-    
-    id_data1 <- getID(data1,sup2)
-    id_data2 <- getID(data2,sup1)
-    #O id no probpreds passa a ser a posicao em data, ou seja, na base de treinamento completa (karliane)
-    probPreds1$id <- id_data1
-    probPreds2$id <- id_data2
-    
-    #Switch para verificar qual metodo vai ser utilizado
-    if(it == 1) {
-      prob_preds1_1_it <<- probPreds1
-      prob_preds2_1_it <<- probPreds2
-      novos1 <- which(probPreds1[ , 2] >= thrConf1)
-      novos2 <- which(probPreds2[ , 2] >= thrConf2)
-      new_samples1 <- probPreds1[novos1,]
-      new_samples2 <- probPreds2[novos2,]
-      
-      # prob_preds1_1_it <<- probPreds1
-      # prob_preds2_1_it <<- probPreds2
-      # new_samples1 <- which(probPreds1[ , 2] >= thrConf1) #(posição no vetor)
-      # new_samples2 <- which(probPreds2[ , 2] >= thrConf2) #(posição no vetor)
-      # rotulados1 <- data.frame(id = probPreds1[new_samples1, 3],
-      #                          cl = probPreds1[new_samples1, 1])
-      # rotulados2 <- data.frame(id = probPreds2[new_samples2, 3],
-      #                          cl = probPreds2[new_samples2, 1])
-      # new_samples1 <- rotulados1$id #substitui a posição no vetor pelo id do exemplo
-      # new_samples2 <- rotulados2$id #substitui a posição no vetor pelo id do exemplo
-    } else {
-      if ((method==5) || (method==6)){
-        if(method == 5){
-            moda1 <- storageSum(probPreds1, moda1)
-            moda2 <- storageSum(probPreds2, moda2)
-        }else if(method == 6){
-            moda1 <- storageFashion(probPreds1, moda1)
-            moda2 <- storageFashion(probPreds2, moda2)
-        }  
-          # retorna a posicao do exemplo no probpreds
-        new_samples1  <- flexConC1(prob_preds1_1_it, probPreds1, thrConf1, moda1, it)
-        new_samples2 <- flexConC1(prob_preds2_1_it, probPreds2, thrConf2, moda2, it)
-        # rot1  <- flexConC1(prob_preds1_1_it, probPreds1, thrConf1, moda1, it)
-        # rot2 <- flexConC1(prob_preds2_1_it, probPreds2, thrConf2, moda2, it)
-      }else if(method == 7){
-        new_samples1 <- flexConC2(prob_preds1_1_it, probPreds1, thrConf1)
-        new_samples2 <- flexConC2(prob_preds2_1_it, probPreds2, thrConf2)
-        # rot1 <- flexConC2(prob_preds1_1_it, probPreds1, thrConf1)
-        # rot2 <- flexConC2(prob_preds2_1_it, probPreds2, thrConf2)
-            
-      }
-        # new_samples1 <- rot1$id  #posicao no probpreds
-        # new_samples2 <- rot2$id  #posicao no probpreds
-        # probPreds1[new_samples1,1] <- rot1$cl
-        # probPreds2[new_samples2,1] <- rot2$cl
-    }
-    # qtd_add <- min(length(new_samples1), length(new_samples2))
-    qtd_add <- min(nrow(new_samples1), nrow(new_samples2))
-    
-    if (qtd_add>0){
-      probPreds1_ordenado <- order(new_samples1$p, decreasing = T)
-      probPreds2_ordenado <- order(new_samples2$p, decreasing = T)
-      new_samples1 <- new_samples1[probPreds1_ordenado[1:qtd_add], ] #id da base de treinamento
-      new_samples2 <- new_samples2[probPreds2_ordenado[1:qtd_add], ] #id da base de treinamento
-      data1[(1:N)[new_samples2$id], as.character(form[[2]])] <- new_samples2$cl
-      data2[(1:N)[new_samples1$id], as.character(form[[2]])] <- new_samples1$cl
-
-      conj_treino_antigo1 <- appendDataFrame(conj_treino_antigo1, conj_treino_local1)
-      conj_treino_local1 <- data1[(1:N)[new_samples2$id],]
-      #conj_treino_local1[,as.character(form[[2]])] <- new_data2
-      
-      conj_treino_antigo2 <- appendDataFrame(conj_treino_antigo2, conj_treino_local2)
-      conj_treino_local2 <- data2[(1:N)[new_samples1$id],]
-      #conj_treino_local2[,as.character(form[[2]])] <- new_data1
-      
-      sup1 <- c(sup1, new_samples2$id)
-      sup2 <- c(sup2, new_samples1$id)
-
-      # if (it==1){
-      #   #criando os vetores em ordem decrescente pela confianca
-      #   probPreds1_ordenado <- order(probPreds1$p, decreasing = T)
-      #   probPreds2_ordenado <- order(probPreds2$p, decreasing = T)
-      #   new_samples1 <- probPreds1[probPreds1_ordenado[1:qtd_add], 3] #posicao em data
-      #   new_samples2 <- probPreds2[probPreds2_ordenado[1:qtd_add], 3] #posicao em data
-      # }else{
-      #   probPreds1_new <- probPreds1[new_samples1,]
-      #   probPreds2_new <- probPreds2[new_samples2,]
-      #   probPreds1_ordenado <-  order(probPreds1_new$p, decreasing = T)
-      #   probPreds2_ordenado <-  order(probPreds2_new$p, decreasing = T)
-      #   new_samples1 <- probPreds1_new[probPreds1_ordenado[1:qtd_add],3] #posicao em data
-      #   new_samples2 <- probPreds2_new[probPreds2_ordenado[1:qtd_add],3] #posicao em data
-      # }
-    } else {
-      if (nrow(new_samples1) == 0) { #se o 1 for zero o 2 tbm ser?
+    else {
+      acertou <- 0
+      acertou_g_o <<- c(acertou_g_o, acertou)
+      if (length(new_samples1) == 0) { #se o 1 for zero o 2 tbm ser?
         thrConf1 <- max(probPreds1[,2])
-      }
-      if (nrow(new_samples2) == 0) { #se o 1 for zero o 2 tbm ser?
         thrConf2 <- max(probPreds2[,2])
       }
+    }
       
-      new_samples1 <- cleanVector(new_samples1)
-      new_samples2 <- cleanVector(new_samples2)
-    }
-    
-    
-    if (verbose) {
-      it_g_o <<- c(it_g_o, it)
-      bd_g_o <<- c(bd_g_o, bd_nome)
-      thrConf1_g_o <<- c(thrConf1_g_o, thrConf1)
-      thrConf2_g_o <<- c(thrConf2_g_o, thrConf2)
-      nr_added_exs_g_o <<- c(nr_added_exs_g_o, qtd_add)
-      tx_g_o <<- c(tx_g_o, taxa)
-    }
-    # if ((length(new_samples1)) && (length(new_samples2))) {
-    #   
-    #   #local onde add as novas tuplas classificas nessa interacao
-    #   #Para o FlexConCS deve colocar uma condicao para verificar
-    #   #   a Proporcao é mantida
-    #   new_data1 <- data1[(1:N)[new_samples2], as.character(form[[2]])]
-    #   new_data2 <- data2[(1:N)[new_samples1], as.character(form[[2]])]
-    #   
-    #   
-    #   #new_data possui as classes dos novos exemplos na mesma ordem do probpreds ordenado e do new_samples
-    #   if (add_rot_superv) { #condicao so sera satisfeita se for o FLexConC2
-    #     add_rot_superv <- FALSE
-    # 
-    #     id_novos1 <- probpreds1[probPreds1_ordenado[1:qtd_add], 3]
-    #     new_rot1 <- which(id_novos1==prob_preds1_1_it[,3])
-    #     new_data1 <- as.character(prob_preds1_1_it[new_rot1, 1])
-    # 
-    #     id_novos2 <- probpreds2[probPreds2_ordenado[1:qtd_add], 3]
-    #     new_rot2 <- which(id_novos2==prob_preds2_1_it[,3])
-    #     new_data2 <- as.character(prob_preds2_1_it[new_rot2, 1])
-    # 
-    #   } else {
-    #     #new_data <- as.character(prob_preds[new_samples, 1])
-    #     #data1[(1:N)[-sup1][new_samples2], as.character(form[[2]])] <- as.character(probPreds2[probPreds2_ordenado[1:qtd_add], 1])
-    # 
-    #     #!!!!!!!!!!!!!!     ATENÇÃO     !!!!!!!!!!!!!!!!!
-    #     #!!!!VARIAVEL AJUSTADA NO FLEXCON, SE FUNCIONAR PRECISA AJUSTAR AQUI TBM!!!
-    #     new_data1 <- as.character(probPreds2[probPreds2_ordenado[1:qtd_add], 1])
-    #     new_data2 <- as.character(probPreds1[probPreds1_ordenado[1:qtd_add], 1])
-    #   }
-    #   
-    #   data1[(1:N)[new_samples2], as.character(form[[2]])] <- new_data1
-    #   data2[(1:N)[new_samples1], as.character(form[[2]])] <- new_data2
-    #   
-    #   conf_media1 <- mean(probPreds1[probPreds1_ordenado[1:qtd_add],2])
-    #   conf_media2 <- mean(probPreds2[probPreds2_ordenado[1:qtd_add],2])
-    #   
-    #   conj_treino_antigo1 <- appendDataFrame(conj_treino_antigo1, conj_treino_local1)
-    #   conj_treino_local1 <- data1[(1:N)[new_samples1],]
-    #   conj_treino_local1[,as.character(form[[2]])] <- new_data2
-    # 
-    #   conj_treino_antigo2 <- appendDataFrame(conj_treino_antigo2, conj_treino_local2)
-    #   conj_treino_local2 <- data2[(1:N)[new_samples2],]
-    #   conj_treino_local2[,as.character(form[[2]])] <- new_data1
-    #   
-    # 
-    #   sup1 <- c(sup1, new_samples2)
-    #   sup2 <- c(sup2, new_samples1)
-    #   
-    #   id_data1 <- cleanVector(id_data1)
-    #   id_data2 <- cleanVector(id_data2)
-    #   #variavel acertou sempre vai ser 0 nao existe em momento algum a alteraçao de acertou
-    #   acertou_g_o <<- c(acertou_g_o, acertou)
-    # }
-    # else {
-    #   acertou <- 0
-    #   acertou_g_o <<- c(acertou_g_o, acertou)
-    #   if (length(new_samples1) == 0) { #se o 1 for zero o 2 tbm ser?
-    #     thrConf1 <- max(probPreds1[,2])
-    #     thrConf2 <- max(probPreds2[,2])
-    #   }
-    # }
-    #condicao de para do repeat
     if ((it == maxIts) || ((length(sup1) / N) >= 1)) {
       break
     }
   }
-  
   model <- list(model1, model2)
   return (model)
-  
-  
 }
 
 # Search in the 'moda' vector the higger value of the sample (sum or vote)
@@ -1156,7 +769,7 @@ searchClass <- function(i, moda) {
 storageFashion <- function(prob_preds, moda) {
   dist_classes <- unique(base_original$class)
   for (x in 1:NROW(prob_preds)) {
-    id <- as.numeric(prob_preds[x, ncol(prob_preds)])
+    id <- as.character(prob_preds[x, ncol(prob_preds)])
     for (y in 1:(length(dist_classes))) {
       if (as.character(prob_preds[x, 1]) == as.character(dist_classes[y])) {
         moda[id, dist_classes[y]] <- moda[id, dist_classes[y]] + 1
@@ -1180,7 +793,7 @@ storagePred <- function(predic, iterac) {
 storageSum <- function(prob_preds, moda) {
   dist_classes <- unique(base_original$class)
   for (x in 1:NROW(prob_preds)) {
-    id <- as.numeric(prob_preds[x, ncol(prob_preds)])
+    id <- as.character(prob_preds[x, ncol(prob_preds)])
     for (y in 1:length(dist_classes)) {
       if (as.character(prob_preds[x, 1]) == as.character(dist_classes[y])) {
         moda[id, dist_classes[y]] <- moda[id, dist_classes[y]] + prob_preds[x, 2]
@@ -1232,11 +845,6 @@ supModel <- function(cl, base_rotulados_ini){
 }
 
 #' @description Check if the classification if valid.
-#' se o treino for válido, a função apenas atribui o conj de treinamento antigo
-#' ao novo conj. de treinamento e limpa o conj. antigo.
-#' se o treino não for válido, a função junta o conj de treinamento antigo com o
-#' novo e chama a funcao validTraining para validar se os dois conjuntos juntos 
-#' podem ser treinados.
 #'
 #' @param treino_valido_i boolean for check if it's a valid train.
 #' @param in_conj_treino vector with the samples to train.
@@ -1247,19 +855,17 @@ supModel <- function(cl, base_rotulados_ini){
 #'
 #' @return a boolean to say if the classification is valid.
 #'
-validClassificationAntigo <- function(treino_valido_i, id_conj_treino,
+validClassification <- function(treino_valido_i, id_conj_treino,
                                 id_conj_treino_antigo, data, N_classes,
                                 min_exem_por_classe) {
   if (treino_valido_i) {
     conj_treino <<- data[id_conj_treino, ]
     id_conj_treino_antigo <<- c()
     classificar <- TRUE
-    mudou_conj_treino <<- TRUE
   } else if (length(id_conj_treino_antigo) >= 1) {
     conj_treino <<- rbind(data[id_conj_treino, ], data[id_conj_treino_antigo, ])
     id_conj_treino1 <- c(id_conj_treino, id_conj_treino_antigo)
     validTraining(data, id_conj_treino1, N_classes, min_exem_por_classe)
-    mudou_conj_treino <<- TRUE
     if (treino_valido) {
       classificar <- TRUE
     } else {
@@ -1271,31 +877,7 @@ validClassificationAntigo <- function(treino_valido_i, id_conj_treino,
   return(classificar)
 }
 
-validClassification <- function(treino_valido_i, conj_treino_antigo_local,
-                                conj_treino_local, N_classes, min_exem_por_classe) {
-  if (treino_valido_i) {
-    conj_treino <<- conj_treino_local
-    conj_treino_antigo <<- c()
-    classificar <- TRUE
-    mudou_conj_treino <<- TRUE
-  } else if (!is.null(nrow(conj_treino_antigo_local))) {
-    conj_treino <<- rbind(conj_treino_local, conj_treino_antigo_local)
-    treino_valido_i <- validTraining(conj_treino, N_classes, min_exem_por_classe)
-    mudou_conj_treino <<- TRUE
-    if (treino_valido_i) {
-      classificar <- TRUE
-    } else {
-      classificar <- FALSE
-    }
-  } else {
-    classificar <- FALSE
-  }
-  return(classificar)
-}
 #' @description Check if exists a min accetable samples per class.
-#' o treino só é válido se todas as classes estiverem representadas no conj.
-#' de treimento e se a quantidade de exemplos de cada classe for no mínimo (a qtdade
-#' de exemplos da classe com menor representação no conj. ini. rot.?)
 #'
 #' @param data the all dataset.
 #' @param id_conj_treino vector with the samples selectedes to train.
@@ -1304,30 +886,12 @@ validClassification <- function(treino_valido_i, conj_treino_antigo_local,
 #'
 #' @return a boolean to say if the training is valid.
 #'
-validTrainingAntigo <- function(data, id_conj_treino, Nclasses, min_exem_por_classe) {
-  exemplos_classe <- ddply(data[id_conj_treino, ], ~class, summarise,number_of_distinct_orders = length(class))
-  
-  treino_valido <- FALSE
-  if ((NROW(exemplos_classe)-1) == Nclasses) {
-    for (x in 1:(NROW(exemplos_classe)-1)) {
-      if (exemplos_classe$number_of_distinct_orders[x] >= min_exem_por_classe) {
-        treino_valido <- TRUE
-      } else {
-        treino_valido <- FALSE
-        return (treino_valido)
-      }
-    }
-    return (treino_valido)
-  }
-  return (treino_valido)
-}
-
-validTraining <- function(data, Nclasses, min_exem_por_classe) {
-  exemplos_classe <- ddply(data, ~class, summarise,number_of_distinct_orders = length(class))
-  
+validTraining <- function(data, id_conj_treino, Nclasses, min_exem_por_classe) {
+  exemplos_classe <- ddply(data[id_conj_treino, ], ~class, summarise,
+                                    number_of_distinct_orders = length(class))
   treino_valido <- FALSE
   if (NROW(exemplos_classe) == Nclasses) {
-    for (x in 1:(NROW(exemplos_classe))) {
+    for (x in 1:NROW(exemplos_classe)) {
       if (exemplos_classe$number_of_distinct_orders[x] >= min_exem_por_classe) {
         treino_valido <- TRUE
       } else {
