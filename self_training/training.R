@@ -2,7 +2,7 @@ my_learner <- obj[[cl]]
 my_function <- funcs[cl]
 classifier_name <- classifiers[cl]
 limiar1 <- supAcc(classifier_name, base_rotulados_ini1, base_rotulados_ini1)
-limiar2 <- supAcc(classifier_name, base_rotulados_ini2, base_rotulados_ini2)
+#limiar2 <- supAcc(classifier_name, base_rotulados_ini2, base_rotulados_ini2)
 
 num_row <- getLength(base_teste1$class)
 
@@ -39,21 +39,21 @@ num_row <- getLength(base_teste1$class)
 #                3 = co-training gradativo (k=limiar que diminui 5% a cada iteracao)
 #                4 = co-training FlexCon
 if ((method==1)||(method==2)||(method==3)){
-  co_training <- coTrainingOriginal(my_learner, my_function, base1, base2,metodo=method)
+  self_training <- selfTrainingOriginal(my_learner, my_function, base1, metodo=method)
 }else if (method==4){
-  co_training <- coTrainingFlexCon(my_learner, my_function, base1, base2, votacao)
+  self_training <- selfTrainingFlexCon(my_learner, my_function, base1, votacao)
 }else if ((method==5)||(method==6)||(method==7)){ # modificado add os novos metodos
-   co_training <- coTrainingFlexConC(my_learner, my_function, base1, base2, limiar1,limiar2, method, qtd_exem_menor_classe)
+  self_training <- selfTrainingFlexConC(my_learner, my_function, base1, limiar1, method, qtd_exem_menor_classe)
 
 }
 
-matrix_self_model1 <- confusionMatrix(co_training[[1]], base_teste1)
-matrix_self_model2 <- confusionMatrix(co_training[[2]], base_teste2)
+matrix_self_model1 <- confusionMatrix(self_training, base_teste1)
+#matrix_self_model2 <- confusionMatrix(co_training[[2]], base_teste2)
 partial_acc_self_model1 <- getAcc(matrix_self_model1, num_row)
-partial_acc_self_model2 <- getAcc(matrix_self_model2, num_row)
-acc_self <- appendVectors(acc_self, mean(c(partial_acc_self_model1, partial_acc_self_model2)))
-acc_co_v1 <- appendVectors(acc_co_v1, partial_acc_self_model1)
-acc_co_v2 <- appendVectors(acc_co_v2, partial_acc_self_model2)
+#partial_acc_self_model2 <- getAcc(matrix_self_model2, num_row)
+acc_self <- appendVectors(acc_self, partial_acc_self_model1)
+# acc_co_v1 <- appendVectors(acc_co_v1, partial_acc_self_model1)
+# acc_co_v2 <- appendVectors(acc_co_v2, partial_acc_self_model2)
 cat("\n Acerto global co-Training O. 1 Model (%) =", partial_acc_self_model1)
-cat("\n Acerto global co-Training O. 2 Model (%) =", partial_acc_self_model2)
-cat("\n Acerto global co-Training O.         (%) =", mean(c(partial_acc_self_model1, partial_acc_self_model2)))
+# cat("\n Acerto global co-Training O. 2 Model (%) =", partial_acc_self_model2)
+# cat("\n Acerto global co-Training O.         (%) =", mean(c(partial_acc_self_model1, partial_acc_self_model2)))

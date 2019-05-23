@@ -596,7 +596,7 @@ outputArchive <- function(cr, cl, nome_acc, method, acc_c1_s, acc_c1_v, acc_c2, 
   # flexcon_c1_s <- paste("flexcon_c1_S_", cl, "_", cr, extention, sep = "")
   # flexcon_c1_v <- paste("flexcon_c1_V_", cl, "_", cr, extention, sep = "")
   # flexcon_c2 <- paste("flexcon_c2_", cl, "_", cr, extention, sep = "")
-  self_training <- paste("co_training_", cl, "_", nome_acc, "_metodo_", method, "_", cr, extention, sep = "")
+  self_training <- paste("self_training_", cl, "_", nome_acc, "_metodo_", method, "_", cr, extention, sep = "")
 
   # acc_flexcon_c1_s <- matrix(acc_c1_s, ncol = 5, byrow = TRUE)
   # acc_flexcon_c1_v <- matrix(acc_c1_v, ncol = 5, byrow = TRUE)
@@ -635,7 +635,7 @@ criar_visao <- function(dados){
 #@param metodo - 1 = co-training original (k=10%)
 #                2 = co-training baseado no metodo de Felipe (k=limiar)
 #                3 = co-training gradativo (k=limiar que diminui 5% a cada iteracao)
-coTrainingOriginal <- function (learner, predFunc, data1, data2, metodo, k_fixo = T) {
+selfTrainingOriginal <- function (learner, predFunc, data1, metodo, k_fixo = T) {
   if (metodo==2){ #original igual ao de felipe
     k_fixo <- F
   }else if (metodo==3){ #gradativo
@@ -651,10 +651,10 @@ coTrainingOriginal <- function (learner, predFunc, data1, data2, metodo, k_fixo 
   N <- NROW(data1)
   it <- 0
   sup1 <- which(!is.na(data1[, as.character(form[[2]])])) #exemplos inicialmente rotulados
-  sup2 <- which(!is.na(data2[, as.character(form[[2]])])) #exemplos inicialmente rotulados
+  #sup2 <- which(!is.na(data2[, as.character(form[[2]])])) #exemplos inicialmente rotulados
   repeat {
     new_samples1 <- cleanVector(new_samples1)
-    new_samples2 <- cleanVector(new_samples2)
+    #new_samples2 <- cleanVector(new_samples2)
     acertou <- 0
     it <- it + 1
     
@@ -667,14 +667,14 @@ coTrainingOriginal <- function (learner, predFunc, data1, data2, metodo, k_fixo 
     }
     
     model1 <- generateModel(learner, form, data1, sup1)
-    model2 <- generateModel(learner, form, data2, sup2)
-    probPreds1 <- generateProbPreds(predFunc, model1, data1, sup2)
-    probPreds2 <- generateProbPreds(predFunc, model2, data2, sup1)
+    #model2 <- generateModel(learner, form, data2, sup2)
+    probPreds1 <- generateProbPreds(predFunc, model1, data1, sup1)
+    #probPreds2 <- generateProbPreds(predFunc, model2, data2, sup1)
     
-    id_data1 <- getID(data1,sup2)
-    id_data2 <- getID(data2,sup1)
+    id_data1 <- getID(data1,sup1)
+    #id_data2 <- getID(data2,sup1)
     probPreds1$id <- id_data1
-    probPreds2$id <- id_data2
+    #probPreds2$id <- id_data2
     
     if (k_fixo) { 
       #NAO VAMOS USAR ESSE K
@@ -688,23 +688,23 @@ coTrainingOriginal <- function (learner, predFunc, data1, data2, metodo, k_fixo 
     }
     else {
       #co-training adaptado para funcionar igual ao self-training de Felipe
-      qtd_add <- min(length(which(probPreds1[, 2] >= thrConf)), length(which(probPreds2[, 2] >= thrConf)))
+      qtd_add <- length(which(probPreds1[, 2] >= thrConf))
     }
     #criando os vetores em ordem decrescente pela confianca
     probPreds1_ordenado <- order(probPreds1$p, decreasing = T)
-    probPreds2_ordenado <- order(probPreds2$p, decreasing = T)
+    #probPreds2_ordenado <- order(probPreds2$p, decreasing = T)
 
     if (qtd_add > 0) {
       new_samples1 <- probPreds1[probPreds1_ordenado[1:qtd_add], -2]
-      new_samples2 <- probPreds2[probPreds2_ordenado[1:qtd_add], -2]
-      data1[(1:N)[new_samples2$id], as.character(form[[2]])] <- new_samples2$cl
-      data2[(1:N)[new_samples1$id], as.character(form[[2]])] <- new_samples1$cl
-      sup1 <- c(sup1, new_samples2$id)
-      sup2 <- c(sup2, new_samples1$id)
+      #new_samples2 <- probPreds2[probPreds2_ordenado[1:qtd_add], -2]
+      data1[(1:N)[new_samples1$id], as.character(form[[2]])] <- new_samples1$cl
+      #data2[(1:N)[new_samples1$id], as.character(form[[2]])] <- new_samples1$cl
+      sup1 <- c(sup1, new_samples1$id)
+      #sup2 <- c(sup2, new_samples1$id)
       
     } else {
       new_samples1 <- cleanVector(new_samples1)
-      new_samples2 <- cleanVector(new_samples2)
+      #new_samples2 <- cleanVector(new_samples2)
     }
 
     if (verbose) {
@@ -718,11 +718,11 @@ coTrainingOriginal <- function (learner, predFunc, data1, data2, metodo, k_fixo 
     }
     if (metodo ==3){#gradativo
       if(qtd_add==0){ #se o 1 for zero o 2 tbm ser?
-        thrConf<-min(max(probPreds1[,2]), max(probPreds2[,2]))
+        thrConf<-max(probPreds1[,2])
       }
     }
 
-    if ((it == maxIts) || ((length(sup1) / N) >= 1) || ((length(sup2) / N) >= 1) ) {
+    if ((it == maxIts) || ((length(sup1) / N) >= 1)) {
       break
     }else{
       if ((method ==2) & (qtd_add == 0)){
@@ -730,14 +730,14 @@ coTrainingOriginal <- function (learner, predFunc, data1, data2, metodo, k_fixo 
       }
     }
   }
-  model <- list(model1, model2)
+  model <- model1
   return (model)
 }
 
 # Function co-Training FlexCon
 #@param metodo - 1 = co-training FlexCon soma
 #                2 = co-training FlexCon Voto
-coTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
+selfTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
   conf_media <- 0
   form <- as.formula(paste(classe,'~', '.'))
   thrConf1 <- 0.95
@@ -847,7 +847,7 @@ coTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
 #@param metodo  5- FlexConC1s
 #               6- FlexConC1v
 #               7- FlexConC2
-coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2, method, min_exem_por_classe){#inicializar vatacao?
+selfTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2, method, min_exem_por_classe){#inicializar vatacao?
   #inicializacao das variaveis
   conf_media <- 0
   form <- as.formula(paste(classe,'~', '.'))
