@@ -77,7 +77,7 @@ setWorkspace <- function() {
   cl <- as.integer(args)
   ini_bd <- whichDB(join(c("self_training", classifiers[cl], "media")))
   
-  for(i in ini_bd:1) { #bases de dados #Iris=1
+  for(i in ini_bd:3) { #bases de dados #Iris=1
     base_original <- getDatabase(i)
     k_NN <- attKValue(base_original)
     qtd_exem_por_classe <- ddply(base_original, ~class, summarise,
@@ -86,10 +86,10 @@ setWorkspace <- function() {
     folds <- crossValidation(base_original, base_original$class)
     
     #No co-training era assim    
-    visao <- criar_visao(base_original)
-    dat1 <- visao[[1]]
-    dat2 <- visao[[2]]
-    #No self-training é assim
+    # visao <- criar_visao(base_original)
+    # dat1 <- visao[[1]]
+    # dat2 <- visao[[2]]
+    #No self-training ? assim
     dat1 <- base_original
     
 
