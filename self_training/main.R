@@ -50,7 +50,7 @@ setWorkspace <- function() {
 # 
 #PARA RODAR NO RSTUDIO COMENTA A PARTE ACIMA E DESCOMENTA A DE BAIXO
 
-  args <- 1 #classificador 1 = naive, 2=rpartxse, 3=ripper, 4=ibk
+  args <- 4 #classificador 1 = naive, 2=rpartxse, 3=ripper, 4=ibk
   method <<- 1 # 1 = co-training original (k=10%)  
                # 2 = co-training baseado no metodo de Felipe (k=limiar)
                # 3 = co-training gradativo (k=limiar que diminui 5% a cada iteracao)
@@ -77,7 +77,7 @@ setWorkspace <- function() {
   cl <- as.integer(args)
   ini_bd <- whichDB(join(c("self_training", classifiers[cl], "media")))
   
-  for(i in ini_bd:3) { #bases de dados #Iris=1
+  for(i in ini_bd:30) { #bases de dados #Iris=1
     base_original <- getDatabase(i)
     k_NN <- attKValue(base_original)
     qtd_exem_por_classe <- ddply(base_original, ~class, summarise,
@@ -135,7 +135,7 @@ setWorkspace <- function() {
         # todas_acc_co_v2 <- appendVectors(todas_acc_co_v2, acc_co_v2)
       }
     
-      data_arquivo_o <- data.frame(bd_g_o, tx_g_o, it_g_o, thrConf1_g_o, thrConf2_g_o,
+      data_arquivo_o <- data.frame(bd_g_o, tx_g_o, it_g_o, thrConf1_g_o, #thrConf2_g_o,
                                    nr_added_exs_g_o)#, acertou_g_o)
       outputArchive(cr, as.character(classifiers[cl]), nome_acc = "media", method=method, medias_c1_s, medias_c1_v,
                      medias_c2, medias_self) 
