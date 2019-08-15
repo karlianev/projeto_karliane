@@ -50,8 +50,8 @@ setWorkspace <- function() {
 # 
 #PARA RODAR NO RSTUDIO COMENTA A PARTE ACIMA E DESCOMENTA A DE BAIXO
 
-  args <- 2 #classificador 1 = naive, 2=rpartxse, 3=ripper, 4=ibk
-  method <<- 7 # 1 = co-training original (k=10%)  
+  args <- 1 #classificador 1 = naive, 2=rpartxse, 3=ripper, 4=ibk
+  method <<- 2 # 1 = co-training original (k=10%)  
                # 2 = co-training baseado no metodo de Felipe (k=limiar)
                # 3 = co-training gradativo (k=limiar que diminui 5% a cada iteracao)
                # 4 = co-training FlexCon SETAR A VARIAVEL VOTACAO
@@ -75,7 +75,7 @@ setWorkspace <- function() {
   todas_acc_co_v2 <- cleanVector(todas_acc_co_v2)
 
   cl <- as.integer(args)
-  ini_bd <- whichDB(join(c("co_training", classifiers[cl], "visao2")))
+  ini_bd <- 1 #whichDB(join(c("co_training", classifiers[cl], "visao2")))
   
   for(i in ini_bd:30) { #bases de dados #Iris=1
     base_original <- getDatabase(i)

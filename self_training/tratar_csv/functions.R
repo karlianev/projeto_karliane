@@ -1,10 +1,10 @@
 setWorkspace <- function(diretorio) {
   mySystem <- Sys.info()
   if (mySystem[[1]] == "Linux") {
-    caminho <- paste(c("~/R/karliane/projeto_karliane/co_training\\", diretorio), sep="", collapse = "", row.names(FALSE))
+    caminho <- paste(c("~/R/karliane/projeto_karliane/self_training\\", diretorio), sep="", collapse = "", row.names(FALSE))
     setwd(caminho)
   } else {
-    caminho <- paste(c("C:\\Users\\karliane\\Dropbox\\doutorado\\tese\\resultados co-training\\", diretorio), sep="", collapse = "", row.names(FALSE))
+    caminho <- paste(c("C:\\Users\\karliane\\Dropbox\\doutorado\\tese\\Resultados finais tese\\resultados self-training\\", diretorio), sep="", collapse = "", row.names(FALSE))
     setwd(caminho)
   }
 }

@@ -4,7 +4,7 @@ setWorkspace <- function(diretorio) {
     caminho <- paste(c("~/R/karliane/projeto_karliane/co_training\\", diretorio), sep="", collapse = "", row.names(FALSE))
     setwd(caminho)
   } else {
-    caminho <- paste(c("C:\\Users\\karliane\\Dropbox\\doutorado\\tese\\resultados co-training\\", diretorio), sep="", collapse = "", row.names(FALSE))
+    caminho <- paste(c("C:\\Users\\karliane\\Dropbox\\doutorado\\tese\\Resultados finais tese\\resultados co-training\\", diretorio), sep="", collapse = "", row.names(FALSE))
     setwd(caminho)
   }
 }

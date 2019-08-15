@@ -33,7 +33,7 @@ if (metodo==1){
 
 
 setWorkspace(nome_diretorio)
-nome_arquivo <- "co_training_rpartXse_media_metodo_7_5.CSV"
+nome_arquivo <- "co_training_IBk_media_metodo_7_5.CSV"
 #? necessario alterar o csv acrescentando um nome de coluna
 #atribui os dados a uma matriz
 dados <- as.matrix(read.csv(nome_arquivo))

@@ -918,6 +918,7 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
       
       if(classificar) {
           #caculo para nava taxa de confianca
+          #limiar1 = acurácia de um classificador treinado e testado com os dados inicialmente rotulados
           acc_local1 <- calcLocalAcc(base_rotulados_ini1,conj_treino_local1)
           thrConf1 <- newConfidence(acc_local1, limiar1, thrConf1)
           
