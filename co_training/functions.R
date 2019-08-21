@@ -818,12 +818,16 @@ coTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
       conf_media1 <- mean(probPreds1$p)
       conf_media2 <- mean(probPreds2$p)
     } else {
-      if (nrow(new_samples1) == 0) { #se o 1 for zero o 2 tbm ser?
-        thrConf1 <- max(probPreds1[,2])
-      }
-      if (nrow(new_samples2) == 0) { #se o 1 for zero o 2 tbm ser?
-        thrConf2 <- max(probPreds2[,2])
-      }
+      
+      #comentado o código que atribui ao limiar a maior taxa de confiança na predição
+      #codigo alterado para parar no momento em que a qtdade de exemplos incluidos for zero
+      it <- maxIts
+      # if (nrow(new_samples1) == 0) { #se o 1 for zero o 2 tbm ser?
+      #   thrConf1 <- max(probPreds1[,2])
+      # }
+      # if (nrow(new_samples2) == 0) { #se o 1 for zero o 2 tbm ser?
+      #   thrConf2 <- max(probPreds2[,2])
+      # }
       new_samples1 <- cleanVector(new_samples1)
       new_samples2 <- cleanVector(new_samples2)
     }
@@ -918,7 +922,7 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
       
       if(classificar) {
           #caculo para nava taxa de confianca
-          #limiar1 = acur�cia de um classificador treinado e testado com os dados inicialmente rotulados
+          #limiar1 = acur?cia de um classificador treinado e testado com os dados inicialmente rotulados
           acc_local1 <- calcLocalAcc(base_rotulados_ini1,conj_treino_local1)
           thrConf1 <- newConfidence(acc_local1, limiar1, thrConf1)
           

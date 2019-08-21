@@ -1,9 +1,12 @@
 appendVectors2 <- function(v1, v2) {
   return (c(v1, v2))
 }
-
 appendVectors4 <- function(v1, v2, v3, v4) {
   return (c(v1, v2, v3, v4))
+}
+
+appendVectors5 <- function(v1, v2, v3, v4, v5) {
+  return (c(v1, v2, v3, v4, v5))
 }
 
 appendVectors6 <- function(v1, v2, v3, v4, v5, v6) {
@@ -24,10 +27,11 @@ cleanVector <- function(x) {
 }
 
 setwd("C:\\Users\\karliane\\Dropbox\\doutorado\\tese\\Resultados finais tese\\resultados co-training\\metodo 2_limiar_completo")
-result <- read.csv("resultado_rpartXse_metodo_2_095.csv")
-nome_arq_acc <- "co_training_rpartXse_media_metodo_2_5.csv"
+result <- read.csv("resultado_JRip_metodo_2_095.csv")
+nome_arq_acc <- "co_training_JRip_media_metodo_2_5.csv"
 acc <- read.csv(nome_arq_acc)
 nome_csv_saida <- paste(c("analise",nome_arq_acc, ".csv"),collapse = "_")
+
 
 qtd_rot <- 0
 dados_csv <- cleanVector(dados_csv)
@@ -36,6 +40,7 @@ base <- cleanVector(base)
 perc <- cleanVector(perc)
 it <- cleanVector(it)
 qtd_rot <- cleanVector(qtd_rot)
+tx_conf <- cleanVector(tx_conf)
 base <- "karliane"
 
 for (i in 1:nrow(result)){
@@ -43,34 +48,40 @@ for (i in 1:nrow(result)){
   #se mudar a base de dados
   if (as.character(base)!=as.character(result[i,1])){
     if (as.character(base) !="karliane"){
-      dados <- appendVectors4 (as.character(base), perc,it,qtd_rot)
+      dados <- appendVectors5 (as.character(base), perc,it,tx_conf,qtd_rot)
       dados_csv <- appendDataFrame(dados_csv, dados)
     }
     base <- as.character(result[i,1])
     perc <- result[i,2]
     it <- result[i,3]
+    tx_conf <- result[i,5]
     qtd_rot <- result[i,6]
     cat("\n base:", base)
   }else 
-    # se NÃO mudar a base e mudar o percentual
+    # se N?O mudar a base e mudar o percentual
     if (perc!=result[i,2]){
-      dados <- appendVectors4 (as.character(base), perc,it,qtd_rot)
+      dados <- appendVectors5 (as.character(base), perc,it,tx_conf,qtd_rot)
+      # dados <- appendVectors4 (as.character(base), perc,it,qtd_rot)
       dados_csv <- appendDataFrame(dados_csv, dados)
       perc <- result[i,2]
       it <- result[i,3]
+      tx_conf <- result[i,5]
       qtd_rot <- result[i,6]
     }else 
-      #se NÃO mudar a base, NÃO mudar o percentual e for a primeira iteração  
+      #se N?O mudar a base, N?O mudar o percentual e for a primeira itera??o  
       if (result[i,3]==1){
-        dados <- appendVectors4(as.character(base), perc,it,qtd_rot)
+        dados <- appendVectors5(as.character(base), perc,it,tx_conf,qtd_rot)
+        # dados <- appendVectors4 (as.character(base), perc,it,qtd_rot)
         dados_csv <- appendDataFrame(dados_csv, dados)
         it <- result[i,3]
+        tx_conf <- result[i,5]
         qtd_rot <- result[i,6]
       }else
         qtd_rot <- qtd_rot + result[i,6]
         it <- result[i,3]
         if (i==nrow(result)){
-          dados <- appendVectors4 (as.character(base), perc,it,qtd_rot)
+          dados <- appendVectors5 (as.character(base), perc,it,tx_conf,qtd_rot)
+          # dados <- appendVectors4 (as.character(base), perc,it,qtd_rot)
           dados_csv <- appendDataFrame(dados_csv, dados)
         }
 }
@@ -81,6 +92,7 @@ acc10 <- cleanVector(acc10)
 acc15 <- cleanVector(acc15)
 acc20 <- cleanVector(acc20)
 acc25 <- cleanVector(acc25)
+base <-  cleanVector(base)
 
 base_anterior <- as.character(acc[1,1])
   for (j in 1:nrow(acc)){
