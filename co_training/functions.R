@@ -819,15 +819,17 @@ coTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
       conf_media2 <- mean(probPreds2$p)
     } else {
       
-      #comentado o código que atribui ao limiar a maior taxa de confiança na predição
-      #codigo alterado para parar no momento em que a qtdade de exemplos incluidos for zero
-      it <- maxIts
-      # if (nrow(new_samples1) == 0) { #se o 1 for zero o 2 tbm ser?
-      #   thrConf1 <- max(probPreds1[,2])
-      # }
-      # if (nrow(new_samples2) == 0) { #se o 1 for zero o 2 tbm ser?
-      #   thrConf2 <- max(probPreds2[,2])
-      # }
+      #podemos comentar o código que atribui ao limiar a maior taxa de confiança na predição
+      #para parar no momento em que a qtdade de exemplos incluidos for zero
+      #isso justificará o limiar fixo ser o melhor do co-training
+      #it <- maxIts
+      
+      if (nrow(new_samples1) == 0) { #se o 1 for zero o 2 tbm ser?
+        thrConf1 <- max(probPreds1[,2])
+      }
+      if (nrow(new_samples2) == 0) { #se o 1 for zero o 2 tbm ser?
+        thrConf2 <- max(probPreds2[,2])
+      }
       new_samples1 <- cleanVector(new_samples1)
       new_samples2 <- cleanVector(new_samples2)
     }
