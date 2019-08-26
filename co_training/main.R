@@ -75,7 +75,7 @@ setWorkspace <- function() {
   todas_acc_co_v2 <- cleanVector(todas_acc_co_v2)
 
   cl <- as.integer(args)
-  ini_bd <- 1 #whichDB(join(c("co_training", classifiers[cl], "visao2")))
+  ini_bd <- whichDB(join(c("co_training", classifiers[cl], "visao2")))
   
   for(i in ini_bd:30) { #bases de dados #Iris=1
     base_original <- getDatabase(i)
