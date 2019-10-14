@@ -1,3 +1,4 @@
+# script que analisa a quantidade de instancias rotuladas no co-training limiar fixo
 appendVectors2 <- function(v1, v2) {
   return (c(v1, v2))
 }

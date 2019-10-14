@@ -841,6 +841,7 @@ coTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
       nr_added_exs_g_o <<- c(nr_added_exs_g_o, qtd_add)
       tx_g_o <<- c(tx_g_o, taxa)
     }
+    # if ((it == maxIts)|| (thrConf1<0.5) || (thrConf2<0.5) || ((length(sup1) / N) >= 1)) {
     if ((it == maxIts) || ((length(sup1) / N) >= 1)) {
       break
     }
