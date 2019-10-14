@@ -1048,6 +1048,232 @@ coTrainingFlexConC <- function(learner, predFunc, data1, data2, limiar1, limiar2
   
 }
 
+coTrainingFlexConCS <- function(learner, predFunc, data1, data2, limiar1, limiar2, method, min_exem_por_classe){#inicializar vatacao?
+  #inicializacao das variaveis
+  conf_media <- 0
+  form <- as.formula(paste(classe,'~', '.'))
+  #taxa de confianca inicial das duas visao
+  thrConf1 <- 0.95
+  thrConf2 <- 0.95
+  #numero maximo de interacao
+  maxIts <- 100 
+  verbose <- T #não sei o pq
+  #num de linhas da base a ser treinada
+  N <- NROW(data1)
+  it <- 0 #iniciando a variavel da interacao
+  conj_treino <<- cleanVector(conj_treino) 
+  conj_treino_antigo <<- cleanVector(conj_treino) 
+  conj_treino_local1 <- cleanVector(conj_treino_local1)
+  conj_treino_antigo1 <- cleanVector(conj_treino_antigo1)
+  conj_treino_local2 <- cleanVector(conj_treino_local2)
+  conj_treino_antigo2 <- cleanVector(conj_treino_antigo2)
+  
+  #sup1 = posicao do exemplo em data1
+  sup1 <- which(!is.na(data1[, as.character(form[[2]])])) #exemplos inicialmente rotulados (posição no vetor)
+  sup2 <- which(!is.na(data2[, as.character(form[[2]])])) #exemplos inicialmente rotulados (posição no vetor)
+  #FlexConC1
+  if ((method == "8") || (method == "9")) {
+    moda1 <- matrix(data = rep(0,length(data1$class)),ncol = length(unique(base_original$class)), nrow = NROW(data1), byrow = TRUE, 
+                    dimnames = list(seq(1,nrow(data1)),unique(base_original$class)))
+    moda2 <- matrix(data = rep(0,length(data2$class)),ncol = length(unique(base_original$class)), nrow = NROW(data2), byrow = TRUE, 
+                    dimnames = list(seq(1,nrow(data1)),unique(base_original$class)))
+  }
+  
+  # add_rot_superv <- FALSE #so utilizada pelo FlexConC2
+  #variaveis de uma verificacao 
+  
+  #so basta uma base pois ambas tem a mesma qtd de instancias por classe
+  n_instancias_por_classe <- ddply(data1, ~class, summarise,
+                                   number_of_distinct_orders = length(class))
+  n_classes <- NROW(n_instancias_por_classe) - 1
+  
+  treino_valido <<- FALSE 
+  
+  classificar <- TRUE
+  
+  mudou_conj_treino <<- FALSE
+  
+  #inicialmete rotulados s�o iguais pra ambos
+  inicialmente_rot <- sup1
+  taxa_de_perda = 0.02
+  
+  #laco de repeticao igual ao da funcao coTrainingFlexCon
+  repeat {
+    new_samples1 <- cleanVector(new_samples1)
+    new_samples2 <- cleanVector(new_samples2)
+    acertou <- 0
+    it <- it + 1
+    #cat("IT", it, "\n")
+    
+    #condicao para calcular a nova taxa de confianca
+    if ((it>1)&&(sum(qtd_add)>0)){
+      qtd_add_1 <- cleanVector(qtd_add_1)
+      qtd_add_2 <- cleanVector(qtd_add_2)
+      qtd_add <- cleanVector(qtd_add)
+      
+      #gerando nova taxa de confiança para data1  
+      treino_valido <- validTraining(conj_treino_local1, n_classes, min_exem_por_classe)
+      classificar <- validClassification(treino_valido, conj_treino_antigo1, 
+                                         conj_treino_local1, n_classes, min_exem_por_classe)
+      
+      if (mudou_conj_treino){
+        conj_treino_local1 <- conj_treino
+        conj_treino_antigo1 <- conj_treino_antigo
+        conj_treino <<- cleanVector(conj_treino)
+        conj_treino_antigo <<- cleanVector(conj_treino_antigo)
+      }
+      mudou_conj_treino <<- FALSE
+      
+      if(classificar) {
+        #caculo para nava taxa de confianca
+        #limiar1 = acur?cia de um classificador treinado e testado com os dados inicialmente rotulados
+        acc_local1 <- calcLocalAcc(base_rotulados_ini1,conj_treino_local1)
+        thrConf1 <- newConfidence(acc_local1, limiar1, thrConf1)
+        
+      }
+      
+      
+      #gerando nova taxa de confiança para data2
+      treino_valido <- validTraining(conj_treino_local2, n_classes, min_exem_por_classe)
+      classificar <- validClassification(treino_valido, conj_treino_antigo2, 
+                                         conj_treino_local2, n_classes, min_exem_por_classe)
+      
+      if (mudou_conj_treino){
+        conj_treino_local2 <- conj_treino
+        conj_treino_antigo2 <- conj_treino_antigo
+        conj_treino <<- cleanVector(conj_treino)
+        conj_treino_antigo <<- cleanVector(conj_treino_antigo)
+      }
+      mudou_conj_treino <<- FALSE
+      
+      if(classificar) {
+        #caculo para nava taxa de confianca
+        acc_local2 <- calcLocalAcc(base_rotulados_ini2,conj_treino_local2)
+        thrConf2 <- newConfidence(acc_local2, limiar2, thrConf2)
+        
+      }
+    }
+    
+    # conf_media <- 0
+    
+    model1 <- generateModel(learner, form, data1, sup1)
+    model2 <- generateModel(learner, form, data2, sup2)
+    probPreds1 <- generateProbPreds(predFunc, model1, data1, sup2)
+    probPreds2 <- generateProbPreds(predFunc, model2, data2, sup1)
+    
+    id_data1 <- getID(data1,sup2)
+    id_data2 <- getID(data2,sup1)
+    #O id no probpreds passa a ser a posicao em data, ou seja, na base de treinamento completa (karliane)
+    probPreds1$id <- id_data1
+    probPreds2$id <- id_data2
+    
+    #Switch para verificar qual metodo vai ser utilizado
+    if(it == 1) {
+      prob_preds1_1_it <<- probPreds1
+      prob_preds2_1_it <<- probPreds2
+      novos1 <- which(probPreds1[ , 2] >= thrConf1)
+      novos2 <- which(probPreds2[ , 2] >= thrConf2)
+      new_samples1 <- probPreds1[novos1,]
+      new_samples2 <- probPreds2[novos2,]
+      
+    } else {
+      if ((method==8) || (method==9)){
+        if(method == 8){
+          moda1 <- storageSum(probPreds1, moda1)
+          moda2 <- storageSum(probPreds2, moda2)
+        }else if(method == 9){
+          moda1 <- storageFashion(probPreds1, moda1)
+          moda2 <- storageFashion(probPreds2, moda2)
+        }  
+        # retorna a posicao do exemplo no probpreds
+        new_samples1  <- flexConC1(prob_preds1_1_it, probPreds1, thrConf1, moda1, it)
+        new_samples2 <- flexConC1(prob_preds2_1_it, probPreds2, thrConf2, moda2, it)
+        
+        
+      }else if(method == 10){
+        new_samples1 <- flexConC2(prob_preds1_1_it, probPreds1, thrConf1)
+        new_samples2 <- flexConC2(prob_preds2_1_it, probPreds2, thrConf2)
+        
+      }
+    }
+    
+    new_samples1 <- tratar_dados(new_samples1,data1[inicialmente_rot,],prob_preds1_1_it, probPreds1, thrConf1, moda1, it,taxa_de_perda)
+    new_samples2 <- tratar_dados(new_samples2,data2[inicialmente_rot,],prob_preds2_1_it, probPreds2, thrConf2, moda2, it,taxa_de_perda)
+    
+    
+    qtd_add_1 <- prop(new_samples1, data1[inicialmente_rot,])
+    qtd_add_2 <- prop(new_samples2, data2[inicialmente_rot,])
+    
+    #quantidade de add tem que ser igual para duas visoes
+    
+    if(sum(qtd_add_1) > sum(qtd_add_2)){
+      qtd_add <- qtd_add_2
+    }else{
+      qtd_add <- qtd_add_1
+    }
+    
+    # qtd_add <- min(length(new_samples1), length(new_samples2))
+    #qtd_add <- min(nrow(new_samples1), nrow(new_samples2))
+    
+    if (sum(qtd_add)>0){
+      # probPreds1_ordenado <- order(new_samples1$p, decreasing = T)
+      #probPreds2_ordenado <- order(new_samples2$p, decreasing = T)
+      #new_samples1 <- new_samples1[probPreds1_ordenado[1:qtd_add], ] #id da base de treinamento
+      #new_samples2 <- new_samples2[probPreds2_ordenado[1:qtd_add], ] #id da base de treinamento
+      new_samples1 <- estratificar_rot(new_samples1,qtd_add)
+      new_samples2 <- estratificar_rot(new_samples2,qtd_add)
+      
+      data1[(1:N)[new_samples2$id], as.character(form[[2]])] <- new_samples2$cl
+      data2[(1:N)[new_samples1$id], as.character(form[[2]])] <- new_samples1$cl
+      
+      conj_treino_antigo1 <- appendDataFrame(conj_treino_antigo1, conj_treino_local1)
+      conj_treino_local1 <- data1[(1:N)[new_samples2$id],]
+      
+      
+      conj_treino_antigo2 <- appendDataFrame(conj_treino_antigo2, conj_treino_local2)
+      conj_treino_local2 <- data2[(1:N)[new_samples1$id],]
+      
+      
+      sup1 <- c(sup1, new_samples2$id)
+      sup2 <- c(sup2, new_samples1$id)
+      
+    } 
+    #else {
+    #   if (nrow(new_samples1) == 0) { #se o 1 for zero o 2 tbm ser?
+    #     thrConf1 <- max(probPreds1[,2])
+    #   }
+    #   if (nrow(new_samples2) == 0) { #se o 1 for zero o 2 tbm ser?
+    #     thrConf2 <- max(probPreds2[,2])
+    #   }
+    #   
+    #   new_samples1 <- cleanVector(new_samples1)
+    #   new_samples2 <- cleanVector(new_samples2)
+    # }
+    
+    qtd_add <-sum(qtd_add)
+    
+    if (verbose) {
+      it_g_o <<- c(it_g_o, it)
+      bd_g_o <<- c(bd_g_o, bd_nome)
+      thrConf1_g_o <<- c(thrConf1_g_o, thrConf1)
+      thrConf2_g_o <<- c(thrConf2_g_o, thrConf2)
+      nr_added_exs_g_o <<- c(nr_added_exs_g_o, qtd_add)
+      tx_g_o <<- c(tx_g_o, taxa)
+    }
+    #condicao de para do repeat
+    if ((it == maxIts) || ((length(sup1) / N) >= 1) || (qtd_add == 0)) {
+      break
+    }
+  }
+  
+  model <- list(model1, model2)
+  return (model)
+  
+  
+}
+
+
+
 # Search in the 'moda' vector the higger value of the sample (sum or vote)
 searchClass <- function(i, moda) {
   maior <- 0
@@ -1065,13 +1291,17 @@ searchClass <- function(i, moda) {
 storageFashion <- function(prob_preds, moda) {
   dist_classes <- unique(base_original$class)
   for (x in 1:NROW(prob_preds)) {
-    id <- as.numeric(prob_preds[x, ncol(prob_preds)])
-    for (y in 1:(length(dist_classes))) {
-      if (as.character(prob_preds[x, 1]) == as.character(dist_classes[y])) {
-        moda[id, dist_classes[y]] <- moda[id, dist_classes[y]] + 1
-        break
-      }
-    }
+    id <- cleanVector()
+    cl <-cleanVector()
+    id <- as.numeric(prob_preds[x, 3])
+    cl <- as.character(prob_preds[x, 1])
+    # for (y in 1:(length(dist_classes))) {
+    #   if (as.character(prob_preds[x, 1]) == as.character(dist_classes[y])) {
+    moda[id, cl] <- moda[id, cl] + 1
+    # 
+    #     break
+    #   }
+    # }
   }
   return (moda)
 }
@@ -1089,13 +1319,17 @@ storagePred <- function(predic, iterac) {
 storageSum <- function(prob_preds, moda) {
   dist_classes <- unique(base_original$class)
   for (x in 1:NROW(prob_preds)) {
-    id <- as.numeric(prob_preds[x, ncol(prob_preds)])
-    for (y in 1:length(dist_classes)) {
-      if (as.character(prob_preds[x, 1]) == as.character(dist_classes[y])) {
-        moda[id, dist_classes[y]] <- moda[id, dist_classes[y]] + prob_preds[x, 2]
-        break
-      }
-    }
+    id <- cleanVector()
+    cl <-cleanVector()
+    id <- as.numeric(prob_preds[x, 3])
+    cl <- as.character(prob_preds[x, 1])
+    #for (y in 1:length(dist_classes)) {
+    # if (as.character(prob_preds[x, 1]) == as.character(dist_classes[y])) {
+    
+    moda[id, cl] <- moda[id, cl] + prob_preds[x, 2]
+    #  break
+    #   }
+    # }
   }
   return (moda)
 }
@@ -1257,3 +1491,163 @@ whichDB <- function(pattern) {
   }, 
   error = function(setIniBd){return(1)})
 }
+
+tratar_dados <- function(new_samples,base_rotulados_ini,prob_preds_1_it,probPreds,thrConf,moda,it,taxa_de_perda){
+  classes_dist <- unique(base_rotulados_ini$class) # Classes distintas na base inicial
+  #classes_dist_pp <- unique(probPreds$cl)          # Classes distintas no probPreds
+  classes_dist_rot <- unique(new_samples$cl)         # Classes distintas no conjunto dos rotulados
+  novos_rotulados <- new_samples
+  
+  epoch <- 1
+  # Enquanto o (((numero de classes do probPreds for maior que dos rotulados) ou (as classes são diferentes) e 
+  # (o limiar maior que a confiança m�???nima do probPreds)) e (esteja dentro do limite de iteracoes))
+  
+  
+  while((((length(classes_dist_rot) < length(classes_dist)) || analyzeClasses(classes_dist,classes_dist_rot))
+         && (thrConf > min(probPreds$p))) && epoch <= 15){
+    
+    thrConf <- thrConf - taxa_de_perda
+    if(thrConf < min(probPreds$p)){
+      thrConf <- min(probPreds$p)
+    }
+    
+    thr_falt <- c()
+    for(cl in classes_dist){
+      if(length(which(classes_dist_rot == cl)) == 0){
+        exem <- c()
+        exem <- probPreds[which(probPreds$cl == cl),]
+        
+        if(!is.null(exem)){
+          thr_falt[cl] <- max(exem[which(exem$p < thrConf),2])
+          if(thr_falt[cl] == 0){
+            thr_falt[cl] <- min(probPreds&p)
+          }
+        }
+      }
+    }
+    
+    thrConf <- min(thr_falt)
+    
+    if(thrConf == 0){
+      thrConf <- min(probPreds$p)
+    }
+    
+    if(it == 1){ #verificar se e primeira interacao
+      novos <- which(probPreds[ , 2] >= thrConf)
+      novos_rotulados <- probPreds[novos,]
+    }else{
+      if ((method==8) || (method==9)){#metodo do FlexConC1
+        novos_rotulados <- flexConC1(prob_preds_1_it, probPreds, thrConf, moda, it)
+      }else if(method == 10){#metodo do FlexConC2
+        novos_rotulados <- flexConC2(prob_preds_1_it, probPreds,thrConf)
+      }
+    }
+    classes_dist_rot <- unique(novos_rotulados$cl)
+    
+    #variade controle maximo de interacao do laco
+    epoch <- epoch + 1
+  }
+  
+  # while((((length(classes_dist_rot) < length(classes_dist)) || analyzeClasses(classes_dist,classes_dist_rot)) 
+  #        && (thrConf > min(probPreds$p))) && epoch <= 15){ 
+  #   
+  #   thrConf <- thrConf - taxa_de_perda
+  #   if(thrConf < min(probPreds$p)){
+  #     thrConf <- min(probPreds$p)
+  #   }
+  #   #Rotular novamente
+  #   if(it == 1){ #verificar se e primeira interacao
+  #     novos <- which(probPreds[ , 2] >= thrConf)
+  #     novos_rotulados <- probPreds[novos,]
+  #   }else{
+  #     if ((method==8) || (method==9)){#metodo do FlexConC1
+  #       novos_rotulados <- flexConC1(prob_preds_1_it, probPreds, thrConf, moda, it)
+  #     }else if(method == 10){#metodo do FlexConC2
+  #       novos_rotulados <- flexConC2(prob_preds_1_it, probPreds,thrConf)
+  #     }
+  #   }
+  #   classes_dist_rot <- unique(novos_rotulados$cl)
+  #   
+  #   #variade controle maximo de interacao do laco
+  #   epoch <- epoch + 1
+  # }
+  
+  
+  
+  return (novos_rotulados)
+}
+
+#2
+prop <- function(new_samples,base_rotulados_ini){
+  if(length(unique(new_samples$cl)) == length(unique(base_rotulados_ini$class))){ #deveria ser trocado nrow(new_samples)
+    classes_dist_rot <- unique(new_samples$cl)  # Guarda as classes distintas
+    qtd_classes_ini <- c(rep(0,length(classes_dist_rot)))
+    qtd_classes_rot <- c(rep(0,length(classes_dist_rot)))
+    names(qtd_classes_ini) <- classes_dist_rot            # Organiza os titulos de cada 
+    names(qtd_classes_rot) <- classes_dist_rot            # posicao por classe
+    
+    for(cl in classes_dist_rot){                                            # Guarda a quantidade por classe 
+      qtd_classes_ini[cl] <- as.numeric((length(which(base_rotulados_ini$class == cl))/nrow(base_rotulados_ini)))
+      qtd_classes_rot[cl] <- length(which(new_samples$cl == cl)) # guarda a quantidade por classe rotulada
+    }
+    
+    #menor classe rotulado na intercao atual
+    menorCL <- as.character(names(qtd_classes_rot[which(qtd_classes_rot == min(qtd_classes_rot))])) # Classe com menos rotulados
+    if(length(menorCL) > 1)
+      menorCL <- menorCL[1]
+    
+    proporcoes <- c(rep(0,length(classes_dist_rot))) # vetor com as proporcoes calculadas
+    names(proporcoes) <- as.character(classes_dist_rot) # Organiza os titulos de cada posicao por classe
+    
+    pos <- 1
+    epoch <- 1
+    while ((pos <= length(classes_dist_rot)) && (epoch <= 50)){
+      cl <- as.character(classes_dist_rot[pos])
+      #proporcao quantidade da classe com menos instancias 
+      proporcoes[[cl]] <- as.numeric(round((qtd_classes_rot[[menorCL]]*qtd_classes_ini[[cl]])/qtd_classes_ini[[menorCL]])) # Regra de 3
+      
+      #Se o resultado passa do numero disponivel pra rotular, eh pq o anteror
+      if(trunc(proporcoes[[cl]]) > trunc(qtd_classes_rot[[cl]])){ 
+        qtd_classes_rot[[menorCL]] <- as.numeric(round(qtd_classes_rot[[cl]]*qtd_classes_ini[[menorCL]]/qtd_classes_ini[[cl]]))
+        pos <- 1
+      }else
+        pos <- pos +1
+      epoch <- epoch + 1
+    }
+    
+    # Caso a proporcao para uma base fique entre 0 e 1, esta recebera 1, pois nao se pode adicionar classe pela metade
+    for(pos in 1:length(proporcoes))
+      if(proporcoes[pos] < 1)
+        proporcoes[pos] <- 1
+    
+    return (trunc(proporcoes)) # O trunc passa a parte inteira do numero
+  }
+  return (c())
+}
+
+#3
+estratificar_rot <- function(new_samples,qtdADD){
+  add_prop <- c()
+  if(length(qtdADD)){
+    #nome dos rotulos
+    rots <- names(qtdADD) 
+    for(cl in rots){
+      new <- new_samples[which(new_samples$cl == cl),]
+      ordenado <- order(new$p, decreasing = T)
+      add <- new[ordenado[1:qtdADD[[cl]]], ]
+      add_prop <- appendDataFrame(add_prop, add)
+    }# percorre os exemplos selecionados
+    
+  }
+  return (add_prop)
+}
+
+# verificar se as classes são iguais. Pois pode haver o msm numero de classes, porém diferentes
+analyzeClasses <- function(classes_dist_pp,classes_dist_rot){ 
+  for(cl in classes_dist_pp){
+    if(!(cl %in% classes_dist_rot)) #Caso alguma classe do probPreds não esteja nos rotulados
+      return (TRUE) # Retorna TRUE para rotular novamente
+  }
+  return (FALSE)
+}
+

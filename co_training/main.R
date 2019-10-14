@@ -58,6 +58,9 @@ setWorkspace <- function() {
                # 5 = co-training FlexConc1s
                # 6 = co-training FlexConc1v
                # 7 = co-training FlexConc2
+               # 8 = co-training FlexConcS1s
+               # 9 = co-training FlexConcS1v
+               # 10 = co-training FlexConcS2
   votacao <<- T
   
   
