@@ -1057,13 +1057,17 @@ searchClass <- function(i, moda) {
 storageFashion <- function(prob_preds, moda) {
   dist_classes <- unique(base_original$class)
   for (x in 1:NROW(prob_preds)) {
-    id <- as.numeric(prob_preds[x, ncol(prob_preds)])
-    for (y in 1:(length(dist_classes))) {
-      if (as.character(prob_preds[x, 1]) == as.character(dist_classes[y])) {
-        moda[id, dist_classes[y]] <- moda[id, dist_classes[y]] + 1
-        break
-      }
-    }
+    id <- cleanVector()
+    cl <-cleanVector()
+    id <- as.numeric(prob_preds[x, 3])
+    cl <- as.character(prob_preds[x, 1])
+    # for (y in 1:(length(dist_classes))) {
+    #   if (as.character(prob_preds[x, 1]) == as.character(dist_classes[y])) {
+    moda[id, cl] <- moda[id, cl] + 1
+    # 
+    #     break
+    #   }
+    # }
   }
   return (moda)
 }
@@ -1081,13 +1085,17 @@ storagePred <- function(predic, iterac) {
 storageSum <- function(prob_preds, moda) {
   dist_classes <- unique(base_original$class)
   for (x in 1:NROW(prob_preds)) {
-    id <- as.numeric(prob_preds[x, ncol(prob_preds)])
-    for (y in 1:length(dist_classes)) {
-      if (as.character(prob_preds[x, 1]) == as.character(dist_classes[y])) {
-        moda[id, dist_classes[y]] <- moda[id, dist_classes[y]] + prob_preds[x, 2]
-        break
-      }
-    }
+    id <- cleanVector()
+    cl <-cleanVector()
+    id <- as.numeric(prob_preds[x, 3])
+    cl <- as.character(prob_preds[x, 1])
+    #for (y in 1:length(dist_classes)) {
+    # if (as.character(prob_preds[x, 1]) == as.character(dist_classes[y])) {
+    
+    moda[id, cl] <- moda[id, cl] + prob_preds[x, 2]
+    #  break
+    #   }
+    # }
   }
   return (moda)
 }
