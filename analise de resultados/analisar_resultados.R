@@ -27,9 +27,9 @@ cleanVector <- function(x) {
   return (x)
 }
 
-setwd("C:\\Users\\karliane\\Dropbox\\doutorado\\tese\\Resultados finais tese\\resultados co-training\\metodo 2_limiar_completo")
-result <- read.csv("resultado_JRip_metodo_2_095.csv")
-nome_arq_acc <- "co_training_JRip_media_metodo_2_5.csv"
+setwd("C:\\Users\\karliane\\Dropbox\\doutorado\\tese\\Resultados finais tese\\resultados self-training\\metodo 2_limiar_completo")
+result <- read.csv("resultado_naiveBayes_metodo_2_095.csv")
+nome_arq_acc <- "self_training_IBk_media_metodo_2_5.csv"
 acc <- read.csv(nome_arq_acc)
 nome_csv_saida <- paste(c("analise",nome_arq_acc, ".csv"),collapse = "_")
 

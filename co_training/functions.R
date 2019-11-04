@@ -738,6 +738,7 @@ coTrainingOriginal <- function (learner, predFunc, data1, data2, metodo, k_fixo 
 #@param metodo - 1 = co-training FlexCon soma
 #                2 = co-training FlexCon Voto
 coTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
+  parar <- FALSE
   conf_media <- 0
   form <- as.formula(paste(classe,'~', '.'))
   thrConf1 <- 0.95
@@ -818,7 +819,7 @@ coTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
       conf_media1 <- mean(probPreds1$p)
       conf_media2 <- mean(probPreds2$p)
     } else {
-      
+      parar <- TRUE
       #podemos comentar o código que atribui ao limiar a maior taxa de confiança na predição
       #para parar no momento em que a qtdade de exemplos incluidos for zero
       #isso justificará o limiar fixo ser o melhor do co-training
@@ -842,7 +843,7 @@ coTrainingFlexCon <- function (learner, predFunc, data1, data2, votacao = T) {
       tx_g_o <<- c(tx_g_o, taxa)
     }
     # if ((it == maxIts)|| (thrConf1<0.5) || (thrConf2<0.5) || ((length(sup1) / N) >= 1)) {
-    if ((it == maxIts) || ((length(sup1) / N) >= 1)) {
+    if ((it == maxIts) || parar || ((length(sup1) / N) >= 1)) {
       break
     }
   }
@@ -1093,7 +1094,7 @@ coTrainingFlexConCS <- function(learner, predFunc, data1, data2, limiar1, limiar
   
   mudou_conj_treino <<- FALSE
   
-  #inicialmete rotulados s�o iguais pra ambos
+  #inicialmete rotulados s?o iguais pra ambos
   inicialmente_rot <- sup1
   taxa_de_perda = 0.02
   
@@ -1500,7 +1501,7 @@ tratar_dados <- function(new_samples,base_rotulados_ini,prob_preds_1_it,probPred
   
   epoch <- 1
   # Enquanto o (((numero de classes do probPreds for maior que dos rotulados) ou (as classes são diferentes) e 
-  # (o limiar maior que a confiança m�???nima do probPreds)) e (esteja dentro do limite de iteracoes))
+  # (o limiar maior que a confiança m????nima do probPreds)) e (esteja dentro do limite de iteracoes))
   
   
   while((((length(classes_dist_rot) < length(classes_dist)) || analyzeClasses(classes_dist,classes_dist_rot))
