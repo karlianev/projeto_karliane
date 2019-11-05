@@ -1501,7 +1501,7 @@ tratar_dados <- function(new_samples,base_rotulados_ini,prob_preds_1_it,probPred
   
   epoch <- 1
   # Enquanto o (((numero de classes do probPreds for maior que dos rotulados) ou (as classes são diferentes) e 
-  # (o limiar maior que a confiança m????nima do probPreds)) e (esteja dentro do limite de iteracoes))
+  # (o limiar maior que a confiança m�???nima do probPreds)) e (esteja dentro do limite de iteracoes))
   
   
   while((((length(classes_dist_rot) < length(classes_dist)) || analyzeClasses(classes_dist,classes_dist_rot))
@@ -1549,30 +1549,9 @@ tratar_dados <- function(new_samples,base_rotulados_ini,prob_preds_1_it,probPred
     epoch <- epoch + 1
   }
   
-  # while((((length(classes_dist_rot) < length(classes_dist)) || analyzeClasses(classes_dist,classes_dist_rot)) 
-  #        && (thrConf > min(probPreds$p))) && epoch <= 15){ 
-  #   
-  #   thrConf <- thrConf - taxa_de_perda
-  #   if(thrConf < min(probPreds$p)){
-  #     thrConf <- min(probPreds$p)
-  #   }
-  #   #Rotular novamente
-  #   if(it == 1){ #verificar se e primeira interacao
-  #     novos <- which(probPreds[ , 2] >= thrConf)
-  #     novos_rotulados <- probPreds[novos,]
-  #   }else{
-  #     if ((method==8) || (method==9)){#metodo do FlexConC1
-  #       novos_rotulados <- flexConC1(prob_preds_1_it, probPreds, thrConf, moda, it)
-  #     }else if(method == 10){#metodo do FlexConC2
-  #       novos_rotulados <- flexConC2(prob_preds_1_it, probPreds,thrConf)
-  #     }
-  #   }
-  #   classes_dist_rot <- unique(novos_rotulados$cl)
-  #   
-  #   #variade controle maximo de interacao do laco
-  #   epoch <- epoch + 1
-  # }
-  
+  if(length(classes_dist_rot) < length(classes_dist)){
+    return(c())
+  }
   
   
   return (novos_rotulados)
@@ -1609,7 +1588,7 @@ prop <- function(new_samples,base_rotulados_ini){
       
       #Se o resultado passa do numero disponivel pra rotular, eh pq o anteror
       if(trunc(proporcoes[[cl]]) > trunc(qtd_classes_rot[[cl]])){ 
-        qtd_classes_rot[[menorCL]] <- as.numeric(round(qtd_classes_rot[[cl]]*qtd_classes_ini[[menorCL]]/qtd_classes_ini[[cl]]))
+        qtd_classes_rot[[menorCL]] <- as.numeric(trunc(qtd_classes_rot[[cl]]*qtd_classes_ini[[menorCL]]/qtd_classes_ini[[cl]]))
         pos <- 1
       }else
         pos <- pos +1
@@ -1617,9 +1596,15 @@ prop <- function(new_samples,base_rotulados_ini){
     }
     
     # Caso a proporcao para uma base fique entre 0 e 1, esta recebera 1, pois nao se pode adicionar classe pela metade
-    for(pos in 1:length(proporcoes))
-      if(proporcoes[pos] < 1)
-        proporcoes[pos] <- 1
+    for(pos in 1:length(proporcoes)){
+      if(proporcoes[pos] < 1){
+        if(trunc(qtd_classes_rot[[names(proporcoes[pos])]]) >= 1){
+          proporcoes[pos] <- 1
+        }else{
+          return (c())
+        }
+      }
+    }
     
     return (trunc(proporcoes)) # O trunc passa a parte inteira do numero
   }
@@ -1640,6 +1625,7 @@ estratificar_rot <- function(new_samples,qtdADD){
     }# percorre os exemplos selecionados
     
   }
+  
   return (add_prop)
 }
 
