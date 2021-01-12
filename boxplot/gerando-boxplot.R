@@ -64,33 +64,42 @@
 # dev.off()
 # 
 
-setwd("C:\\Users\\karliane\\Dropbox\\doutorado\\tese\\Resultados finais tese\\resultados self-training\\metodo 3_gradativo_completo")
-nome_arq <- "self_training_naiveBayes_media_metodo_3_5.csv"
-nome_arq2 <- "self_training_rpartXse_media_metodo_3_5.csv"
-nome_arq3 <- "self_training_JRip_media_metodo_3_5.csv"
-nome_arq4 <- "self_training_IBk_media_metodo_3_5.csv"
-nome_grafico <- "FlexCon-G"
+# setwd("C:\\Users\\karliane\\Dropbox\\doutorado\\tese\\Resultados finais tese\\resultados self-training\\metodo 3_gradativo_completo")
+setwd("~/Downloads/relistadefigurasartigodarevista/resultados para gerar boxplot co-training/")
+dirs <- list.dirs(recursive = F)
+nome_graficos <- c("Original CT", "CTFT", "FlexCon-G", "FlexCon(s)",
+                   "FlexCon(v)", "FlexCon-C1(s)", "FlexCon-C1(v)", "FlexCon-C2")
+nome_arquivo <- c("boxplot_CT_original.png", "boxplot_CT_limiar_fixo.png", "boxplot_CT_gradativo.png", "boxplot_CT_FlexCon_soma.png", "boxplot_CT_FlexCon_voto.png", "boxplot_CT_FlexCon_c1_soma.png", "boxplot_CT_FlexCon_c1_voto.png", "boxplot_CT_FlexCon_c2.png")
+for(dir in dirs) {
+  files <- list.files(path = dir, pattern = "^co_training")
+  nome_arq <- files[3]
+  nome_arq2 <- files[4]
+  nome_arq3 <- files[2]
+  nome_arq4 <- files[1]
+  nome_grafico <- nome_graficos[match(dir, dirs)]
+  dados <- read.csv(paste(dir, nome_arq, sep = "/"))
+  dados2 <- read.csv(paste(dir, nome_arq2, sep = "/"))
+  dados3 <- read.csv(paste(dir, nome_arq3, sep = "/"))
+  dados4 <- read.csv(paste(dir, nome_arq4, sep = "/"))
+  nome_csv_saida_inicio <- paste(c("boxplot",nome_arq),collapse = "_")
+  
+  extensao <- "png"
+  
+  dados_geral <- cbind(dados[,2:6],dados2[,2:6],dados3[,2:6],dados4[,2:6])
+  
+  png(nome_arquivo[match(dir, dirs)], width = 770, height = 480)
+  par(mar = c(4, 4, 6, 4), xpd = T, cex = 1)
+  boxplot(dados_geral, main=nome_grafico, 
+          ylab="Accuracy", xlab="Percentages initially labeled", 
+          names = rep(c("5%", "10%", "15%","20%","25%"),4), 
+          col=c("red","red","red","red","red","blue","blue","blue","blue","blue","yellow","yellow","yellow","yellow","yellow","green","green","green","green","green","purple","purple","purple","purple","purple"))
+  legend("topleft", inset = c(0, -0.2), legend = c("NB", "AD", "Ripper", "k-NN"),
+         fill = c("red", "blue", "yellow", "green"), ncol = 2, bty = "n")
+  dev.off()
+}
 
-dados <- read.csv(nome_arq)
-dados2 <- read.csv(nome_arq2)
-dados3 <- read.csv(nome_arq3)
-dados4 <- read.csv(nome_arq4)
-nome_csv_saida_inicio <- paste(c("boxsplot",nome_arq),collapse = "_")
 
 # Extensão que o arquivo vai ser salvo
-extensao <- "png"
-
-dados_geral <- cbind(dados[,2:6],dados2[,2:6],dados3[,2:6],dados4[,2:6])
-
-png("geral.png", width = 1024, height = 1024)
-
-boxplot(dados_geral, main=nome_grafico, 
-        ylab="Acurácia", xlab="Percentuais inicialmente rotulados", 
-        names = rep(c("5%", "10%", "15%","20%","25%"),4), 
-        col=c("red","red","red","red","red","blue","blue","blue","blue","blue","yellow","yellow","yellow","yellow","yellow","green","green","green","green","green","purple","purple","purple","purple","purple"),
-        par(cex=2))
-
-dev.off()
 
 # percent <- (rep(c("5%", "10%", "15%", "20%", "25%"), each=300))
 # boxplot(dados_geral,percent)#, main="ST Original com Nayve Bayes", ylab="acurácia", xlab="5%      10%      15%      20%      25%")
