@@ -65,7 +65,7 @@
 # 
 
 # setwd("C:\\Users\\karliane\\Dropbox\\doutorado\\tese\\Resultados finais tese\\resultados self-training\\metodo 3_gradativo_completo")
-setwd("~/Downloads/relistadefigurasartigodarevista/resultados para gerar boxplot co-training/")
+setwd("resultados para gerar boxplot co-training/")
 dirs <- list.dirs(recursive = F)
 nome_graficos <- c("Original CT", "CTFT", "FlexCon-G", "FlexCon(s)",
                    "FlexCon(v)", "FlexCon-C1(s)", "FlexCon-C1(v)", "FlexCon-C2")
